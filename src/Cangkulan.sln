@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1704.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33027.239
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cangkulan.Tools", "Cangkulan.Tools\Cangkulan.Tools.csproj", "{DE0FAD70-9BF4-4020-A14B-81A218150566}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cangkulan.Tools", "Cangkulan.Tools\Cangkulan.Tools.csproj", "{DE0FAD70-9BF4-4020-A14B-81A218150566}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cangkulan", "Cangkulan\Cangkulan.csproj", "{39CFFDF0-2FFA-4FB7-92A0-878B5F9A6F7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cangkulan", "Cangkulan\Cangkulan.csproj", "{39CFFDF0-2FFA-4FB7-92A0-878B5F9A6F7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
