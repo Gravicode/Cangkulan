@@ -31,7 +31,7 @@
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 
 </head>
-<body>
+<body class="gray">
 
     @RenderBody()
     <!-- Scripts
@@ -48,23 +48,16 @@
     <script src="js/counterup.min.js"></script>
     <script src="js/magnific-popup.min.js"></script>
     <script src="js/slick.min.js"></script>
-    <script src="js/custom.js"></script>
+    <!-- Google API & Maps -->
+    <!-- Geting an API Key: https://developers.google.com/maps/documentation/javascript/get-api-key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+   
 
-    <!-- Snackbar // documentation: https://www.polonel.com/snackbar/ -->
-    <script>
-        // Snackbar for user status switcher
-        $('#snackbar-user-status label').click(function () {
-            Snackbar.show({
-                text: 'Your status has been changed!',
-                pos: 'bottom-center',
-                showAction: false,
-                actionText: "Dismiss",
-                duration: 3000,
-                textColor: '#fff',
-                backgroundColor: '#383838'
-            });
-        });
-    </script>
+
+
+
+
+
 
     <!-- Leaflet // Docs: https://leafletjs.com/ -->
     <script src="js/leaflet.min.js"></script>
@@ -74,6 +67,10 @@
     <script src="js/leaflet-control-geocoder.js"></script>
 
 
+    <!-- Leaflet Maps Scripts (locations are stored in leaflet-hireo.js) -->
+    <script src="js/leaflet-markercluster.min.js"></script>
+    <script src="js/leaflet-gesture-handling.min.js"></script>
+    <script src="js/leaflet-hireo.js"></script>
     
     <script type="module" src="js/webcam.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js" integrity="sha512-s/XK4vYVXTGeUSv4bRPOuxSDmDlTedEpMEcAQk0t/FMd9V6ft8iXdwSBxV0eD60c6w/tjotSlKu9J2AAW1ckTA==" crossorigin="anonymous"></script>
@@ -88,8 +85,10 @@
     <!-- This is the glue between Blazor and Chart.js -->
     <script src="_content/ChartJs.Blazor.Fork/ChartJsBlazorInterop.js"></script>
 
-    
+    <!-- Chart.js // documentation: http://www.chartjs.org/docs/latest/ -->
+    <script src="js/chart.min.js"></script>
 
+    <script src="js/custom.js"></script>
     <!-- Page level custom scripts -->
 
     <script>
