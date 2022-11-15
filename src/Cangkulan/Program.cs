@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using PdfSharp.Charting;
 using System.Net;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Cangkulan.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -41,6 +42,27 @@ builder.Services.AddScoped<HttpClient>();
 builder.Services.AddTransient<AzureBlobHelper>();
 builder.Services.AddTransient<LogService>();
 builder.Services.AddTransient<UserProfileService>();
+builder.Services.AddTransient<ContactService>();
+builder.Services.AddTransient<BlogCommentService>();
+builder.Services.AddTransient<BlogService>();
+builder.Services.AddTransient<ProjectBidderService>();
+builder.Services.AddTransient<ProjectService>();
+builder.Services.AddTransient<JobCandidateService>();
+builder.Services.AddTransient<JobService>();
+builder.Services.AddTransient<CompanyService>();
+builder.Services.AddTransient<ReviewCompanyService>();
+builder.Services.AddTransient<ReviewService>();
+builder.Services.AddTransient<BookmarkedFreelancerService>();
+builder.Services.AddTransient<BookmarkedJobService>();
+builder.Services.AddTransient<BookmarkedCompanyService>();
+builder.Services.AddTransient<OrderService>();
+builder.Services.AddTransient<NoteService>();
+builder.Services.AddTransient<PageViewService>();
+builder.Services.AddTransient<EmploymentHistoryService>();
+builder.Services.AddTransient<UserProfileAttachmentService>();
+builder.Services.AddTransient<NotificationService>();
+builder.Services.AddTransient<MessageDetailService>();
+builder.Services.AddTransient<MessageHeaderService>();
 
 builder.Services.AddCors(options =>
 {

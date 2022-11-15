@@ -1,112 +1,107 @@
-﻿@using Cangkulan.Helpers
-@using Cangkulan.Models
-@using Cangkulan.Data
-@inject NavigationManager NavMgr
-@*@page "/auth/register"*@
+﻿@page "/register"
 @inject IJSRuntime IJS
-
+@layout ContentLayoutBlack
+@inject NavigationManager NavMgr
 @inject IToastService toastService
 @using Cangkulan.Tools
 
-<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 p-4 border-0">
-            <div class="modal-header border-0 p-1">
-                <h6 class="modal-title fw-bold text-body fs-6" id="exampleModalLabel">Register User Baru</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form>
-                <div class="modal-body p-0">
+<TitleBarPage MenuName="Register"></TitleBarPage>
 
-                    <div class="mt-5 login-register" id="number">
-                    @*    <h6 class="fw-bold mx-1 mb-2 text-dark">Register User Baru</h6>*@
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="text" @bind="DataUser.FullName" class="form-control rounded-5" id="floatingName" placeholder="Isi Nama Lengkap">
-                                    <label for="floatingName">Isi Nama Lengkap</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="email" @bind="DataUser.Email" class="form-control rounded-5" id="floatingEmail" placeholder="Isi Email">
-                                    <label for="floatingEmail">Isi Email</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="text" @bind="DataUser.Phone" class="form-control rounded-5" id="floatingHp" placeholder="Isi No Hp">
-                                    <label for="floatingHp">Isi No Hp</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="text" @bind="DataUser.Username" class="form-control rounded-5" id="floatingUserName" placeholder="Isi Username">
-                                    <label for="floatingUserName">Isi Username</label>
-                                </div>
-                            </div>
-                        </div>
-                       
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="text" @bind="DataUser.Alamat" class="form-control rounded-5" id="floatingAddress" placeholder="Isi Alamat">
-                                    <label for="floatingAddress">Isi Alamat</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="password" @bind="DataUser.Password" class="form-control rounded-5" id="floatingPass" placeholder="Isi Password">
-                                    <label for="floatingPass">Isi Password</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <input type="password" @bind="RetypePass" class="form-control rounded-5" id="floatingPass2" placeholder="Ulang Password">
-                                    <label for="floatingPass2">Ulang Password</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                    <img src="@CaptchaImage" style="text-align:center;margin-bottom:5px;mr-1">   
-                                    <button @onclick="GenerateCaptcha" class="btn btn-success mb-1">Ganti</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mx-0 mb-1">
-                            <div class="col-12 p-1">
-                                <div class="form-floating d-flex align-items-end">
-                                   
-                                    <input @bind="TypedCaptcha" type="text" class="form-control rounded-5" id="floatingCaptcha" placeholder="ketik captcha" required>
-                                    <label for="floatingCaptcha">Ketik Captcha</label>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="p-1">
-                            <button type="button" @onclick="DaftarUser" class="btn btn-primary w-100 text-decoration-none rounded-5 py-3 fw-bold text-uppercase m-0 mb-1">Daftar</button>
-                            <button type="button" @onclick="Kembali" class="btn btn-success w-100 text-decoration-none rounded-5 py-3 fw-bold text-uppercase m-0" data-bs-dismiss="modal">Batal</button>
+<!-- Page Content
+================================================== -->
+<div class="container">
+    <div class="row">
+        <div class="col-xl-5 offset-xl-3">
 
-                        </div>
+            <div class="login-register-page">
+                <!-- Welcome Text -->
+                <div class="welcome-text">
+                    <h3 style="font-size: 26px;">Let's create your account!</h3>
+                    <span>Already have an account? <a href="/auth/login">Log In!</a></span>
+                </div>
+
+                <!-- Account Type -->
+                <div class="account-type">
+                    <div>
+                        <input type="radio" name="account-type-radio" id="freelancer-radio" class="account-type-radio" checked />
+                        <label for="freelancer-radio" @onclick="(()=>ChangeUserType(AccountTypes.Freelancer))" class="ripple-effect-dark"><i class="icon-material-outline-account-circle"></i> Freelancer</label>
+                    </div>
+
+                    <div>
+                        <input type="radio" name="account-type-radio" id="employer-radio" class="account-type-radio" />
+                        <label for="employer-radio" @onclick="(()=>ChangeUserType(AccountTypes.Employeers))" class="ripple-effect-dark"><i class="icon-material-outline-business-center"></i> Employer</label>
                     </div>
                 </div>
-            </form>
+
+                <!-- Form -->
+                <div id="register-account-form">
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-mail-outline"></i>
+                        <input type="email" class="input-text with-border" @bind="DataUser.Email" name="emailaddress-register" id="emailaddress-register" placeholder="Email Address" required />
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-people-outline"></i>
+                        <input type="text" class="input-text with-border" @bind="DataUser.FirstName" name="firstname-register" id="firstname-register" placeholder="First Name" required />
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-people-outline"></i>
+                        <input type="text" class="input-text with-border" @bind="DataUser.LastName" name="lastname-register" id="lastname-register" placeholder="Last Name" required />
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-people-outline"></i>
+                        <input type="tel" class="input-text with-border" @bind="DataUser.Phone" name="phone-register" id="phone-register" placeholder="Phone" required />
+                    </div>
+
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-people-outline"></i>
+                        <input type="text" class="input-text with-border" @bind="DataUser.Alamat" name="address-register" id="address-register" placeholder="Address" required />
+                    </div>
+
+                    <div class="input-with-icon-left" title="Should be at least 8 characters long" data-tippy-placement="bottom">
+                        <i class="icon-material-outline-lock"></i>
+                        <input type="password" class="input-text with-border" @bind="DataUser.Password" name="password-register" id="password-register" placeholder="Password" required />
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-outline-lock"></i>
+                        <input type="password" class="input-text with-border" @bind="RetypePass" name="password-repeat-register" id="password-repeat-register" placeholder="Repeat Password" required />
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <img src="@CaptchaImage" style="text-align:center;margin-bottom:5px;mr-1;mb-1">
+                        <button @onclick="GenerateCaptcha" class="btn btn-success mb-1">Change</button>
+                    </div>
+
+                    <div class="input-with-icon-left">
+                        <i class="icon-material-baseline-people-outline"></i>
+                        <input type="text" @bind="TypedCaptcha" class="input-text with-border" name="captcha-register" id="captcha-register" placeholder="Type Captcha" required />
+                    </div>
+                </div>
+
+                <!-- Button -->
+                <button class="button full-width button-sliding-icon ripple-effect margin-top-10" type="button" @onclick="DaftarUser" form="login-form">Register <i class="icon-material-outline-arrow-right-alt"></i></button>
+
+                <!-- Social Login -->
+                <div class="social-login-separator"><span>or</span></div>
+                <div class="social-login-buttons">
+                    <button @onclick="NotAvailable" class="facebook-login ripple-effect"><i class="icon-brand-facebook-f"></i> Register via Facebook</button>
+                    <button @onclick="NotAvailable" class="google-login ripple-effect"><i class="icon-brand-google-plus-g"></i> Register via Google+</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
+
+<!-- Spacer -->
+<div class="margin-top-70"></div>
+<!-- Spacer / End-->
 @code {
     public string CaptchaImage { get; set; }
     public string Answer { get; set; }
@@ -118,6 +113,16 @@
     string ErrorMsg = string.Empty;
     bool RegisterSuccess = false;
 
+    void NotAvailable()
+    {
+        toastService.ShowWarning("Feature is not available yet");
+    }
+
+    void ChangeUserType(AccountTypes accType)
+    {
+        DataUser.AccountType = accType;
+    }
+
     void GenerateCaptcha()
     {
         Random oRandom = new Random();
@@ -127,11 +132,7 @@
         string base64String = Convert.ToBase64String(temp, 0, temp.Length);
         CaptchaImage = "data:image/png;base64," + base64String;
     }
-    async Task Kembali()
-    {
-        await IJS.InvokeVoidAsync("CloseModal", "registerModal");
-        //NavMgr.NavigateTo("/auth/login");
-    }
+   
     protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrEmpty(CaptchaImage))
@@ -150,7 +151,7 @@
         {
             ErrorMsg += "Captcha tidak valid. ";
         }
-        if (string.IsNullOrEmpty(DataUser.Username))
+        if (string.IsNullOrEmpty(DataUser.Email))
         {
             ErrorMsg += "Tolong di isi email. ";
 
@@ -170,9 +171,14 @@
             ErrorMsg += "Tolong di isi no hp. ";
 
         }
-        if (string.IsNullOrEmpty(DataUser.FullName))
+        if (string.IsNullOrEmpty(DataUser.FirstName))
         {
-            ErrorMsg += "Tolong di isi nama lengkap. ";
+            ErrorMsg += "Tolong di isi nama depan. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.LastName))
+        {
+            ErrorMsg += "Tolong di isi nama belakang. ";
 
         }
         if (string.IsNullOrEmpty(DataUser.Alamat))
@@ -185,6 +191,9 @@
             ErrorMsg += "Password tidak sesuai dengan ulang password. ";
 
         }
+
+        DataUser.Username = DataUser.Email;
+
         if (svc.IsUserExists(DataUser.Username))
         {
             ErrorMsg += "User sudah terdaftar sebelumnya, gunakan email lain. ";
@@ -198,6 +207,9 @@
             return;
         }
         var enc = new Encryption();
+        DataUser.FullName = $"{DataUser.FirstName} {DataUser.LastName}";
+
+
         DataUser.Role = isPengurus ? Roles.Pengurus : Roles.User;
         DataUser.Password = enc.Encrypt(DataUser.Password);
         DataUser.CreatedDate = DateHelper.GetLocalTimeNow();
@@ -207,9 +219,9 @@
             await SmsService.SendSms(msg, DataUser.Phone);
             await MailService.PostmarkSendEmail("Telah Teregister di Cangkulan", msg, DataUser.Email);
             RegisterSuccess = true;
-            StateHasChanged();
-            await IJS.InvokeVoidAsync("CloseModal", "registerModal");
-            toastService.ShowSuccess("User berhasil di daftarkan.","Info");
+            toastService.ShowSuccess("User berhasil di daftarkan.", "Info");
+            NavMgr.NavigateTo("/login");
+
         }
     }
 }

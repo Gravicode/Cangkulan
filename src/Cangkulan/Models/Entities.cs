@@ -126,7 +126,7 @@ namespace Cangkulan.Models
         public double? Longitude { get; set; }
         public double? Latitude { get; set; }
 
-        public string? AccountType { set; get; }
+        public AccountTypes AccountType { set; get; } = AccountTypes.Freelancer;
         public string? FirstName { set; get; }
         public string? LastName { set; get; }
         public string? Skill { set; get; }
@@ -527,7 +527,7 @@ namespace Cangkulan.Models
     public enum ReviewTypes { Project, Freelancer };
     public enum NotePriority { Low, Med, High }
 
-    public enum AccountTypes { Employeers, JobSeeker }
+    public enum AccountTypes { Employeers, Freelancer }
 
     public enum Roles { Admin, User, Pengurus }
 
