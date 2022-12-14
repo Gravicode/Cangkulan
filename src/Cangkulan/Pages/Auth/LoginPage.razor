@@ -8,6 +8,7 @@
 @inject IToastService toastService
 @inject NavigationManager NavMgr
 
+@inject UserProfileService UserSvc
 
 <AuthorizeView>
     <Authorized>
@@ -61,8 +62,8 @@
                         <button class="button full-width button-sliding-icon ripple-effect margin-top-10" @onclick="LoginNow" @onkeyup="@KeyUp" type="button" form="login-form">Log In <i class="icon-material-outline-arrow-right-alt"></i></button>
 
                         <!-- Social Login -->
-                        <div class="social-login-separator"><span>or</span></div>
-                        <div class="social-login-buttons">
+                        <div style="display:none;" class="social-login-separator"><span>or</span></div>
+                        <div style="display:none;" class="social-login-buttons">
                             <button class="facebook-login ripple-effect"><i class="icon-brand-facebook-f"></i> Log In via Facebook</button>
                             <button class="google-login ripple-effect"><i class="icon-brand-google-plus-g"></i> Log In via Google+</button>
                         </div>
@@ -119,13 +120,24 @@
         }
         else
         {
-            string logUrl = $"/login?paramUsername={encode(Username)}&paramPassword={encode(Password)}";
-            await jsRuntime.InvokeAsync<object>("OpenUrl", logUrl);
+            var res = UserSvc.Login(Username, Password);
+            if (res)
+            {
+                string logUrl = $"/login?paramUsername={encode(Username)}&paramPassword={encode(Password)}";
+                await jsRuntime.InvokeAsync<object>("OpenUrl", logUrl);
+            }
+            else
+            {
+                showError = true;
+                toastService.ShowError("Username/Password salah, cek kembali.");
+            }
+            
         }
         //NavMgr.NavigateTo(logUrl);
     }
     protected override async Task OnInitializedAsync()
     {
+        /*
         var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("result", out var resultString))
         {
@@ -138,6 +150,6 @@
                     toastService.ShowWarning("username/password salah atau tidak terdaftar", "Perhatian");
                 }
             }
-        }
+        }*/
     }
 }

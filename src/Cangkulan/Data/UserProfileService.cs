@@ -34,16 +34,28 @@ namespace Cangkulan.Data
             }
             return false;
         }
+        public bool Login(string username, string password)
+        {
+            bool isAuthenticate = false;
+            var usr = db.UserProfiles.Where(x => x.Username == username).FirstOrDefault();
+            if (usr != null)
+            {
+                var enc = new Encryption();
+                var pass = enc.Decrypt(usr.Password);
+                isAuthenticate = pass == password;
+            }
+            return isAuthenticate;
+        }
         public UserProfile GetItemByUsername(string UName)
         {
             if (string.IsNullOrEmpty(UName)) return null;
-            var selItem = db.UserProfiles.Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
+            var selItem = db.UserProfiles.Include(c=>c.Attachments).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
             return selItem;
         }
         public UserProfile GetItemByEmail(string Email)
         {
             if (string.IsNullOrEmpty(Email)) return null;
-            var selItem = db.UserProfiles.Where(x => x.Email.ToLower() == Email.ToLower()).FirstOrDefault();
+            var selItem = db.UserProfiles.Include(c => c.Attachments).Where(x => x.Email.ToLower() == Email.ToLower()).FirstOrDefault();
             return selItem;
         }
         public Roles GetUserRole(string Email)

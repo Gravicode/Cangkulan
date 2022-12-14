@@ -40,6 +40,8 @@
     <None Include="wwwroot\vendor\icons\.github\ISSUE_TEMPLATE.md" />
   </ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="SkiaSharp" Version="2.88.3" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.4.0" />
 		<PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />
 		<PackageReference Include="GoogleMaps.LocationServices" Version="1.2.0.2" />
@@ -71,6 +73,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Cangkulan.Tools\Cangkulan.Tools.csproj" />
+		<ProjectReference Include="..\IDCH.Storage\IDCH.Storage.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

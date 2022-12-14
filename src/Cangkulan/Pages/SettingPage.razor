@@ -1,349 +1,562 @@
 ﻿@page "/settings"
 @layout AdminLayout
 @inject IJSRuntime IJS
+
+@using Cangkulan.Tools
+@using Cangkulan.Models
+@using Cangkulan.Data
+@inject NavigationManager NavMgr
+@inject AzureBlobHelper AzureBlobHelper
+@inject UserProfileAttachmentService AttachmentSvc
+@inject UserProfileService service
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
 <div class="dashboard-content-inner">
 
-	<!-- Dashboard Headline -->
-	<div class="dashboard-headline">
-		<h3>Settings</h3>
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Settings</h3>
 
-		<!-- Breadcrumbs -->
-		<nav id="breadcrumbs" class="dark">
-			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Dashboard</a></li>
-				<li>Settings</li>
-			</ul>
-		</nav>
-	</div>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li>Settings</li>
+            </ul>
+        </nav>
+    </div>
 
-	<!-- Row -->
-	<div class="row">
+    <!-- Row -->
+    <div class="row">
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div class="dashboard-box margin-top-0">
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box margin-top-0">
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-material-outline-account-circle"></i> My Account</h3>
-				</div>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-account-circle"></i> My Account</h3>
+                </div>
 
-				<div class="content with-padding padding-bottom-0">
+                <div class="content with-padding padding-bottom-0">
 
-					<div class="row">
+                    <div class="row">
 
-						<div class="col-auto">
-							<div class="avatar-wrapper" data-tippy-placement="bottom" title="Change Avatar">
-								<img class="profile-pic" src="images/user-avatar-placeholder.png" alt="" />
-								<div class="upload-button"></div>
-								<input class="file-upload" type="file" accept="image/*" />
-							</div>
-						</div>
+                        <div class="col-auto">
+                            <div class="avatar-wrapper" data-tippy-placement="bottom" title="Change Avatar">
+                                <img class="profile-pic" src="@(DataUser?.PicUrl==null ? "images/user-avatar-placeholder.png" : DataUser.PicUrl)" alt="" />
+                                <div @onclick="(()=>PrepareUpload())" class="upload-button"></div>
+                                <InputFile id="fileInput1" OnChange="UploadFiles" hidden accept="image/*" />
 
-						<div class="col">
-							<div class="row">
+                            </div>
+                        </div>
 
-								<div class="col-xl-6">
-									<div class="submit-field">
-										<h5>First Name</h5>
-										<input type="text" class="with-border" value="Tom">
-									</div>
-								</div>
+                        <div class="col">
+                            <div class="row">
 
-								<div class="col-xl-6">
-									<div class="submit-field">
-										<h5>Last Name</h5>
-										<input type="text" class="with-border" value="Smith">
-									</div>
-								</div>
+                                <div class="col-xl-6">
+                                    <div class="submit-field">
+                                        <h5>First Name</h5>
+                                        <input type="text" @bind="DataUser.FirstName" placeholder="First name" class="with-border">
+                                    </div>
+                                </div>
 
-								<div class="col-xl-6">
-									<!-- Account Type -->
-									<div class="submit-field">
-										<h5>Account Type</h5>
-										<div class="account-type">
-											<div>
-												<input type="radio" name="account-type-radio" id="freelancer-radio" class="account-type-radio" checked />
-												<label for="freelancer-radio" class="ripple-effect-dark"><i class="icon-material-outline-account-circle"></i> Freelancer</label>
-											</div>
+                                <div class="col-xl-6">
+                                    <div class="submit-field">
+                                        <h5>Last Name</h5>
+                                        <input type="text" @bind="DataUser.LastName" class="with-border" placeholder="Smith">
+                                    </div>
+                                </div>
 
-											<div>
-												<input type="radio" name="account-type-radio" id="employer-radio" class="account-type-radio" />
-												<label for="employer-radio" class="ripple-effect-dark"><i class="icon-material-outline-business-center"></i> Employer</label>
-											</div>
-										</div>
-									</div>
-								</div>
+                                <div class="col-xl-6">
+                                    <!-- Account Type -->
+                                    <div class="submit-field">
+                                        <h5>Account Type</h5>
+                                        <div class="account-type">
+                                            <div>
+                                                <input type="radio" name="account-type-radio" id="freelancer-radio" class="account-type-radio" @onclick="()=>SetUserType(false)" checked="@(DataUser.AccountType == AccountTypes.Freelancer)" />
+                                                <label for="freelancer-radio" class="ripple-effect-dark"><i class="icon-material-outline-account-circle"></i> Freelancer</label>
+                                            </div>
 
-								<div class="col-xl-6">
-									<div class="submit-field">
-										<h5>Email</h5>
-										<input type="text" class="with-border" value="tom@example.com">
-									</div>
-								</div>
+                                            <div>
+                                                <input type="radio" name="account-type-radio" id="employer-radio" class="account-type-radio" @onclick="()=>SetUserType(true)" checked="@(DataUser.AccountType == AccountTypes.Employeers)" />
+                                                <label for="employer-radio" class="ripple-effect-dark"><i class="icon-material-outline-business-center"></i> Employer</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-							</div>
-						</div>
-					</div>
+                                <div class="col-xl-6">
+                                    <div class="submit-field">
+                                        <h5>Email</h5>
+                                        <input type="text" @bind="DataUser.Email" class="with-border" placeholder="asep@example.com">
+                                    </div>
+                                </div>
 
-				</div>
-			</div>
-		</div>
+                            </div>
+                        </div>
+                    </div>
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div class="dashboard-box">
+                </div>
+            </div>
+        </div>
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-material-outline-face"></i> My Profile</h3>
-				</div>
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box">
 
-				<div class="content">
-					<ul class="fields-ul">
-						<li>
-							<div class="row">
-								<div class="col-xl-4">
-									<div class="submit-field">
-										<div class="bidding-widget">
-											<!-- Headline -->
-											<span class="bidding-detail">Set your <strong>minimal hourly rate</strong></span>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-face"></i> My Profile</h3>
+                </div>
 
-											<!-- Slider -->
-											<div class="bidding-value margin-bottom-10">$<span id="biddingVal"></span></div>
-											<input class="bidding-slider" type="text" value="" data-slider-handle="custom" data-slider-currency="$" data-slider-min="5" data-slider-max="150" data-slider-value="35" data-slider-step="1" data-slider-tooltip="hide" />
-										</div>
-									</div>
-								</div>
+                <div class="content">
+                    <ul class="fields-ul">
+                        <li>
+                            <div class="row">
+                                <div class="col-xl-4">
+                                    <div class="submit-field">
+                                        <div class="bidding-widget">
+                                            <!-- Headline -->
+                                            <span class="bidding-detail">Set your <strong>minimal hourly rate (Rp)</strong></span>
 
-								<div class="col-xl-4">
-									<div class="submit-field">
-										<h5>Skills <i class="help-icon" data-tippy-placement="right" title="Add up to 10 skills"></i></h5>
+                                            <!-- Slider -->
+                                            <div class="bidding-value margin-bottom-10">$<span id="biddingVal"></span></div>
+                                            <input class="bidding-slider" type="text" @bind="DataUser.RatePerHour" data-slider-handle="custom" data-slider-currency="$" data-slider-min="5000" data-slider-max="10000000" data-slider-value="25000" data-slider-step="1000" data-slider-tooltip="hide" />
+                                        </div>
+                                    </div>
+                                </div>
 
-										<!-- Skills List -->
-										<div class="keywords-container">
-											<div class="keyword-input-container">
-												<input type="text" class="keyword-input with-border" placeholder="e.g. Angular, Laravel" />
-												<button class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
-											</div>
-											<div class="keywords-list">
-												<span class="keyword"><span class="keyword-remove"></span><span class="keyword-text">Angular</span></span>
-												<span class="keyword"><span class="keyword-remove"></span><span class="keyword-text">Vue JS</span></span>
-												<span class="keyword"><span class="keyword-remove"></span><span class="keyword-text">iOS</span></span>
-												<span class="keyword"><span class="keyword-remove"></span><span class="keyword-text">Android</span></span>
-												<span class="keyword"><span class="keyword-remove"></span><span class="keyword-text">Laravel</span></span>
-											</div>
-											<div class="clearfix"></div>
-										</div>
-									</div>
-								</div>
+                                <div class="col-xl-4">
+                                    <div class="submit-field">
+                                        <h5>Skills <i class="help-icon" data-tippy-placement="right" title="Add up to 10 skills"></i></h5>
 
-								<div class="col-xl-4">
-									<div class="submit-field">
-										<h5>Attachments</h5>
+                                        <!-- Skills List -->
+                                        <div class="keywords-container">
+                                            <div class="keyword-input-container">
+                                                <input type="text" @bind="NewSkill" class="keyword-input with-border" placeholder="e.g. Angular, Laravel" />
+                                                <button @onclick="()=>AddSkill()" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                                            </div>
+                                            <div class="keywords-list">
+                                                @foreach (var skill in MySkills)
+                                                {
+                                                    <span class="keyword"><span @onclick="()=>RemoveSkill(skill)" class="keyword-remove"></span><span class="keyword-text">@skill</span></span>
 
-										<!-- Attachments -->
-										<div class="attachments-container margin-top-0 margin-bottom-0">
-											<div class="attachment-box ripple-effect">
-												<span>Cover Letter</span>
-												<i>PDF</i>
-												<button class="remove-attachment" data-tippy-placement="top" title="Remove"></button>
-											</div>
-											<div class="attachment-box ripple-effect">
-												<span>Contract</span>
-												<i>DOCX</i>
-												<button class="remove-attachment" data-tippy-placement="top" title="Remove"></button>
-											</div>
-										</div>
-										<div class="clearfix"></div>
+                                                }
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
 
-										<!-- Upload Button -->
-										<div class="uploadButton margin-top-0">
-											<input class="uploadButton-input" type="file" accept="image/*, application/pdf" id="upload" multiple />
-											<label class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
-											<span class="uploadButton-file-name">Maximum file size: 10 MB</span>
-										</div>
+                                <div class="col-xl-4">
+                                    <div class="submit-field">
+                                        <h5>Attachments</h5>
 
-									</div>
-								</div>
-							</div>
-						</li>
-						<li>
-							<div class="row">
-								<div class="col-xl-6">
-									<div class="submit-field">
-										<h5>Tagline</h5>
-										<input type="text" class="with-border" value="iOS Expert + Node Dev">
-									</div>
-								</div>
+                                        <!-- Attachments -->
+                                        <div class="attachments-container margin-top-0 margin-bottom-0">
+                                            @if(Attachments!=null)
+                                                foreach(var attachment in Attachments)
+                                                {
+                                                    <div class="attachment-box ripple-effect">
+                                                        <span><input type="text" placeholder="file desc" @bind="attachment.Title" /></span>
+                                                        <i>@attachment.Extension.ToUpper()</i>
+                                                        <button @onclick="()=>HapusAttachment(attachment)" class="remove-attachment" data-tippy-placement="top" title="Remove"></button>
+                                                    </div>
+                                                }
+                                           
+                                           
+                                        </div>
+                                        <div class="clearfix"></div>
 
-								<div class="col-xl-6">
-									<div class="submit-field">
-										<h5>Nationality</h5>
-										<select class="selectpicker with-border" data-size="7" title="Select Job Type" data-live-search="true">
-											<option value="AR">Argentina</option>
-											<option value="AM">Armenia</option>
-											<option value="AW">Aruba</option>
-											<option value="AU">Australia</option>
-											<option value="AT">Austria</option>
-											<option value="AZ">Azerbaijan</option>
-											<option value="BS">Bahamas</option>
-											<option value="BH">Bahrain</option>
-											<option value="BD">Bangladesh</option>
-											<option value="BB">Barbados</option>
-											<option value="BY">Belarus</option>
-											<option value="BE">Belgium</option>
-											<option value="BZ">Belize</option>
-											<option value="BJ">Benin</option>
-											<option value="BM">Bermuda</option>
-											<option value="BT">Bhutan</option>
-											<option value="BG">Bulgaria</option>
-											<option value="BF">Burkina Faso</option>
-											<option value="BI">Burundi</option>
-											<option value="KH">Cambodia</option>
-											<option value="CM">Cameroon</option>
-											<option value="CA">Canada</option>
-											<option value="CV">Cape Verde</option>
-											<option value="KY">Cayman Islands</option>
-											<option value="CO">Colombia</option>
-											<option value="KM">Comoros</option>
-											<option value="CG">Congo</option>
-											<option value="CK">Cook Islands</option>
-											<option value="CR">Costa Rica</option>
-											<option value="CI">Côte d'Ivoire</option>
-											<option value="HR">Croatia</option>
-											<option value="CU">Cuba</option>
-											<option value="CW">Curaçao</option>
-											<option value="CY">Cyprus</option>
-											<option value="CZ">Czech Republic</option>
-											<option value="DK">Denmark</option>
-											<option value="DJ">Djibouti</option>
-											<option value="DM">Dominica</option>
-											<option value="DO">Dominican Republic</option>
-											<option value="EC">Ecuador</option>
-											<option value="EG">Egypt</option>
-											<option value="GP">Guadeloupe</option>
-											<option value="GU">Guam</option>
-											<option value="GT">Guatemala</option>
-											<option value="GG">Guernsey</option>
-											<option value="GN">Guinea</option>
-											<option value="GW">Guinea-Bissau</option>
-											<option value="GY">Guyana</option>
-											<option value="HT">Haiti</option>
-											<option value="HN">Honduras</option>
-											<option value="HK">Hong Kong</option>
-											<option value="HU">Hungary</option>
-											<option value="IS">Iceland</option>
-											<option value="IN">India</option>
-											<option value="ID">Indonesia</option>
-											<option value="NO">Norway</option>
-											<option value="OM">Oman</option>
-											<option value="PK">Pakistan</option>
-											<option value="PW">Palau</option>
-											<option value="PA">Panama</option>
-											<option value="PG">Papua New Guinea</option>
-											<option value="PY">Paraguay</option>
-											<option value="PE">Peru</option>
-											<option value="PH">Philippines</option>
-											<option value="PN">Pitcairn</option>
-											<option value="PL">Poland</option>
-											<option value="PT">Portugal</option>
-											<option value="PR">Puerto Rico</option>
-											<option value="QA">Qatar</option>
-											<option value="RE">Réunion</option>
-											<option value="RO">Romania</option>
-											<option value="RU">Russian Federation</option>
-											<option value="RW">Rwanda</option>
-											<option value="SZ">Swaziland</option>
-											<option value="SE">Sweden</option>
-											<option value="CH">Switzerland</option>
-											<option value="TR">Turkey</option>
-											<option value="TM">Turkmenistan</option>
-											<option value="TV">Tuvalu</option>
-											<option value="UG">Uganda</option>
-											<option value="UA">Ukraine</option>
-											<option value="GB">United Kingdom</option>
-											<option value="US" selected>United States</option>
-											<option value="UY">Uruguay</option>
-											<option value="UZ">Uzbekistan</option>
-											<option value="YE">Yemen</option>
-											<option value="ZM">Zambia</option>
-											<option value="ZW">Zimbabwe</option>
-										</select>
-									</div>
-								</div>
+                                        <!-- Upload Button -->
+                                        <div class="uploadButton margin-top-0">
+                                            <InputFile class="uploadButton-input" id="fileInput2" accept="image/*, application/pdf" multiple OnChange="UploadAttachment" hidden />
+                                           
+                                            <label @onclick="PrepareUpload2" class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
+                                            <span class="uploadButton-file-name">Maximum file size: 10 MB</span>
+                                        </div>
 
-								<div class="col-xl-12">
-									<div class="submit-field">
-										<h5>Introduce Yourself</h5>
-										<textarea cols="30" rows="5" class="with-border">Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.</textarea>
-									</div>
-								</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-xl-6">
+                                    <div class="submit-field">
+                                        <h5>Tagline</h5>
+                                        <input @bind="DataUser.TagLine" type="text" class="with-border" placeholder="iOS Expert + Node Dev">
+                                    </div>
+                                </div>
 
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+                                <div class="col-xl-6">
+                                    <div class="submit-field">
+                                        <h5>Nationality</h5>
+                                        <select @bind="DataUser.Nationality" data-size="7" title="Select Job Type" data-live-search="true">
+                                            <option value="AR">Argentina</option>
+                                            <option value="AM">Armenia</option>
+                                            <option value="AW">Aruba</option>
+                                            <option value="AU">Australia</option>
+                                            <option value="AT">Austria</option>
+                                            <option value="AZ">Azerbaijan</option>
+                                            <option value="BS">Bahamas</option>
+                                            <option value="BH">Bahrain</option>
+                                            <option value="BD">Bangladesh</option>
+                                            <option value="BB">Barbados</option>
+                                            <option value="BY">Belarus</option>
+                                            <option value="BE">Belgium</option>
+                                            <option value="BZ">Belize</option>
+                                            <option value="BJ">Benin</option>
+                                            <option value="BM">Bermuda</option>
+                                            <option value="BT">Bhutan</option>
+                                            <option value="BG">Bulgaria</option>
+                                            <option value="BF">Burkina Faso</option>
+                                            <option value="BI">Burundi</option>
+                                            <option value="KH">Cambodia</option>
+                                            <option value="CM">Cameroon</option>
+                                            <option value="CA">Canada</option>
+                                            <option value="CV">Cape Verde</option>
+                                            <option value="KY">Cayman Islands</option>
+                                            <option value="CO">Colombia</option>
+                                            <option value="KM">Comoros</option>
+                                            <option value="CG">Congo</option>
+                                            <option value="CK">Cook Islands</option>
+                                            <option value="CR">Costa Rica</option>
+                                            <option value="CI">Côte d'Ivoire</option>
+                                            <option value="HR">Croatia</option>
+                                            <option value="CU">Cuba</option>
+                                            <option value="CW">Curaçao</option>
+                                            <option value="CY">Cyprus</option>
+                                            <option value="CZ">Czech Republic</option>
+                                            <option value="DK">Denmark</option>
+                                            <option value="DJ">Djibouti</option>
+                                            <option value="DM">Dominica</option>
+                                            <option value="DO">Dominican Republic</option>
+                                            <option value="EC">Ecuador</option>
+                                            <option value="EG">Egypt</option>
+                                            <option value="GP">Guadeloupe</option>
+                                            <option value="GU">Guam</option>
+                                            <option value="GT">Guatemala</option>
+                                            <option value="GG">Guernsey</option>
+                                            <option value="GN">Guinea</option>
+                                            <option value="GW">Guinea-Bissau</option>
+                                            <option value="GY">Guyana</option>
+                                            <option value="HT">Haiti</option>
+                                            <option value="HN">Honduras</option>
+                                            <option value="HK">Hong Kong</option>
+                                            <option value="HU">Hungary</option>
+                                            <option value="IS">Iceland</option>
+                                            <option value="IN">India</option>
+                                            <option value="ID">Indonesia</option>
+                                            <option value="NO">Norway</option>
+                                            <option value="OM">Oman</option>
+                                            <option value="PK">Pakistan</option>
+                                            <option value="PW">Palau</option>
+                                            <option value="PA">Panama</option>
+                                            <option value="PG">Papua New Guinea</option>
+                                            <option value="PY">Paraguay</option>
+                                            <option value="PE">Peru</option>
+                                            <option value="PH">Philippines</option>
+                                            <option value="PN">Pitcairn</option>
+                                            <option value="PL">Poland</option>
+                                            <option value="PT">Portugal</option>
+                                            <option value="PR">Puerto Rico</option>
+                                            <option value="QA">Qatar</option>
+                                            <option value="RE">Réunion</option>
+                                            <option value="RO">Romania</option>
+                                            <option value="RU">Russian Federation</option>
+                                            <option value="RW">Rwanda</option>
+                                            <option value="SZ">Swaziland</option>
+                                            <option value="SE">Sweden</option>
+                                            <option value="CH">Switzerland</option>
+                                            <option value="TR">Turkey</option>
+                                            <option value="TM">Turkmenistan</option>
+                                            <option value="TV">Tuvalu</option>
+                                            <option value="UG">Uganda</option>
+                                            <option value="UA">Ukraine</option>
+                                            <option value="GB">United Kingdom</option>
+                                            <option value="US" selected>United States</option>
+                                            <option value="UY">Uruguay</option>
+                                            <option value="UZ">Uzbekistan</option>
+                                            <option value="YE">Yemen</option>
+                                            <option value="ZM">Zambia</option>
+                                            <option value="ZW">Zimbabwe</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div id="test1" class="dashboard-box">
+                                <div class="col-xl-12">
+                                    <div class="submit-field">
+                                        <h5>Introduce Yourself</h5>
+                                        <textarea @bind="DataUser.AboutMe" cols="30" rows="5" class="with-border"></textarea>
+                                    </div>
+                                </div>
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-material-outline-lock"></i> Password & Security</h3>
-				</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-				<div class="content with-padding">
-					<div class="row">
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Current Password</h5>
-								<input type="password" class="with-border">
-							</div>
-						</div>
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div id="test1" class="dashboard-box">
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>New Password</h5>
-								<input type="password" class="with-border">
-							</div>
-						</div>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-lock"></i> Password & Security</h3>
+                </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Repeat New Password</h5>
-								<input type="password" class="with-border">
-							</div>
-						</div>
+                <div class="content with-padding">
+                    <div class="row">
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Current Password</h5>
+                                <input @bind="DataUser.Password" type="password" class="with-border">
+                            </div>
+                        </div>
 
-						<div class="col-xl-12">
-							<div class="checkbox">
-								<input type="checkbox" id="two-step" checked>
-								<label for="two-step"><span class="checkbox-icon"></span> Enable Two-Step Verification via Email</label>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>New Password</h5>
+                                <input type="password" @bind="NewPassword" class="with-border">
+                            </div>
+                        </div>
 
-		<!-- Button -->
-		<div class="col-xl-12">
-			<a href="#" class="button ripple-effect big margin-top-30">Save Changes</a>
-		</div>
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Repeat New Password</h5>
+                                <input type="password" @bind="RetypePass" class="with-border">
+                            </div>
+                        </div>
 
-	</div>
-	<!-- Row / End -->
-	<!-- Footer -->
-	<div class="dashboard-footer-spacer"></div>
-	<SmallFooterPage></SmallFooterPage>
-	<!-- Footer / End -->
+                        <div class="col-xl-12">
+                            <div class="checkbox">
+                                <input type="checkbox" id="two-step" checked>
+                                <label for="two-step"><span class="checkbox-icon"></span> Enable Two-Step Verification via Email</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="col-xl-12">
+            <a href="#" @onclick:preventDefault @onclick="Simpan" class="button ripple-effect big margin-top-30">Save Changes</a>
+        </div>
+
+    </div>
+    <!-- Row / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
 
 </div>
 @code {
+    List<UserProfileAttachment> Attachments = new();
+    List<string> MySkills = new();
+    string NewSkill;
+    string NewPassword;
+    string GenderStr;
+    UserProfile DataUser = new UserProfile();
 
+    string RetypePass;
+    string ErrorMsg = string.Empty;
+    bool RegisterSuccess = false;
+    Encryption enc;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    private void OnChange(ChangeEventArgs args)
+    {
+        GenderStr = args.Value.ToString();
+    }
+    async Task PrepareUpload()
+    {
+        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInput1");
+    }
+    async Task PrepareUpload2()
+    {
+        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInput2");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        enc = new Encryption();
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            DataUser = service.GetItemByUsername(UserName);
+            DataUser.Password = enc.Decrypt(DataUser.Password);
+            if (!string.IsNullOrEmpty(DataUser.Skill))
+            {
+                NewSkill = "";
+                MySkills = DataUser.Skill.Split(';').ToList();
+            }
+            if (DataUser.Attachments != null)
+            {
+                Attachments = DataUser.Attachments.ToList();
+            }
+        }
+
+
+    }
+
+    List<UserProfileAttachment> ListRemoval = new();
+
+    async Task HapusAttachment(UserProfileAttachment attachment)
+    {
+        if (attachment.Id > 0) ListRemoval.Add(attachment);
+        Attachments.Remove(attachment);
+    }
+    async Task RemoveSkill(string Item)
+    {
+        MySkills.Remove(Item);
+    }
+
+    async Task AddSkill()
+    {
+        if (!string.IsNullOrEmpty(NewSkill))
+        {
+            MySkills.Add(NewSkill);
+            NewSkill = "";
+        }
+    }
+
+    async Task SetUserType(bool IsEmployer)
+    {
+        DataUser.AccountType = IsEmployer ? AccountTypes.Employeers : AccountTypes.Freelancer;
+    }
+    void Simpan()
+    {
+        ErrorMsg = "";
+
+
+        if (string.IsNullOrEmpty(DataUser.Password))
+        {
+            ErrorMsg += "Tolong di isi password. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Phone))
+        {
+            ErrorMsg += "Tolong di isi no hp. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.FirstName))
+        {
+            ErrorMsg += "Tolong di isi nama depan. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.LastName))
+        {
+            ErrorMsg += "Tolong di isi nama belakang. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Alamat))
+        {
+            ErrorMsg += "Tolong di isi alamat. ";
+
+        }
+        if (DataUser.Password != RetypePass)
+        {
+            ErrorMsg += "Password tidak sesuai dengan ulang password. ";
+
+        }
+        DataUser.FullName = $"{DataUser.FirstName} {DataUser.LastName}";
+        if (ErrorMsg.Length > 0)
+        {
+            toastService.ShowWarning(ErrorMsg, "Perhatian");
+            return;
+        }
+        if (MySkills.Count > 0)
+        {
+            DataUser.Skill = string.Join(';', MySkills);
+        }
+        else
+        {
+            DataUser.Skill = "";
+        }
+        if (GenderStr != null)
+            DataUser.Gender = GenderStr[0];
+        if (!string.IsNullOrEmpty(NewPassword))
+        {
+            DataUser.Password = enc.Encrypt(NewPassword);
+        }
+        else
+        {
+            DataUser.Password = enc.Encrypt(DataUser.Password);
+        }
+
+        if (service.UpdateData(DataUser))
+        {
+            if (Attachments.Count > 0)
+            {
+                foreach (var item in Attachments)
+                {
+                    var insert = AttachmentSvc.InsertData(item);
+                }
+            }
+            if (ListRemoval.Count > 0)
+            {
+                foreach(var removeItem in ListRemoval)
+                {
+                    var del = AttachmentSvc.DeleteData(removeItem);
+                }
+
+            }
+            toastService.ShowSuccess("Profile Anda sudah berhasil di update. Nuhun", "Info");
+        }
+    }
+
+    void Kembali()
+    {
+        NavMgr.NavigateTo("/");
+    }
+    private async Task UploadAttachment(InputFileChangeEventArgs e)
+    {
+
+        foreach (var file in e.GetMultipleFiles(e.FileCount))
+        {
+
+            //var file = e.File;
+            if (file != null)
+            {
+                var ms = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                string newName = string.Empty;
+
+                newName = $"attachment_{(string.IsNullOrEmpty(DataUser.Username) ? "rojul" : DataUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+                await AzureBlobHelper.UploadFile(newName, bytes);
+                var newItem = new UserProfileAttachment() { UserId = DataUser.Id, AttachmentType = "File", Extension = Path.GetExtension(file.Name), LinkUrl = FileUrl, Title = $"File {Attachments.Count+1}"  };
+                Attachments.Add(newItem);
+            }
+        }
+    }
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var ms = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(ms);
+            var bytes = SKiaImageHelper.FixedSize(ms, 250, 250, false);
+            string newName = string.Empty;
+
+            newName = $"profile_{(string.IsNullOrEmpty(DataUser.Username) ? "rojul" : DataUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+            var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+            await AzureBlobHelper.UploadFile(newName, bytes);
+            DataUser.PicUrl = FileUrl;
+
+        }
+    }
 }
