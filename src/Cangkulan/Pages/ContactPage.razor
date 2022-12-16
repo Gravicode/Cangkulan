@@ -1,6 +1,9 @@
 ﻿@page "/Contact"
 @layout ContentLayoutBlack
 @inject IJSRuntime IJS
+@inject ContactService ContactSvc
+@inject IToastService toastService
+@inject NavigationManager NavMgr
 <!-- Titlebar
 ================================================== -->
 <div id="titlebar" class="gradient">
@@ -65,33 +68,33 @@
 			<section id="contact" class="margin-bottom-60">
 				<h3 class="headline margin-top-15 margin-bottom-35">Any questions? Feel free to contact us!</h3>
 
-				<form method="post" name="contactform" id="contactform" autocomplete="on">
+				<form name="contactform" id="contactform" autocomplete="on">
 					<div class="row">
 						<div class="col-md-6">
 							<div class="input-with-icon-left">
-								<input class="with-border" name="name" type="text" id="name" placeholder="Your Name" required="required" />
+								<input class="with-border" @bind="Data.FullName" name="name" type="text" id="name" placeholder="Your Name" required="required" />
 								<i class="icon-material-outline-account-circle"></i>
 							</div>
 						</div>
 
 						<div class="col-md-6">
 							<div class="input-with-icon-left">
-								<input class="with-border" name="email" type="email" id="email" placeholder="Email Address" required="required" />
+								<input class="with-border" @bind="Data.Email" name="email" type="email" id="email" placeholder="Email Address" required="required" />
 								<i class="icon-material-outline-email"></i>
 							</div>
 						</div>
 					</div>
 
 					<div class="input-with-icon-left">
-						<input class="with-border" name="subject" type="text" id="subject" placeholder="Subject" required="required" />
+						<input class="with-border" @bind="Data.Subject" name="subject" type="text" id="subject" placeholder="Subject" required="required" />
 						<i class="icon-material-outline-assignment"></i>
 					</div>
 
 					<div>
-						<textarea class="with-border" name="comments" cols="40" rows="5" id="comments" placeholder="Message" spellcheck="true" required="required"></textarea>
+						<textarea class="with-border" @bind="Data.Message" name="comments" cols="40" rows="5" id="comments" placeholder="Message" spellcheck="true" required="required"></textarea>
 					</div>
 
-					<input type="submit" class="submit button margin-top-15" id="submit" value="Submit Message" />
+					<input type="button" @onclick="Save" class="submit button margin-top-15" id="submit" value="Submit Message" />
 
 				</form>
 			</section>
@@ -102,5 +105,82 @@
 </div>
 <!-- Container / End -->
 @code {
+    //public string CaptchaImage { get; set; }
+    //public string Answer { get; set; }
+    //public string TypedCaptcha { get; set; }
 
+    bool showError = false;
+    public Contact Data { get; set; } = new();
+    async Task KeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Save();
+            //Console.WriteLine(this.Value);
+        }
+    }
+
+    async Task Save()
+    {
+        var ErrMsg = "";
+        if (string.IsNullOrEmpty(Data.FullName))
+        {
+            ErrMsg += "Tolong isi Fullname.";
+        }
+      
+        if (string.IsNullOrEmpty(Data.Message))
+        {
+            ErrMsg += "Tolong isi Message.";
+        }
+        if (string.IsNullOrEmpty(Data.Email))
+        {
+            ErrMsg += "Tolong isi Email.";
+        }
+        if (string.IsNullOrEmpty(Data.Subject))
+        {
+            ErrMsg += "Tolong isi Subjek.";
+        }
+        //if (Answer != TypedCaptcha)
+        //{
+        //    ErrMsg += "Captcha tidak sesuai.";
+        //}
+        if (ErrMsg.Length > 0)
+        {
+            toastService.ShowError(ErrMsg, "Perhatian");
+        }
+        else
+        {
+            if (ContactSvc.InsertData(Data))
+            {
+                toastService.ShowSuccess("Contact berhasil di simpan. Terima kasih");
+            }
+            else
+            {
+                toastService.ShowError("Gagal menyimpan data. Coba kembali");
+            }
+        }
+
+    }
+	/*
+    void GenerateCaptcha()
+    {
+        Random oRandom = new Random();
+        int iNumber = oRandom.Next(1000, 9999);
+        Answer = iNumber.ToString();
+        var gen = new SkiaCaptchaGenerator();
+        var temp = gen.GenerateImageAsByteArray(Answer);
+        string base64String = Convert.ToBase64String(temp, 0, temp.Length);
+        CaptchaImage = "data:image/png;base64," + base64String;
+    }
+	*/
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        //if (string.IsNullOrEmpty(CaptchaImage))
+        //    GenerateCaptcha();
+    }
 }

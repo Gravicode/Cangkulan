@@ -556,9 +556,9 @@ namespace Cangkulan.Models
         public string Subject { set; get; }
         public string Message { set; get; }
         public DateTime CreatedDate { set; get; }
-        public string ReplyMessage { set; get; }
-        public string ReplyBy { set; get; }
-        public DateTime ReplyDate { set; get; }
+        public string? ReplyMessage { set; get; }
+        public string? ReplyBy { set; get; }
+        public DateTime? ReplyDate { set; get; }
     }
     public enum ProjectPaymentTypes { Fix, Hourly};
 
