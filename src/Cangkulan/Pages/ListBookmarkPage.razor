@@ -1,6 +1,13 @@
 ﻿@page "/list-bookmark"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+
+@inject UserProfileService UserSvc
+@inject BookmarkedJobService BookmarkedJobSvc
+@inject BookmarkedFreelancerService BookmarkedFreelancerSvc
+
 <div class="dashboard-content-inner">
 
 	<!-- Dashboard Headline -->
@@ -31,111 +38,45 @@
 
 				<div class="content">
 					<ul class="dashboard-box-list">
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing">
+						@if (selUser?.BookmarkedJobs != null)
+						{
+							<Virtualize Items="@selUser.BookmarkedJobs" Context="item">
+							<li @key="item.Id">
+								<!-- Job Listing -->
+								<div class="job-listing">
 
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
+									<!-- Job Listing Details -->
+									<div class="job-listing-details">
 
-									<!-- Logo -->
-									<a href="#" class="job-listing-company-logo">
-										<img src="images/company-logo-02.png" alt="">
-									</a>
+										<!-- Logo -->
+										<a href="/job-detail/@(item.Id)" class="job-listing-company-logo">
+												<img src="images/company-logo-02.png" alt="">
+										</a>
 
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Barista and Cashier</a></h3>
+										<!-- Details -->
+										<div class="job-listing-description">
+											<h3 class="job-listing-title"><a href="#">@item.Job.JobTitle</a></h3>
 
-										<!-- Job Listing Footer -->
-										<div class="job-listing-footer">
-											<ul>
-												<li><i class="icon-material-outline-business"></i> Coffee</li>
-												<li><i class="icon-material-outline-location-on"></i> San Francisco</li>
-												<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-												<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-											</ul>
+											<!-- Job Listing Footer -->
+											<div class="job-listing-footer">
+												<ul>
+													<li><i class="icon-material-outline-business"></i> @item.Job.JobCategory</li>
+													<li><i class="icon-material-outline-location-on"></i> @item.Job.Location</li>
+													<li><i class="icon-material-outline-business-center"></i> @item.Job.JobType</li>
+													<li><i class="icon-material-outline-access-time"></i> @TimeHelpers.TimeAgo(item.Job.CreatedDate)</li>
+												</ul>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<!-- Buttons -->
-							<div class="buttons-to-right">
-								<a href="#" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing">
-
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Logo -->
-									<a href="#" class="job-listing-company-logo">
-										<img src="images/company-logo-04.png" alt="">
-									</a>
-
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Administrative Assistant</a></h3>
-
-										<!-- Job Listing Footer -->
-										<div class="job-listing-footer">
-											<ul>
-												<li><i class="icon-material-outline-business"></i> Mates</li>
-												<li><i class="icon-material-outline-location-on"></i> San Francisco</li>
-												<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-												<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-											</ul>
-										</div>
-									</div>
-
+								<!-- Buttons -->
+								<div class="buttons-to-right">
+									<a href="#" @onclick:preventDefault @onclick="()=>RemoveJob(item)" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
 								</div>
-							</div>
+							</li>
+							</Virtualize>
+						}
 
-							<!-- Buttons -->
-							<div class="buttons-to-right">
-								<a href="#" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing">
-
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Logo -->
-									<a href="#" class="job-listing-company-logo">
-										<img src="images/company-logo-05.png" alt="">
-									</a>
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Construction Labourers</a></h3>
-
-										<!-- Job Listing Footer -->
-										<div class="job-listing-footer">
-											<ul>
-												<li><i class="icon-material-outline-business"></i> Podous</li>
-												<li><i class="icon-material-outline-location-on"></i> San Francisco</li>
-												<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-												<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right">
-								<a href="#" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
 
 					</ul>
 				</div>
@@ -153,61 +94,42 @@
 
 				<div class="content">
 					<ul class="dashboard-box-list">
-						<li>
-							<!-- Overview -->
-							<div class="freelancer-overview">
-								<div class="freelancer-overview-inner">
+						@if (selUser?.BookmarkedFreelancers != null)
+						{
+							<Virtualize Items="@selUser.BookmarkedFreelancers" Context="item">
+								<li @key="item.Id">
+								
+									<!-- Overview -->
+									<div class="freelancer-overview">
+										<div class="freelancer-overview-inner">
 
-									<!-- Avatar -->
-									<div class="freelancer-avatar">
-										<div class="verified-badge"></div>
-										<a href="#"><img src="images/user-avatar-big-02.jpg" alt=""></a>
-									</div>
+											<!-- Avatar -->
+											<div class="freelancer-avatar">
+												<div class="verified-badge"></div>
+												<a href="#"><img src="@(string.IsNullOrEmpty(item.FreelancerUser.PicUrl)?"images/user-avatar-big-02.jpg":item.FreelancerUser.PicUrl)" alt=""></a>
+											</div>
 
-									<!-- Name -->
-									<div class="freelancer-name">
-										<h4><a href="#">David Peterson <img class="flag" src="images/flags/de.svg" alt="" title="Germany" data-tippy-placement="top"></a></h4>
-										<span>iOS Expert + Node Dev</span>
-										<!-- Rating -->
-										<div class="freelancer-rating">
-											<div class="star-rating" data-rating="4.2"></div>
+											<!-- Name -->
+											<div class="freelancer-name">
+												<h4><a href="#">@item.FreelancerUser.FullName <img class="flag" src="images/flags/de.svg" alt="" title="Germany" data-tippy-placement="top"></a></h4>
+												<span>@item.FreelancerUser.TagLine</span>
+												<!-- Rating -->
+												<div class="freelancer-rating">
+													<div class="star-rating" data-rating="@item.FreelancerUser.Rating"></div>
+												</div>
+											</div>
 										</div>
 									</div>
-								</div>
-							</div>
 
-							<!-- Buttons -->
-							<div class="buttons-to-right">
-								<a href="#" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-						<li>
-							<!-- Overview -->
-							<div class="freelancer-overview">
-								<div class="freelancer-overview-inner">
-
-									<!-- Avatar -->
-									<div class="freelancer-avatar">
-										<a href="#"><img src="images/user-avatar-placeholder.png" alt=""></a>
+									<!-- Buttons -->
+									<div class="buttons-to-right">
+										<a href="#" @onclick:preventDefault @onclick="()=>RemoveFreelancer(item)" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
 									</div>
-
-									<!-- Name -->
-									<div class="freelancer-name">
-										<h4><a href="#">Marcin Kowalski <img class="flag" src="images/flags/pl.svg" alt="" title="Poland" data-tippy-placement="top"></a></h4>
-										<span>Front-End Developer</span>
-										<!-- Rating -->
-										<div class="freelancer-rating">
-											<div class="star-rating" data-rating="4.7"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right">
-								<a href="#" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
+								</li>
+							</Virtualize>
+						}
+						
+						
 					</ul>
 				</div>
 			</div>
@@ -249,5 +171,58 @@
 
 </div>
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+
+	string Username;
+	UserProfile selUser; 
+	protected override async Task OnInitializedAsync()
+	{
+
+
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			Username = user.Identity.Name;
+			selUser = UserSvc.GetItemByEmail(Username);
+
+		}
+
+	}
+
+	async Task LoadData()
+	{
+		selUser = UserSvc.GetItemByEmail(Username);
+	}
+	async Task RemoveFreelancer(BookmarkedFreelancer item)
+	{
+		var res = BookmarkedFreelancerSvc.DeleteData(item);
+		if (res)
+		{
+			toastService.ShowSuccess("Berhasil di hapus");
+			await LoadData();
+		}
+		else
+		{
+			toastService.ShowSuccess("Data tidak dapat dihapus, hubungi admin.");
+
+		}
+	}
+
+	async Task RemoveJob(BookmarkedJob item)
+	{
+		var res = BookmarkedJobSvc.DeleteData(item);
+		if (res)
+		{
+			toastService.ShowSuccess("Berhasil di hapus");
+			await LoadData();
+		}
+		else
+		{
+			toastService.ShowSuccess("Data tidak dapat dihapus, hubungi admin.");
+
+		}
+	}
 }
