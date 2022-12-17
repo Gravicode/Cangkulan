@@ -63,6 +63,7 @@ builder.Services.AddTransient<UserProfileAttachmentService>();
 builder.Services.AddTransient<NotificationService>();
 builder.Services.AddTransient<MessageDetailService>();
 builder.Services.AddTransient<MessageHeaderService>();
+builder.Services.AddTransient<JobCategoryService>();
 
 builder.Services.AddCors(options =>
 {

@@ -119,7 +119,7 @@ namespace Cangkulan.Models
 
     public enum MessageTypes { Personal, Group };
 
- 
+
 
 
     public enum LogCategory
@@ -199,6 +199,7 @@ namespace Cangkulan.Models
         public ICollection<Note> Notes { get; set; }
         public ICollection<Order> Orders { get; set; }
         public ICollection<Testimonial> Testimonials { get; set; }
+        public ICollection<Company> Companies { get; set; }
         [InverseProperty(nameof(Job.Employer))]
         public ICollection<Job> VacancyList { get; set; }
 
@@ -305,6 +306,16 @@ namespace Cangkulan.Models
         public string AttachmentUrl { set; get; }
     }
 
+    [Table("job_category")]
+    public class JobCategory
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
+        public string Category { get; set; }
+        public string? Desc { get; set; }
+    }
+
     [Table("company")]
     public class Company
     {
@@ -327,6 +338,7 @@ namespace Cangkulan.Models
         public string? TwitterLink { set; get; }
         public string? GithubLink { set; get; }
         public string? WebUrl { set; get; }
+        public string? LogoUrl { set; get; }
         public bool IsVerified { set; get; }
 
         public ICollection<BookmarkedCompany> BookmarkedCompanies { get; set; }
@@ -560,7 +572,7 @@ namespace Cangkulan.Models
         public string? ReplyBy { set; get; }
         public DateTime? ReplyDate { set; get; }
     }
-    public enum ProjectPaymentTypes { Fix, Hourly};
+    public enum ProjectPaymentTypes { Fix, Hourly };
 
     public enum ReviewTypes { Project, Freelancer };
     public enum NotePriority { Low, Med, High }

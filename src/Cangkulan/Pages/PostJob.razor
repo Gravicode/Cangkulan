@@ -1,152 +1,338 @@
 ﻿@page "/post-job"
 @layout AdminLayout
 @inject IJSRuntime IJS
+
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@using Cangkulan.Tools
+@inject JobService JobSvc
+@inject UserProfileService service
+@inject CompanyService CompanySvc
+@inject JobCategoryService CategorySvc
+@inject AzureBlobHelper AzureBlobHelper
 <div class="dashboard-content-inner">
 
-	<!-- Dashboard Headline -->
-	<div class="dashboard-headline">
-		<h3>Post a Job</h3>
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Post a Job</h3>
 
-		<!-- Breadcrumbs -->
-		<nav id="breadcrumbs" class="dark">
-			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Dashboard</a></li>
-				<li>Post a Job</li>
-			</ul>
-		</nav>
-	</div>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li>Post a Job</li>
+            </ul>
+        </nav>
+    </div>
 
-	<!-- Row -->
-	<div class="row">
+    <!-- Row -->
+    <div class="row">
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div class="dashboard-box margin-top-0">
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box margin-top-0">
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-feather-folder-plus"></i> Job Submission Form</h3>
-				</div>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-feather-folder-plus"></i> Job Submission Form</h3>
+                </div>
 
-				<div class="content with-padding padding-bottom-10">
-					<div class="row">
+                <div class="content with-padding padding-bottom-10">
+                    <div class="row">
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Job Title</h5>
-								<input type="text" class="with-border">
-							</div>
-						</div>
+                        <div class="col-xl-3">
+                            <div class="submit-field">
+                                <h5>Job Title</h5>
+                                <input @bind="DataJob.JobTitle" type="text" class="with-border">
+                            </div>
+                        </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Job Type</h5>
-								<select title="Select Job Type">
-									<option value="Full Time">Full Time</option>
-									<option value="Freelance">Freelance</option>
-									<option value="Part Time">Part Time</option>
-									<option value="Internship">Internship</option>
-									<option value="Temporary">Temporary</option>
-								</select>
-							</div>
-						</div>
+                        <div class="col-xl-3">
+                            <div class="submit-field">
+                                <h5>Job Type</h5>
+                                <select @bind="DataJob.JobType" title="Select Job Type">
+                                    <option value="Pilih">Pilih</option>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Part Time">Part Time</option>
+                                    <option value="Internship">Internship</option>
+                                    <option value="Temporary">Temporary</option>
+                                </select>
+                            </div>
+                        </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Job Category</h5>
-								<select  title="Select Category">
-									<option>Accounting and Finance</option>
-									<option>Clerical & Data Entry</option>
-									<option>Counseling</option>
-									<option>Court Administration</option>
-									<option>Human Resources</option>
-									<option>Investigative</option>
-									<option>IT and Computers</option>
-									<option>Law Enforcement</option>
-									<option>Management</option>
-									<option>Miscellaneous</option>
-									<option>Public Relations</option>
-								</select>
-							</div>
-						</div>
+                        <div class="col-xl-3">
+                            <div class="submit-field">
+                                <h5>Job Category</h5>
+                                <select @bind="DataJob.JobCategory" title="Select Category">
+                                    @foreach(var cat in ListCategory)
+                                    {
+                                        <option value="@cat.Category">@cat.Category</option>
+                                    }
+                                   
+                                </select>
+                            </div>
+                        </div> 
+                        
+                        <div class="col-xl-3">
+                            <div class="submit-field">
+                                <h5>Company</h5>
+                                <select @bind="DataJob.CompanyId" title="Select Company">
+                                    @foreach(var com in ListCompany)
+                                    {
+                                        <option value="@com.Id">@com.FullName</option>
+                                    }
+                                   
+                                </select>
+                                <a href="/manage-company">Add New Company</a>
+                            </div>
+                        </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Location</h5>
-								<div class="input-with-icon">
-									<div id="autocomplete-container">
-										<input id="autocomplete-input" class="with-border" type="text" placeholder="Type Address">
-									</div>
-									<i class="icon-material-outline-location-on"></i>
-								</div>
-							</div>
-						</div>
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Location</h5>
+                                <div class="input-with-icon">
+                                    <div id="autocomplete-container">
+                                        <input id="autocomplete-input" @bind="DataJob.Location" class="with-border" type="text" placeholder="Type Address">
+                                    </div>
+                                    <i class="icon-material-outline-location-on"></i>
+                                </div>
+                            </div>
+                        </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Salary</h5>
-								<div class="row">
-									<div class="col-xl-6">
-										<div class="input-with-icon">
-											<input class="with-border" type="text" placeholder="Min">
-											<i class="currency">USD</i>
-										</div>
-									</div>
-									<div class="col-xl-6">
-										<div class="input-with-icon">
-											<input class="with-border" type="text" placeholder="Max">
-											<i class="currency">USD</i>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Salary</h5>
+                                <div class="row">
+                                    <div class="col-xl-6">
+                                        <div class="input-with-icon">
+                                            <input @bind="DataJob.SalaryMin" class="with-border" type="number" placeholder="Min">
+                                            <i class="currency">IDR</i>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="input-with-icon">
+                                            <input @bind="DataJob.SalaryMax" class="with-border" type="number" placeholder="Max">
+                                            <i class="currency">IDR</i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-						<div class="col-xl-4">
-							<div class="submit-field">
-								<h5>Tags <span>(optional)</span>  <i class="help-icon" data-tippy-placement="right" title="Maximum of 10 tags"></i></h5>
-								<div class="keywords-container">
-									<div class="keyword-input-container">
-										<input type="text" class="keyword-input with-border" placeholder="e.g. job title, responsibilites" />
-										<button class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
-									</div>
-									<div class="keywords-list"><!-- keywords go here --></div>
-									<div class="clearfix"></div>
-								</div>
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Tags <span>(optional)</span>  <i class="help-icon" data-tippy-placement="right" title="Maximum of 10 tags"></i></h5>
+                                <div class="keywords-container">
+                                    <div class="keyword-input-container">
+                                        <input @bind="NewTag" type="text" class="keyword-input with-border" placeholder="e.g. job title, responsibilites" />
+                                        <button @onclick="AddTag" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                                    </div>
+                                    <div class="keywords-list">
+                                        @if (Tags.Count > 0)
+                                        {
+                                            foreach(var tag in Tags)
+                                            {
+                                                <span class="keyword">
+                                                    <span @onclick="()=>RemoveTag(tag)" class="keyword-remove"></span>
+                                                    <span class="keyword-text">@tag</span>
+                                                </span>
+                                            }
+                                        }
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
 
-							</div>
-						</div>
+                            </div>
+                        </div>
 
-						<div class="col-xl-12">
-							<div class="submit-field">
-								<h5>Job Description</h5>
-								<textarea cols="30" rows="5" class="with-border"></textarea>
-								<div class="uploadButton margin-top-30">
-									<input class="uploadButton-input" type="file" accept="image/*, application/pdf" id="upload" multiple />
-									<label class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
-									<span class="uploadButton-file-name">Images or documents that might be helpful in describing your job</span>
-								</div>
-							</div>
-						</div>
+                        <div class="col-xl-12">
+                            <div class="submit-field">
+                                <h5>Job Description</h5>
+                                <textarea @bind="DataJob.JobDesc" cols="30" rows="5" class="with-border"></textarea>
+                                <div class="uploadButton margin-top-30">
+                                    <InputFile class="uploadButton-input" id="fileInput1" accept="image/*, application/pdf" multiple OnChange="UploadFiles" hidden />
 
-					</div>
-				</div>
-			</div>
-		</div>
+                                    <label @onclick="(()=>PrepareUpload())" class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
+                                    <span class="uploadButton-file-name">Images or documents that might be helpful in describing your job</span>
+                                </div>
 
-		<div class="col-xl-12">
-			<a href="#" class="button ripple-effect big margin-top-30"><i class="icon-feather-plus"></i> Post a Job</a>
-		</div>
+                                @if (DataJob.AttachmentUrls?.Length > 0)
+                                {
+                                    <ul>
+                                        @{
+                                            var files = DataJob.AttachmentUrls.Split(';');
+                                        }
+                                        @foreach (var fileurl in files)
+                                        {
+                                            <li>
+                                                <a href="@fileurl">@Path.GetFileNameWithoutExtension(fileurl.Replace(AppConstants.UploadUrlPrefix,""))</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
 
-	</div>
-	<!-- Row / End -->
-	<!-- Footer -->
-	<div class="dashboard-footer-spacer"></div>
-	<SmallFooterPage></SmallFooterPage>
-	<!-- Footer / End -->
+                            </div>
+                        </div>
 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-12">
+            <a href="#" @onclick:preventDefault @onclick="SaveJob" class="button ripple-effect big margin-top-30"><i class="icon-feather-plus"></i> Post a Job</a>
+        </div>
+
+    </div>
+    <!-- Row / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
+    
 </div>
 @code {
+    public PickLocation loc { get; set; }
+    List<string> Tags = new();
+    List<Company> ListCompany = new();
+    bool IsFailed = false;
+    UserProfile DataUser = new UserProfile();
+    Job DataJob = new();
+    string ErrorMsg = string.Empty;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    List<JobCategory> ListCategory = new List<JobCategory>();
+    string NewTag = "";
+    void PrepareForPick()
+    {
+        loc.Address = DataJob.Location;
+    }
 
+    private async void RefreshLocation()
+    {
+        DataJob.Latitude = loc.SelectedLocation.Latitude.ToString();
+        DataJob.Longitude = loc.SelectedLocation.Longitude.ToString();
+        StateHasChanged();
+    }
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        var fileurls = new List<string>();
+        foreach (var file in e.GetMultipleFiles(e.FileCount))
+        {
+
+            //var file = e.File;
+            if (file != null)
+            {
+                var ms = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                //var bytes = SKiaImageHelper.FixedSize(ms, 900, 500, false);
+                string newName = string.Empty;
+
+                newName = $"JobFile_{(string.IsNullOrEmpty(DataUser.Username) ? "rojul" : DataUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+                await AzureBlobHelper.UploadFile(newName, bytes);
+                fileurls.Add(FileUrl);
+
+            }
+        }
+        DataJob.AttachmentUrls = string.Join(';', fileurls);
+    }
+    async Task PrepareUpload()
+    {
+        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInput1");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            DataUser = service.GetItemByUsername(UserName);
+            DataJob.EmployerId = DataUser.Id;
+        }
+        ListCategory = CategorySvc.GetAllData();
+        ListCompany = CompanySvc.GetAllData();
+    }
+
+    async Task AddTag()
+    {
+        if (string.IsNullOrEmpty(NewTag)) return;
+        Tags.Add(NewTag);
+        NewTag = string.Empty;
+    }
+
+    async Task RemoveTag(string Name)
+    {
+        Tags.Remove(Name);
+    }
+
+    async Task SaveJob()
+    {
+        IsFailed = true;
+        bool isPengurus = false;
+        ErrorMsg = "";
+        UserProfileService svc = new UserProfileService();
+
+        if (string.IsNullOrEmpty(DataJob.JobTitle))
+        {
+            ErrorMsg += "Tolong di isi judul pekerjaan. ";
+
+        }
+        if (string.IsNullOrEmpty(DataJob.Location))
+        {
+            ErrorMsg += "Tolong di isi lokasi kerja. ";
+
+        }
+        if (string.IsNullOrEmpty(DataJob.JobDesc))
+        {
+            ErrorMsg += "Tolong di isi deskripsi kerjaan. ";
+
+        }
+        if (DataJob.SalaryMax <= 0 || DataJob.SalaryMin <= 0 || DataJob.SalaryMax < DataJob.SalaryMin)
+        {
+            ErrorMsg += "Tolong di isi gaji dengan benar. ";
+
+        }
+
+        if (string.IsNullOrEmpty(DataJob.JobCategory))
+        {
+            ErrorMsg += "Tolong di isi kategori kerjaan. ";
+
+        }
+        if (string.IsNullOrEmpty(DataJob.JobType))
+        {
+            ErrorMsg += "Tolong di isi tipe kerjaan. ";
+
+        }
+
+        DataJob.EmployerId = DataUser.Id;
+        if (Tags.Count > 0)
+        {
+            DataJob.Tags = string.Join(';', Tags);
+        }
+
+        if (ErrorMsg.Length > 0)
+        {
+            toastService.ShowWarning(ErrorMsg, "Perhatian");
+            return;
+        }
+
+        DataJob.CreatedDate = DateHelper.GetLocalTimeNow();
+
+        if (JobSvc.InsertData(DataJob))
+        {
+
+            toastService.ShowSuccess("Job berhasil di simpan.", "Info");
+            IsFailed = true;
+
+        }
+
+    }
 }

@@ -20,6 +20,7 @@ namespace Cangkulan.Data
         {
         }
 
+        public DbSet<JobCategory> JobCategorys { get; set; }     
         public DbSet<UserProfile> UserProfiles { get; set; }     
         public DbSet<MessageHeader> MessageHeaders { get; set; }      
         public DbSet<MessageDetail> MessageDetails { get; set; }      

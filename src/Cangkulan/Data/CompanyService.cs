@@ -35,7 +35,7 @@ namespace Cangkulan.Data
 
         public List<Company> GetAllData()
         {
-            return db.Companys.OrderBy(x => x.Id).ToList();
+            return db.Companys.OrderBy(x => x.FullName).ToList();
         }
 
         public Company GetDataById(object Id)

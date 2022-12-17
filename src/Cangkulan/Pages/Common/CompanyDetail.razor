@@ -1,0 +1,182 @@
+﻿@inject IJSRuntime jsRuntime
+@using System.IO
+@inject IToastService toastService
+@inject CompanyService service
+@inject AzureBlobHelper AzureBlobHelper;
+<div class="modal" tabindex="-1" role="dialog" id="taskModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group">
+                        <label for="nama">Title</label>
+                        <input type="hidden" @bind="@TaskObject.Id" />
+                        <input type="text" id="nama" class="form-control" @bind="@TaskObject.FullName" />
+                        <ValidationMessage For="@(() => TaskObject.FullName)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pic">Address</label>
+                        <textarea type="text" id="pic" class="form-control" @bind="@TaskObject.Address" />
+                        <ValidationMessage For="@(() => TaskObject.Address)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Category">Category</label>
+                        <input type="text" id="Category" class="form-control" @bind="@TaskObject.Category" />
+                        <ValidationMessage For="@(() => TaskObject.Category)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="About">About</label>
+                        <input type="text" id="About" class="form-control" @bind="@TaskObject.About" />
+                        <ValidationMessage For="@(() => TaskObject.About)" />
+                    </div>   
+                    
+                    <div class="form-group">
+                        <label for="WebUrl">Website</label>
+                        <input type="text" id="WebUrl" class="form-control" @bind="@TaskObject.WebUrl" />
+                        <ValidationMessage For="@(() => TaskObject.WebUrl)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Logo">Logo</label>
+                        <div class="fileupload_block">
+                            <InputFile id="fileInput1" accept=".jpg,.png,.jpeg,.gif" multiple OnChange="UploadFiles" style="display:none;" hidden />
+                            <button type="button" class="btn btn-success" @onclick="(()=>PrepareUpload())"  >Pilih Gambar</button> 
+                            @if (TaskObject.LogoUrl?.Length > 0)
+                            {
+                                    <p>Gambar sudah diupload</p>
+                            }
+                            else
+                            {
+                                    <p>Pilih Gambar</p>
+                            }
+                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group ">
+
+                            <a class="btn btn-success btn-sm mt-2 mb-2" style="cursor:crosshair;color:white;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Peta</a>
+                        </div>
+
+                        <div class="form-group col-md-6 col-sm-6- col-xs-12">
+                            <label>Latitude :-</label>
+                        <input @bind="TaskObject.Latitude" placeholder="Latitude" class="form-control" type="text">
+                        </div>
+                        <div class="form-group col-md-6 col-sm-6- col-xs-12">
+                            <label>Longitude :-</label>
+                        <input @bind="TaskObject.Longitude" placeholder="Lontgitude" class="form-control" type="text">
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+
+                <PickLocation @ref="loc" DataChanged="@RefreshLocation">
+                    <CustomHeader>Pilih Lokasi</CustomHeader>
+                </PickLocation>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+    [Parameter]
+    public Company TaskObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    public PickLocation loc { get; set; }
+    void PrepareForPick()
+    {
+        loc.Address = TaskObject.Address;
+    }
+    private async void RefreshLocation()
+    {
+        TaskObject.Latitude = loc.SelectedLocation.Latitude.ToString();
+        TaskObject.Longitude = loc.SelectedLocation.Longitude.ToString();
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+
+        }
+    }
+
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        var imageurls = new List<string>();
+        foreach (var file in e.GetMultipleFiles(e.FileCount))
+        {
+
+            //var file = e.File;
+            if (file != null)
+            {
+                var ms = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(ms);
+                var bytes = SKiaImageHelper.FixedSize(ms, 900, 500, false);
+                string newName = string.Empty;
+
+                newName = $"Company_{(string.IsNullOrEmpty(UserName) ? "rojul" : UserName)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+                await AzureBlobHelper.UploadFile(newName, bytes);
+                imageurls.Add(FileUrl);
+
+            }
+        }
+        TaskObject.LogoUrl = string.Join(';', imageurls);
+    }
+    async Task PrepareUpload()
+    {
+        await jsRuntime.InvokeVoidAsync("OpenFileUpload", "fileInput1");
+    }
+    private async void HandleValidSubmit()
+    {
+
+
+        if (TaskObject.Id == 0)
+        {
+
+            var hasil = service.InsertData(TaskObject);
+            if (!hasil)
+            {
+                toastService.ShowError("Gagal menyimpan data. Isi data dengan lengkap.", "Perhatian");
+            }
+        }
+        else
+        {
+            service.UpdateData(TaskObject);
+        }
+
+        await CloseTaskModal();
+        DataChanged?.Invoke();
+    }
+
+    private async Task CloseTaskModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "taskModal");
+    }
+
+
+}

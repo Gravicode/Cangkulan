@@ -1,0 +1,189 @@
+﻿@page "/manage-company"
+@layout AdminLayout
+@inject IJSRuntime IJS
+@inject CompanyService service
+
+@inject NavigationManager NavMgr
+@inject UserProfileService Userservice
+@inject IToastService toastService
+
+<div class="dashboard-content-inner">
+
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Manage Company</h3>
+
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li>Manage Company</li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Row -->
+    <div class="row">
+
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box margin-top-0">
+
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-business-center"></i> List Company</h3>
+                </div>
+
+                <div class="content">
+
+                    <div>
+                        <input type="button" data-toggle="modal" data-target="#taskModal" class="button ripple-effect" value="Tambah Company" @onclick="(() => InitializeitemObject())" />
+                    </div>
+                   
+                    <table id="gridData" name="gridData" class="basic-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>About</th>
+                                <th>Category</th>
+                                <th>WebUrl</th>
+                                <th>IsVerified</th>
+                                <th>Actions</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            @foreach (var item in DataCompany)
+                            {
+                                <tr>
+                                    <td>@item.FullName</td>
+                                    <td>@item.Address</td>
+                                    <td>@item.About</td>
+                                    <td>@item.Category</td>
+                                    <td>@item.WebUrl</td>
+                                    <td>@(item.IsVerified ? "Ya" : "Belum")</td>
+                                    <td>
+                                        <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <ConfirmDialog OnClick="@Delete" />
+    <CompanyDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
+        <CustomHeader>@customHeader</CustomHeader>
+    </CompanyDetail>
+    <!-- Row / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
+
+</div>
+@code {
+    bool HasLogin = false;
+    CompanyDetail detail;
+
+    string customHeader = string.Empty;
+    List<Company> DataCompany = new();
+    Company itemObject = new Company();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    
+    async Task DownloadFile(string Url)
+    {
+        if (!string.IsNullOrEmpty(Url))
+        {
+            NavMgr.NavigateTo(Url, true);
+        }
+        else
+        {
+            toastService.ShowError("Url kosong atau tidak valid.");
+        }
+
+    }
+
+    UserProfile selUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            selUser = Userservice.GetItemByEmail(UserName);
+            HasLogin = true;
+        }
+
+
+        await LoadData();
+
+    }
+    private async ValueTask<ItemsProviderResult<Company>> LoadCompany(ItemsProviderRequest request)
+    {
+        var numRecord = Math.Min(request.Count, DataCompany.Count - request.StartIndex);
+        var datas = DataCompany.Skip(request.StartIndex).Take(numRecord);
+        //await EmployeesService.GetEmployeesAsync(request.StartIndex, numEmployees, request.CancellationToken);
+
+        return new ItemsProviderResult<Company>(datas, DataCompany.Count);
+    }
+    async Task LoadData()
+    {
+        DataCompany = service.GetAllData();
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+
+        }
+    }
+
+    private void InitializeitemObject()
+    {
+
+        itemObject = new Company();
+
+
+        customHeader = "Masukan Company Baru";
+    }
+    private async void DataChanged()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private void PrepareForEdit(Company item)
+    {
+        customHeader = "Ubah Data Company";
+        itemObject = item;
+        //detail.DocumentUrl = item.DocumentUrl;
+    }
+    private void PrepareForDelete(Company item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        await LoadData();
+        itemObject = new Company() { Id = -1 };
+    }
+
+
+}
