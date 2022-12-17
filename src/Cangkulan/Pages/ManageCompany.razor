@@ -37,11 +37,11 @@
 
                 <div class="content">
 
-                    <div>
+                    <div class="col-xl-2 mt-2">
                         <input type="button" data-toggle="modal" data-target="#taskModal" class="button ripple-effect" value="Tambah Company" @onclick="(() => InitializeitemObject())" />
                     </div>
                    
-                    <table id="gridData" name="gridData" class="basic-table">
+                    <table id="gridData" name="gridData" class="basic-table col-xl-10">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -72,15 +72,16 @@
                             }
                         </tbody>
                     </table>
+                    <ConfirmDialog OnClick="@Delete" />
+                    <CompanyDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
+                        <CustomHeader>@customHeader</CustomHeader>
+                    </CompanyDetail>
                 </div>
             </div>
         </div>
 
     </div>
-    <ConfirmDialog OnClick="@Delete" />
-    <CompanyDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
-        <CustomHeader>@customHeader</CustomHeader>
-    </CompanyDetail>
+   
     <!-- Row / End -->
     <!-- Footer -->
     <div class="dashboard-footer-spacer"></div>
