@@ -40,6 +40,7 @@ builder.Services.AddScoped<HttpContextAccessor>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddTransient<AzureBlobHelper>();
+builder.Services.AddSingleton<AppState>();
 builder.Services.AddTransient<LogService>();
 builder.Services.AddTransient<UserProfileService>();
 builder.Services.AddTransient<ContactService>();

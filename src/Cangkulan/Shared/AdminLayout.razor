@@ -4,9 +4,10 @@
 @inject NavigationManager NavMgr
 @inject IJSRuntime jsRuntime
 @inject UserProfileService Userservice
+@inject CompanyService CompanySvc
 <PageTitle>Cangkulan App</PageTitle>
 @inject IJSRuntime IJS
-
+@inject AppState AppState
 
 <!-- Wrapper -->
 <div id="wrapper">
@@ -262,7 +263,10 @@
 	
 </div>
 <!-- Wrapper / End -->
-
+<ConfirmDialog OnClick="@Delete" />
+<CompanyDetail @ref="detail" TaskObject=@CompanyItem DataChanged="@CompanyDataChanged">
+	<CustomHeader>@CompanyDetailHeader</CustomHeader>
+</CompanyDetail>
 <JobPopupPage></JobPopupPage>
 
 <ReviewPopupPage></ReviewPopupPage>
@@ -277,21 +281,79 @@
 					ErrorIconClass="fa fa-bug" />
 
 @code {
-    [Parameter]
-    public bool IsTransparent { get; set; } = true;
+	string SelectDelete;
+	CompanyDetail detail;
+	string CompanyDetailHeader = "Company Detail";
 
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-    async Task Keluar()
-    {
-        NavMgr.NavigateTo($"/logout", true);
-        //await localStorage.SetItemAsync(AppConstants.NameKey, "");
-        //NavMgr.NavigateTo($"/login");
-    }
+	[Parameter]
+	public Company CompanyItem { get; set; } = new();
+
+	public Company DeleteCompanyItem { get; set; } 
+
+	[Parameter]
+	public bool IsTransparent { get; set; } = true;
+
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+	async Task Keluar()
+	{
+		NavMgr.NavigateTo($"/logout", true);
+		//await localStorage.SetItemAsync(AppConstants.NameKey, "");
+		//NavMgr.NavigateTo($"/login");
+	}
+	public void InitCompany()
+	{
+
+		CompanyItem = new Company();
 
 
-    string Nama = "Saya";
-    protected override async Task OnInitializedAsync()
+		CompanyDetailHeader = "Masukan Company Baru";
+	}
+	public async void CompanyDataChanged()
+	{
+		AppState.RefreshCompany(UserName);
+		//StateHasChanged();
+	}
+
+	public void EditCompany(Company item)
+	{
+		CompanyDetailHeader = "Ubah Data Company";
+		CompanyItem = item;
+		//detail.DocumentUrl = item.DocumentUrl;
+	}
+
+	public void PrepareDeleteCompany(Company item)
+	{
+		SelectDelete = "Company";
+		DeleteCompanyItem = item;
+	}
+
+	private async Task Delete()
+	{
+		switch (SelectDelete)
+		{
+			case "Company":
+				if(DeleteCompanyItem!=null)
+					await DeleteCompany();
+
+				break;
+			default:
+				break;
+		}	
+	}
+
+	private async Task DeleteCompany()
+	{
+		var task = CompanySvc.DeleteData(DeleteCompanyItem.Id);
+		await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+		//await LoadData();
+		DeleteCompanyItem = null;
+		AppState.RefreshCompany(UserName);
+	}
+
+	string Nama = "Saya";
+	string UserName;
+	protected override async Task OnInitializedAsync()
     {
 
 
@@ -299,7 +361,7 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            var UserName = user.Identity.Name;
+            UserName = user.Identity.Name;
             Nama = Userservice.GetUserByEmail(UserName)?.FullName;
         }
     }

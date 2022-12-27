@@ -6,6 +6,8 @@
 @inject NavigationManager NavMgr
 @inject UserProfileService Userservice
 @inject IToastService toastService
+@inject AppState AppState
+@implements IDisposable
 
 <div class="dashboard-content-inner">
 
@@ -72,10 +74,7 @@
                             }
                         </tbody>
                     </table>
-                    <ConfirmDialog OnClick="@Delete" />
-                    <CompanyDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
-                        <CustomHeader>@customHeader</CustomHeader>
-                    </CompanyDetail>
+                    
                 </div>
             </div>
         </div>
@@ -91,7 +90,8 @@
 </div>
 @code {
     bool HasLogin = false;
-    CompanyDetail detail;
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
 
     string customHeader = string.Empty;
     List<Company> DataCompany = new();
@@ -99,7 +99,16 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     string UserName;
-    
+    public void Dispose()
+    {
+        AppState.OnCompanyChange -= RefreshCompany;
+
+    }
+    async void RefreshCompany(string tousername)
+    {
+        await LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
     async Task DownloadFile(string Url)
     {
         if (!string.IsNullOrEmpty(Url))
@@ -130,7 +139,7 @@
 
 
         await LoadData();
-
+        AppState.OnCompanyChange += RefreshCompany;
     }
     private async ValueTask<ItemsProviderResult<Company>> LoadCompany(ItemsProviderRequest request)
     {
@@ -156,11 +165,7 @@
 
     private void InitializeitemObject()
     {
-
-        itemObject = new Company();
-
-
-        customHeader = "Masukan Company Baru";
+        Layout.InitCompany();
     }
     private async void DataChanged()
     {
@@ -172,19 +177,15 @@
     {
         customHeader = "Ubah Data Company";
         itemObject = item;
+        Layout.EditCompany(item);
         //detail.DocumentUrl = item.DocumentUrl;
     }
     private void PrepareForDelete(Company item)
     {
         itemObject = item;
+        Layout.PrepareDeleteCompany(item);
     }
-    private async Task Delete()
-    {
-        var task = service.DeleteData(itemObject.Id);
-        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
-        await LoadData();
-        itemObject = new Company() { Id = -1 };
-    }
+    
 
 
 }

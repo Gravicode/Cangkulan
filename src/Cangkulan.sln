@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IDCH.Storage", "IDCH.Storag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helper", "Helper", "{B510B0AA-22C1-4A01-922D-78D57A015653}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{5C072528-6AC6-4452-8BDE-DFA58643989A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{DE0FAD70-9BF4-4020-A14B-81A218150566} = {5C072528-6AC6-4452-8BDE-DFA58643989A}
 		{5773F8EF-146B-43F0-B2EC-B14BA93D1B60} = {B510B0AA-22C1-4A01-922D-78D57A015653}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
