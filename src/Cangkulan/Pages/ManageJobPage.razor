@@ -140,5 +140,16 @@
 
 </div>
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
 
+        if (firstRender)
+        {
+            //IJS.InvokeVoidAsync("InitJs");
+        }
+    }
 }

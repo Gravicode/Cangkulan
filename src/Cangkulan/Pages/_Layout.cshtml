@@ -54,7 +54,8 @@
     <!-- Google API & Maps -->
     <!-- Geting an API Key: https://developers.google.com/maps/documentation/javascript/get-api-key -->
     @*<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpqcgMnKf1TnQPRQKNmlnUgqh_EI0t_Iw&libraries=places"></script>*@
-
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpqcgMnKf1TnQPRQKNmlnUgqh_EI0t_Iw&v=3&libraries=places"></script>
+    <script src="_content/BlazorGoogleMaps/objectManager.js"></script>
 
     <!-- Leaflet // Docs: https://leafletjs.com/ -->
     <script src="js/leaflet.min.js"></script>
@@ -68,7 +69,7 @@
     <script src="js/leaflet-markercluster.min.js"></script>
     <script src="js/leaflet-gesture-handling.min.js"></script>
     <script src="js/leaflet-hireo.js"></script>
-    
+
     <script type="module" src="js/webcam.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js" integrity="sha512-s/XK4vYVXTGeUSv4bRPOuxSDmDlTedEpMEcAQk0t/FMd9V6ft8iXdwSBxV0eD60c6w/tjotSlKu9J2AAW1ckTA==" crossorigin="anonymous"></script>
     <script type="module" src="js/capture.js"></script>
@@ -91,12 +92,10 @@
 
     <script src="js/custom.js"></script>
     <!-- Page level custom scripts -->
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpqcgMnKf1TnQPRQKNmlnUgqh_EI0t_Iw&v=3&libraries=places"></script>
-    <script src="_content/BlazorGoogleMaps/objectManager.js"></script>
-    <script>
-        function OpenFileUpload(uploadid) {
-           
-            $('#'+uploadid+':hidden').trigger('click');
+
+    <script>function OpenFileUpload(uploadid) {
+
+            $('#' + uploadid + ':hidden').trigger('click');
         }
         function OpenUrl(url) {
             window.location = url;
@@ -144,13 +143,7 @@
                 var topPosition = $(".table_container").scrollTop();
                 $(table + " thead tr th").css({ "top": (topPosition) });
             });
-        }
-
-        
-       
-
-       
-    </script>
+        }</script>
 
     <script src="_framework/blazor.server.js"></script>
 </body>
