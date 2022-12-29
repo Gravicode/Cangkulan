@@ -1,10 +1,10 @@
 ﻿@page "/post-job"
+@page "/post-job/{JobId:long}"
 @layout AdminLayout
 @inject IJSRuntime IJS
 
 @inject NavigationManager NavMgr
 @inject IToastService toastService
-@using Cangkulan.Tools
 @inject JobService JobSvc
 @inject UserProfileService service
 @inject CompanyService CompanySvc
@@ -22,7 +22,7 @@
         <!-- Breadcrumbs -->
         <nav id="breadcrumbs" class="dark">
             <ul>
-                <li><a href="#">Home</a></li>
+                <li><a href="/">Home</a></li>
                 <li><a href="#">Dashboard</a></li>
                 <li>Post a Job</li>
             </ul>
@@ -92,7 +92,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-4">
+                        <div class="col-xl-3">
                             <div class="submit-field">
                                 <h5>Location</h5>
                                 <div class="input-with-icon">
@@ -106,7 +106,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-4">
+                        <div class="col-xl-3">
                             <div class="submit-field">
                                 <h5>Salary (Min - Max)</h5>
                                 <div class="row">
@@ -128,7 +128,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-4">
+                        <div class="col-xl-3">
                             <div class="submit-field">
                                 <h5>Tags <span>(optional)</span>  <i class="help-icon" data-tippy-placement="right" title="Maximum of 10 tags"></i></h5>
                                 <div class="keywords-container">
@@ -151,6 +151,13 @@
                                     <div class="clearfix"></div>
                                 </div>
 
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3">
+                            <div class="submit-field">
+                                <h5>Expiry Date</h5>
+                                <input @bind="DataJob.ExpiryDate" type="datetime" placeholder="Expiry Date" class="with-border">
                             </div>
                         </div>
 
@@ -208,6 +215,8 @@
     
 </div>
 @code {
+    [Parameter]
+    public long JobId { get; set; } = -1;
     List<string> Tags = new();
     List<Company> ListCompany = new();
     bool IsFailed = false;
@@ -265,9 +274,14 @@
             UserName = user.Identity.Name;
             SelUser = service.GetItemByUsername(UserName);
             DataJob.EmployerId = SelUser.Id;
+            DataJob.ExpiryDate = DateHelper.GetLocalTimeNow().AddMonths(3);
         }
         ListCategory = CategorySvc.GetAllData();
         ListCompany = CompanySvc.GetAllData();
+        if (JobId > 0)
+        {
+            DataJob = JobSvc.GetDataById(JobId);
+        }
         AppState.OnLocationChange += SelectLocation;
     }
 
@@ -335,16 +349,37 @@
 
         DataJob.CreatedDate = DateHelper.GetLocalTimeNow();
 
-        if (JobSvc.InsertData(DataJob))
+        if (JobId > 0)
         {
+            if (JobSvc.UpdateData(DataJob))
+            {
 
-            toastService.ShowSuccess("Job berhasil di simpan.", "Info");
-            IsFailed = false;
-            DataJob = new();
+                toastService.ShowSuccess("Job berhasil di simpan.", "Info");
+                IsFailed = false;
+                DataJob = new();
+                await Open("/manage-job");
+            }
+            else
+            {
+                IsFailed = true;
+                ErrorMsg += " Data Gagal disimpan.";
+
+            }
         }
         else
         {
-            IsFailed = true;
+            if (JobSvc.InsertData(DataJob))
+            {
+
+                toastService.ShowSuccess("Job berhasil di simpan.", "Info");
+                IsFailed = false;
+                DataJob = new();
+            }
+            else
+            {
+                ErrorMsg += " Data Gagal disimpan.";
+                IsFailed = true;
+            }
         }
 
     }

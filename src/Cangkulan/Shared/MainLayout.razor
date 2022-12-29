@@ -5,112 +5,112 @@
 @inject IJSRuntime jsRuntime
 @inject UserProfileService Userservice
 @inject IJSRuntime IJS
-    <PageTitle>Cangkulan App</PageTitle>
+<PageTitle>Cangkulan App</PageTitle>
 
-    <!-- Wrapper -->
-    <div id="wrapper" class="@(IsTransparent?"wrapper-with-transparent-header":"")">
+<!-- Wrapper -->
+<div id="wrapper" class="@(IsTransparent?"wrapper-with-transparent-header":"")">
 
-        <!-- Header Container
-        ================================================== -->
-        <header id="header-container" class="fullwidth">
+    <!-- Header Container
+    ================================================== -->
+    <header id="header-container" class="fullwidth">
 
-            <!-- Header -->
-            <div id="header">
-                <div class="container">
+        <!-- Header -->
+        <div id="header">
+            <div class="container">
 
-                    <!-- Left Side Content -->
-                    <div class="left-side">
+                <!-- Left Side Content -->
+                <div class="left-side">
 
-                        <!-- Logo -->
-                        <div id="logo">
-                            @if (IsTransparent)
-                            {
-                                <a href="index"><img src="images/logo2.png" data-sticky-logo="images/logo.png" data-transparent-logo="images/logo2.png" alt=""></a>
-                            }
-                            else
-                            {
+                    <!-- Logo -->
+                    <div id="logo">
+                        @if (IsTransparent)
+                        {
+                            <a href="index"><img src="images/logo2.png" data-sticky-logo="images/logo.png" data-transparent-logo="images/logo2.png" alt=""></a>
+                        }
+                        else
+                        {
 
-                                <a href="/"><img src="images/logo.png" alt=""></a>
+                            <a href="/"><img src="images/logo.png" alt=""></a>
 
-                            }
-                        </div>
-
-                        <!-- Main Navigation -->
-                        <HeaderNav></HeaderNav>
-                        <div class="clearfix"></div>
-                        <!-- Main Navigation / End -->
-
+                        }
                     </div>
-                    <!-- Left Side Content / End -->
-                    <!-- Right Side Content / End -->
-                    <HamburgerMenu></HamburgerMenu>
-                    <!-- Right Side Content / End -->
+
+                    <!-- Main Navigation -->
+                    <HeaderNav></HeaderNav>
+                    <div class="clearfix"></div>
+                    <!-- Main Navigation / End -->
 
                 </div>
+                <!-- Left Side Content / End -->
+                <!-- Right Side Content / End -->
+                <HamburgerMenu></HamburgerMenu>
+                <!-- Right Side Content / End -->
+
             </div>
-            <!-- Header / End -->
-
-        </header>
-        <div class="clearfix"></div>
-        <!-- Header Container / End -->
-
-        <CascadingValue Value="this">
-            <!-- Main Content -->
-            @Body
-        </CascadingValue>
-
-        <!-- Footer
-        ================================================== -->
-        <div id="footer">
-
-            <FooterPage></FooterPage>
-
         </div>
-        <!-- Footer / End -->
+        <!-- Header / End -->
 
+    </header>
+    <div class="clearfix"></div>
+    <!-- Header Container / End -->
+
+    <CascadingValue Value="this">
+        <!-- Main Content -->
+        @Body
+    </CascadingValue>
+
+    <!-- Footer
+    ================================================== -->
+    <div id="footer">
+
+        <FooterPage></FooterPage>
 
     </div>
-    <!-- Wrapper / End -->
-    <BlazoredToasts Position="ToastPosition.BottomRight"
-                    Timeout="10"
-                    SuccessClass="success-toast-override"
-                    SuccessIconClass="fa fa-thumbs-up"
-                    ErrorIconClass="fa fa-bug" />
+    <!-- Footer / End -->
 
-    @code {
-        [Parameter]
-        public bool IsTransparent { get; set; } = true;
 
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationStateTask { get; set; }
-        async Task Keluar()
+</div>
+<!-- Wrapper / End -->
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="10"
+                SuccessClass="success-toast-override"
+                SuccessIconClass="fa fa-thumbs-up"
+                ErrorIconClass="fa fa-bug" />
+
+@code {
+    [Parameter]
+    public bool IsTransparent { get; set; } = true;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    async Task Keluar()
+    {
+        NavMgr.NavigateTo($"/logout", true);
+        //await localStorage.SetItemAsync(AppConstants.NameKey, "");
+        //NavMgr.NavigateTo($"/login");
+    }
+
+
+    string Nama = "Saya";
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
         {
-            NavMgr.NavigateTo($"/logout", true);
-            //await localStorage.SetItemAsync(AppConstants.NameKey, "");
-            //NavMgr.NavigateTo($"/login");
+            var UserName = user.Identity.Name;
+            Nama = Userservice.GetUserByEmail(UserName)?.FullName;
         }
+    }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
 
-        string Nama = "Saya";
-        protected override async Task OnInitializedAsync()
+        if (firstRender)
         {
-
-
-            var user = (await authenticationStateTask).User;
-
-            if (user.Identity.IsAuthenticated)
-            {
-                var UserName = user.Identity.Name;
-                Nama = Userservice.GetUserByEmail(UserName)?.FullName;
-            }
+            IJS.InvokeVoidAsync("InitJs");
         }
-
-        protected override void OnAfterRender(bool firstRender)
-        {
-
-            if (firstRender)
-            {
-                IJS.InvokeVoidAsync("InitJs");
-            }
-        }
+    }
     }

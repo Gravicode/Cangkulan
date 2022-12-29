@@ -1,4 +1,5 @@
 ﻿@page "/job-detail"
+@page "/job-detail/{JobId:long}"
 @layout ContentLayoutBlack
 @inject IJSRuntime IJS
 <!-- Titlebar
@@ -203,5 +204,6 @@
 </div>
 
 @code {
-
+	[Parameter]
+	public long JobId { get; set; }
 }

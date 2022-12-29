@@ -8,6 +8,12 @@ using System.Reflection;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class JobStatus
+    {
+        public const string Active = "Active";
+		public const string Expire = "Expire";
+		public const string NonActive = "NonActive";
+	}
     public class StorageObject
     {
         public string Name { get; set; }
@@ -491,10 +497,12 @@ namespace Cangkulan.Models
         public double SalaryMax { set; get; }
         public string? Tags { set; get; }
         public string? JobDesc { set; get; }
+        public string? Status { set; get; } = "Active";
         public string AttachmentUrls { set; get; }
         public bool Active { set; get; } = true;
         public DateTime CreatedDate { set; get; }
-        public ICollection<JobCandidate> JobCandidates { get; set; }
+		public DateTime? ExpiryDate { set; get; }
+		public ICollection<JobCandidate> JobCandidates { get; set; }
     }
 
     [Table("job_candidate")]

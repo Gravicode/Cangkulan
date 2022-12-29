@@ -1,4 +1,5 @@
 ﻿@page "/manage-candidate"
+@page "/manage-candidate/{UserId:long}"
 @layout AdminLayout
 @inject IJSRuntime IJS
 <div class="dashboard-content-inner">
@@ -148,7 +149,9 @@
 
 </div>
 @code {
-    protected override void OnAfterRender(bool firstRender)
+	[Parameter]
+	public long UserId { get; set; } = -1;
+	protected override void OnAfterRender(bool firstRender)
     {
 
         if (firstRender)
