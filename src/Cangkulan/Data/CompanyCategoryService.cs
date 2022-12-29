@@ -8,53 +8,53 @@ using System.Threading.Tasks;
 
 namespace Cangkulan.Data
 {
-    public class CompanyService : ICrud<Company>
+    public class CompanyCategoryService : ICrud<CompanyCategory>
     {
         CangkulanDB db;
 
-        public CompanyService()
+        public CompanyCategoryService()
         {
             if (db == null) db = new CangkulanDB();
 
         }
         public bool DeleteData(object Id)
         {
-            var selData = (db.Companys.Where(x => x.Id == (long)Id).FirstOrDefault());
-            db.Companys.Remove(selData);
+            var selData = (db.CompanyCategorys.Where(x => x.Id == (long)Id).FirstOrDefault());
+            db.CompanyCategorys.Remove(selData);
             db.SaveChanges();
             return true;
         }
 
-        public List<Company> FindByKeyword(string Keyword)
+        public List<CompanyCategory> FindByKeyword(string Keyword)
         {
-            var data = from x in db.Companys
-                       where x.FullName.Contains(Keyword)
+            var data = from x in db.CompanyCategorys
+                       where x.Category.Contains(Keyword) || x.SubCategory.Contains(Keyword)
                        select x;
             return data.ToList();
         }
 
-        public List<Company> GetAllData()
+        public List<CompanyCategory> GetAllData()
         {
-            return db.Companys.OrderBy(x => x.FullName).ToList();
+            return db.CompanyCategorys.OrderBy(x => x.Category).ToList();
         }
 
-        public Company GetDataById(object Id)
+        public CompanyCategory GetDataById(object Id)
         {
-            return db.Companys.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.CompanyCategorys.Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 
-        public bool InsertData(Company data)
+        public bool InsertData(CompanyCategory data)
         {
             try
             {
-                db.Companys.Add(data);
+                db.CompanyCategorys.Add(data);
                 db.SaveChanges();
                 return true;
             }
-            catch(Exception ex)
+            catch
             {
-                Console.WriteLine(ex);
+
             }
             return false;
 
@@ -62,7 +62,7 @@ namespace Cangkulan.Data
 
 
 
-        public bool UpdateData(Company data)
+        public bool UpdateData(CompanyCategory data)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Cangkulan.Data
 
         public long GetLastId()
         {
-            return db.Companys.Max(x => x.Id);
+            return db.CompanyCategorys.Max(x => x.Id);
         }
     }
 

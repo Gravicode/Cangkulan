@@ -142,10 +142,18 @@
 
         <!-- Messages -->
         <div class="header-notifications user-menu">
-            <div class="header-notifications-trigger">
-                <a href="#"><div class="user-avatar status-online"><img src="images/user-avatar-small-01.jpg" alt=""></div></a>
-            </div>
-
+            <AuthorizeView>
+                <Authorized>
+                    <div class="header-notifications-trigger">
+                        <a href="#"><div class="user-avatar @(selUser.IsOnline?"status-online":"status-offline")"><img src="@(string.IsNullOrEmpty(selUser.PicUrl)?"images/user-avatar-small-01.jpg" : selUser.PicUrl )" alt=""></div></a>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="header-notifications-trigger">
+                        <a href="#"><div class="user-avatar status-online"><img src="images/user-avatar-small-01.jpg" alt=""></div></a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
             <!-- Dropdown -->
             <div class="header-notifications-dropdown">
                 <AuthorizeView>
@@ -155,7 +163,7 @@
 
                             <!-- User Name / Avatar -->
                             <div class="user-details">
-                                <div class="user-avatar status-online"><img src="@(string.IsNullOrEmpty(selUser.PicUrl)?"images/user-avatar-small-01.jpg" : selUser.PicUrl )" alt=""></div>
+                                <div class="user-avatar @(selUser.IsOnline?"status-online":"status-offline")"><img src="@(string.IsNullOrEmpty(selUser.PicUrl)?"images/user-avatar-small-01.jpg" : selUser.PicUrl )" alt=""></div>
                                 <div class="user-name">
                                     @selUser.FullName <span>@selUser.TagLine</span>
                                 </div>
@@ -181,7 +189,7 @@
                         </ul>
                     </NotAuthorized>
                 </AuthorizeView>
-               
+
 
             </div>
         </div>

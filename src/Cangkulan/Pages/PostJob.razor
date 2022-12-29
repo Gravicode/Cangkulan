@@ -10,6 +10,9 @@
 @inject CompanyService CompanySvc
 @inject JobCategoryService CategorySvc
 @inject AzureBlobHelper AzureBlobHelper
+@inject AppState AppState
+@implements IDisposable
+
 <div class="dashboard-content-inner">
 
     <!-- Dashboard Headline -->
@@ -44,7 +47,7 @@
                         <div class="col-xl-3">
                             <div class="submit-field">
                                 <h5>Job Title</h5>
-                                <input @bind="DataJob.JobTitle" type="text" class="with-border">
+                                <input @bind="DataJob.JobTitle" type="text" placeholder="Job Position" class="with-border">
                             </div>
                         </div>
 
@@ -85,7 +88,7 @@
                                     }
                                    
                                 </select>
-                                <a href="/manage-company">Add New Company</a>
+                                <a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-company")'>Add New Company</a>
                             </div>
                         </div>
 
@@ -97,24 +100,28 @@
                                         <input id="autocomplete-input" @bind="DataJob.Location" class="with-border" type="text" placeholder="Type Address">
                                     </div>
                                     <i class="icon-material-outline-location-on"></i>
+                                    
                                 </div>
+                                <a class="btn btn-success btn-sm mt-2 mb-2" style="cursor:crosshair;color:white;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Peta</a>
                             </div>
                         </div>
 
                         <div class="col-xl-4">
                             <div class="submit-field">
-                                <h5>Salary</h5>
+                                <h5>Salary (Min - Max)</h5>
                                 <div class="row">
                                     <div class="col-xl-6">
                                         <div class="input-with-icon">
                                             <input @bind="DataJob.SalaryMin" class="with-border" type="number" placeholder="Min">
                                             <i class="currency">IDR</i>
+                                            
                                         </div>
                                     </div>
                                     <div class="col-xl-6">
                                         <div class="input-with-icon">
                                             <input @bind="DataJob.SalaryMax" class="with-border" type="number" placeholder="Max">
-                                            <i class="currency">IDR</i>
+                                            <i class="currency">IDR</i>  
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -178,13 +185,20 @@
 
                     </div>
                 </div>
+                @if (IsFailed)
+                {
+                    <div class="notification error closeable">
+                        <p>@ErrorMsg</p>
+                        <a class="close" @onclick="CloseMessage"></a>
+                    </div>
+                }
             </div>
         </div>
 
         <div class="col-xl-12">
             <a href="#" @onclick:preventDefault @onclick="SaveJob" class="button ripple-effect big margin-top-30"><i class="icon-feather-plus"></i> Post a Job</a>
         </div>
-
+       
     </div>
     <!-- Row / End -->
     <!-- Footer -->
@@ -194,11 +208,10 @@
     
 </div>
 @code {
-    public PickLocation loc { get; set; }
     List<string> Tags = new();
     List<Company> ListCompany = new();
     bool IsFailed = false;
-    UserProfile DataUser = new UserProfile();
+    UserProfile SelUser = new UserProfile();
     Job DataJob = new();
     string ErrorMsg = string.Empty;
     [CascadingParameter]
@@ -206,16 +219,12 @@
     string UserName;
     List<JobCategory> ListCategory = new List<JobCategory>();
     string NewTag = "";
-    void PrepareForPick()
-    {
-        loc.Address = DataJob.Location;
-    }
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
 
-    private async void RefreshLocation()
+    async Task CloseMessage()
     {
-        DataJob.Latitude = loc.SelectedLocation.Latitude.ToString();
-        DataJob.Longitude = loc.SelectedLocation.Longitude.ToString();
-        StateHasChanged();
+        IsFailed = false;
     }
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
@@ -232,7 +241,7 @@
                 //var bytes = SKiaImageHelper.FixedSize(ms, 900, 500, false);
                 string newName = string.Empty;
 
-                newName = $"JobFile_{(string.IsNullOrEmpty(DataUser.Username) ? "rojul" : DataUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                newName = $"JobFile_{(string.IsNullOrEmpty(SelUser.Username) ? "rojul" : SelUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
                 var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
                 await AzureBlobHelper.UploadFile(newName, bytes);
                 fileurls.Add(FileUrl);
@@ -254,11 +263,12 @@
         if (user.Identity.IsAuthenticated)
         {
             UserName = user.Identity.Name;
-            DataUser = service.GetItemByUsername(UserName);
-            DataJob.EmployerId = DataUser.Id;
+            SelUser = service.GetItemByUsername(UserName);
+            DataJob.EmployerId = SelUser.Id;
         }
         ListCategory = CategorySvc.GetAllData();
         ListCompany = CompanySvc.GetAllData();
+        AppState.OnLocationChange += SelectLocation;
     }
 
     async Task AddTag()
@@ -278,7 +288,7 @@
         IsFailed = true;
         bool isPengurus = false;
         ErrorMsg = "";
-        UserProfileService svc = new UserProfileService();
+
 
         if (string.IsNullOrEmpty(DataJob.JobTitle))
         {
@@ -311,8 +321,7 @@
             ErrorMsg += "Tolong di isi tipe kerjaan. ";
 
         }
-
-        DataJob.EmployerId = DataUser.Id;
+        DataJob.EmployerId = SelUser.Id;
         if (Tags.Count > 0)
         {
             DataJob.Tags = string.Join(';', Tags);
@@ -330,9 +339,36 @@
         {
 
             toastService.ShowSuccess("Job berhasil di simpan.", "Info");
+            IsFailed = false;
+            DataJob = new();
+        }
+        else
+        {
             IsFailed = true;
-
         }
 
+    }
+    async void SelectLocation(string tousername, GeoLocation loc)
+    {
+        if (SelUser.Username == tousername)
+        {
+            DataJob.Latitude = loc.Latitude.ToString();
+            DataJob.Longitude = loc.Longitude.ToString();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    void PrepareForPick()
+    {
+        Layout.SetLocation(DataJob.Location);
+    }
+    public void Dispose()
+    {
+        AppState.OnLocationChange -= SelectLocation;
+
+    }
+    async Task Open(string url)
+    {
+        if(!string.IsNullOrEmpty(url))
+            await IJS.InvokeVoidAsync("OpenUrl", url);
     }
 }

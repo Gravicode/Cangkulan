@@ -43,15 +43,15 @@
                         <input type="button" data-toggle="modal" data-target="#taskModal" class="button ripple-effect" value="Tambah Company" @onclick="(() => InitializeitemObject())" />
                     </div>
                    
-                    <table id="gridData" name="gridData" class="basic-table col-xl-10">
+                    <table id="gridData" name="gridData" class="basic-table col-xl-12">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Company Name</th>
                                 <th>Address</th>
                                 <th>About</th>
                                 <th>Category</th>
-                                <th>WebUrl</th>
-                                <th>IsVerified</th>
+                                <th>Website</th>
+                                <th>Verified</th>
                                 <th>Actions</th>
                             </tr>
 
@@ -67,8 +67,15 @@
                                     <td>@item.WebUrl</td>
                                     <td>@(item.IsVerified ? "Ya" : "Belum")</td>
                                     <td>
-                                        <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
-                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                        @if (selUser != null && selUser.Id == item.UserId)
+                                        {
+                                            <input type="button" class="button ripple-effect" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                            <input type="button" class="button dark ripple-effect" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                        }
+                                        else
+                                        {
+                                        <p>-</p>
+                                        }
                                     </td>
                                 </tr>
                             }

@@ -56,8 +56,18 @@ namespace Cangkulan.Models
         public bool IsSucceed { get; set; }
     }
     #endregion
+    [Table("company_category")]
+    public class CompanyCategory
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
 
-    [Table("message_header")]
+        public string Category { get; set; }
+        public string SubCategory { get; set; }
+    }
+
+        [Table("message_header")]
     public class MessageHeader
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -325,11 +335,13 @@ namespace Cangkulan.Models
         [ForeignKey(nameof(User))]
         public long UserId { set; get; }
         public UserProfile User { set; get; }
-
+        [Required]
         public string? FullName { set; get; }
+        [Required]
         public string? Category { set; get; }
         public int Rating { set; get; }
-        public string? Location { set; get; }
+       
+        [Required]
         public string? About { set; get; }
         public string? Longitude { set; get; }
         public string? Latitude { set; get; }
@@ -338,6 +350,7 @@ namespace Cangkulan.Models
         public string? TwitterLink { set; get; }
         public string? GithubLink { set; get; }
         public string? WebUrl { set; get; }
+        [Required]
         public string? LogoUrl { set; get; }
         public bool IsVerified { set; get; }
 

@@ -3,6 +3,11 @@
 @inject IToastService toastService
 @inject CompanyService service
 @inject AzureBlobHelper AzureBlobHelper;
+@inject CompanyCategoryService CompanyCategorySvc;
+@inject UserProfileService UserProfileSvc;
+@inject AppState AppState
+@implements IDisposable
+
 <div class="modal" tabindex="-1" role="dialog" id="taskModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -33,13 +38,21 @@
 
                     <div class="form-group">
                         <label for="Category">Category</label>
-                        <input type="text" id="Category" class="form-control" @bind="@TaskObject.Category" />
+                        <select @bind="TaskObject.Category" title="Select Category">
+                            <option value="Pilih">Pilih</option>
+                            @foreach(var cat in Categories)
+                            {
+                                <option value="@($"{cat.Category} - {cat.SubCategory}")">@($"{cat.Category} - {cat.SubCategory}")</option>
+                            }
+                           
+                          
+                        </select>
                         <ValidationMessage For="@(() => TaskObject.Category)" />
                     </div>
 
                     <div class="form-group">
                         <label for="About">About</label>
-                        <input type="text" id="About" class="form-control" @bind="@TaskObject.About" />
+                        <textarea id="About" class="form-control" rows="3" @bind="@TaskObject.About" />
                         <ValidationMessage For="@(() => TaskObject.About)" />
                     </div>
 
@@ -61,6 +74,7 @@
                             {
                                 <p>Pilih Gambar</p>
                             }
+                            <ValidationMessage For="@(() => TaskObject.LogoUrl)" />
                         </div>
                     </div>
 
@@ -84,15 +98,16 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </EditForm>
 
-                <PickLocation @ref="loc" DataChanged="@RefreshLocation">
-                    <CustomHeader>Pilih Lokasi</CustomHeader>
-                </PickLocation>
+                
             </div>
         </div>
     </div>
 </div>
 
 @code {
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
+    public List<CompanyCategory> Categories { get; set; }
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     string UserName;
@@ -102,16 +117,16 @@
     public Company TaskObject { get; set; }
     [Parameter]
     public Action DataChanged { get; set; }
-    public PickLocation loc { get; set; }
+
+    public UserProfile SelUser { get; set; }
     void PrepareForPick()
     {
-        loc.Address = TaskObject.Address;
+        Layout.SetLocation( TaskObject.Address);
     }
-    private async void RefreshLocation()
+    public void Dispose()
     {
-        TaskObject.Latitude = loc.SelectedLocation.Latitude.ToString();
-        TaskObject.Longitude = loc.SelectedLocation.Longitude.ToString();
-        StateHasChanged();
+        AppState.OnLocationChange -= SelectLocation;
+
     }
     protected override async Task OnInitializedAsync()
     {
@@ -120,10 +135,20 @@
         if (user.Identity.IsAuthenticated)
         {
             UserName = user.Identity.Name;
-
+            SelUser = UserProfileSvc.GetItemByUsername(UserName);
+        }
+        Categories = CompanyCategorySvc.GetAllData();
+        AppState.OnLocationChange += SelectLocation;
+    }
+    async void SelectLocation(string tousername,GeoLocation loc)
+    {
+        if (SelUser.Username == tousername)
+        {
+            TaskObject.Latitude = loc.Latitude.ToString();
+            TaskObject.Longitude = loc.Longitude.ToString();
+            await InvokeAsync(StateHasChanged);
         }
     }
-
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
         var imageurls = new List<string>();
@@ -154,11 +179,11 @@
     private async void HandleValidSubmit()
     {
 
-
+        bool hasil=false;
         if (TaskObject.Id == 0)
         {
-
-            var hasil = service.InsertData(TaskObject);
+            TaskObject.UserId = SelUser.Id;
+            hasil = service.InsertData(TaskObject);
             if (!hasil)
             {
                 toastService.ShowError("Gagal menyimpan data. Isi data dengan lengkap.", "Perhatian");
@@ -166,11 +191,13 @@
         }
         else
         {
-            service.UpdateData(TaskObject);
+            hasil = service.UpdateData(TaskObject);
         }
-
-        await CloseTaskModal();
-        DataChanged?.Invoke();
+        if (hasil)
+        {
+            await CloseTaskModal();
+            DataChanged?.Invoke();
+        }
     }
 
     private async Task CloseTaskModal()
