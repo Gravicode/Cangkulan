@@ -66,6 +66,7 @@ builder.Services.AddTransient<MessageDetailService>();
 builder.Services.AddTransient<MessageHeaderService>();
 builder.Services.AddTransient<JobCategoryService>();
 builder.Services.AddTransient<CompanyCategoryService>();
+builder.Services.AddTransient<ProjectCategoryService>();
 
 builder.Services.AddCors(options =>
 {

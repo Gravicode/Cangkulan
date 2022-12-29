@@ -5,6 +5,7 @@
 @inject UserProfileService Userservice
 @inject CompanyService CompanySvc
 @inject JobService JobSvc
+@inject ProjectService ProjectSvc
 @inject IJSRuntime IJS
 @inject AppState AppState
 
@@ -107,7 +108,10 @@
     public Company CompanyItem { get; set; } = new();
 
     public Company DeleteCompanyItem { get; set; }
+
     public Job DeleteJobItem { get; set; }
+
+    public Project DeleteProjectItem { get; set; }
 
     [Parameter]
     public bool IsTransparent { get; set; } = true;
@@ -168,6 +172,14 @@
         DeleteJobItem = item;
         StateHasChanged();
     }
+
+ 
+    public void PrepareDeleteProject(Project item)
+    {
+        SelectDelete = "Project";
+        DeleteProjectItem = item;
+        StateHasChanged();
+    }
     private async Task Delete()
     {
         switch (SelectDelete)
@@ -180,6 +192,11 @@
             case "Job":
                 if (DeleteJobItem != null)
                     await DeleteJob();
+
+                break;   
+                case "Project":
+                if (DeleteProjectItem != null)
+                    await DeleteProject();
 
                 break;
             default:
@@ -203,6 +220,15 @@
         //await LoadData();
         DeleteJobItem = null;
         AppState.RefreshJob(UserName);
+    }
+    
+    private async Task DeleteProject()
+    {
+        var task = ProjectSvc.DeleteData(DeleteProjectItem.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        //await LoadData();
+        DeleteProjectItem = null;
+        AppState.RefreshProject(UserName);
     }
 
     string Nama = "Saya";

@@ -370,7 +370,7 @@
         {
             if (JobSvc.InsertData(DataJob))
             {
-
+                Tags.Clear();
                 toastService.ShowSuccess("Job berhasil di simpan.", "Info");
                 IsFailed = false;
                 DataJob = new();

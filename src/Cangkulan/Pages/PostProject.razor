@@ -1,18 +1,28 @@
 ﻿@page "/post-project"
 @layout AdminLayout
 @inject IJSRuntime IJS
+
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@inject ProjectService ProjectSvc
+@inject UserProfileService service
+@inject CompanyService CompanySvc
+@inject ProjectCategoryService CategorySvc
+@inject AzureBlobHelper AzureBlobHelper
+@inject AppState AppState
+@implements IDisposable
 <div class="dashboard-content-inner">
 
 	<!-- Dashboard Headline -->
 	<div class="dashboard-headline">
-		<h3>Post a Task</h3>
+		<h3>Post a Project</h3>
 
 		<!-- Breadcrumbs -->
 		<nav id="breadcrumbs" class="dark">
 			<ul>
-				<li><a href="#">Home</a></li>
+				<li><a href="/">Home</a></li>
 				<li><a href="#">Dashboard</a></li>
-				<li>Post a Task</li>
+				<li>Post a Project</li>
 			</ul>
 		</nav>
 	</div>
@@ -26,7 +36,7 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-feather-folder-plus"></i> Task Submission Form</h3>
+					<h3><i class="icon-feather-folder-plus"></i> Project Submission Form</h3>
 				</div>
 
 				<div class="content with-padding padding-bottom-10">
@@ -35,37 +45,33 @@
 						<div class="col-xl-4">
 							<div class="submit-field">
 								<h5>Project Name</h5>
-								<input type="text" class="with-border" placeholder="e.g. build me a website">
+								<input type="text" @bind="DataProject.ProjectName" class="with-border" placeholder="e.g. build me a website">
 							</div>
 						</div>
 
 						<div class="col-xl-4">
 							<div class="submit-field">
 								<h5>Category</h5>
-								<select class="selectpicker with-border" data-size="7" title="Select Category">
-									<option>Admin Support</option>
-									<option>Customer Service</option>
-									<option>Data Analytics</option>
-									<option>Design & Creative</option>
-									<option>Legal</option>
-									<option>Software Developing</option>
-									<option>IT & Networking</option>
-									<option>Writing</option>
-									<option>Translation</option>
-									<option>Sales & Marketing</option>
+                                <select @bind="DataProject.Category"  title="Select Category">
+                                    @foreach (var cat in ListCategory)
+                                    {
+                                        <option value="@cat.Category">@cat.Category</option>
+                                    }
 								</select>
 							</div>
 						</div>
 
 						<div class="col-xl-4">
 							<div class="submit-field">
-								<h5>Location  <i class="help-icon" data-tippy-placement="right" title="Leave blank if it's an online job"></i></h5>
+								<h5>Location  <i class="help-icon" data-tippy-placement="right" title="Leave blank if it's an online Project"></i></h5>
 								<div class="input-with-icon">
 									<div id="autocomplete-container">
-										<input id="autocomplete-input" class="with-border" type="text" placeholder="Anywhere">
+										<input id="autocomplete-input" @bind="DataProject.Location" class="with-border" type="text" placeholder="Anywhere">
 									</div>
 									<i class="icon-material-outline-location-on"></i>
+                                   
 								</div>
+                                <a class="btn btn-success btn-sm mt-2 mb-2" style="cursor:crosshair;color:white;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Peta</a>
 							</div>
 						</div>
 
@@ -75,25 +81,25 @@
 								<div class="row">
 									<div class="col-xl-6">
 										<div class="input-with-icon">
-											<input class="with-border" type="text" placeholder="Minimum">
-											<i class="currency">USD</i>
+											<input class="with-border" type="number" min="10000" @bind="DataProject.BudgetMin" placeholder="Minimum">
+											<i class="currency">IDR</i>
 										</div>
 									</div>
 									<div class="col-xl-6">
 										<div class="input-with-icon">
-											<input class="with-border" type="text" placeholder="Maximum">
-											<i class="currency">USD</i>
+                                            <input class="with-border" type="text" min="10000" @bind="DataProject.BudgetMax" placeholder="Maximum">
+											<i class="currency">IDR</i>
 										</div>
 									</div>
 								</div>
 								<div class="feedback-yes-no margin-top-0">
 									<div class="radio">
-										<input id="radio-1" name="radio" type="radio" checked>
+										<input id="radio-1" name="radio" type="radio" @onclick="()=>SetProjectType(ProjectPaymentTypes.Fix)" checked="@(DataProject.ProjectPaymentType == ProjectPaymentTypes.Fix)">
 										<label for="radio-1"><span class="radio-label"></span> Fixed Price Project</label>
 									</div>
 
 									<div class="radio">
-										<input id="radio-2" name="radio" type="radio">
+                                        <input id="radio-2" name="radio" type="radio" @onclick="()=>SetProjectType(ProjectPaymentTypes.Hourly)" checked="@(DataProject.ProjectPaymentType == ProjectPaymentTypes.Hourly)">
 										<label for="radio-2"><span class="radio-label"></span> Hourly Project</label>
 									</div>
 								</div>
@@ -105,10 +111,21 @@
 								<h5>What skills are required? <i class="help-icon" data-tippy-placement="right" title="Up to 5 skills that best describe your project"></i></h5>
 								<div class="keywords-container">
 									<div class="keyword-input-container">
-										<input type="text" class="keyword-input with-border" placeholder="Add Skills" />
-										<button class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                                        <input type="text" @bind="NewSkill" class="keyword-input with-border" placeholder="Add Skills" />
+                                        <button @onclick="AddSkill" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
 									</div>
-									<div class="keywords-list"><!-- keywords go here --></div>
+									<div class="keywords-list">
+                                        @if (Skills.Count > 0)
+                                        {
+                                            foreach (var skill in Skills)
+                                            {
+                                                <span class="keyword">
+                                                    <span @onclick="()=>RemoveSkill(skill)" class="keyword-remove"></span>
+                                                    <span class="keyword-text">@skill</span>
+                                                </span>
+                                            }
+                                        }
+                                    </div>
 									<div class="clearfix"></div>
 								</div>
 
@@ -118,22 +135,44 @@
 						<div class="col-xl-12">
 							<div class="submit-field">
 								<h5>Describe Your Project</h5>
-								<textarea cols="30" rows="5" class="with-border"></textarea>
+								<textarea @bind="DataProject.ProjectDesc" cols="30" rows="5" class="with-border"></textarea>
 								<div class="uploadButton margin-top-30">
-									<input class="uploadButton-input" type="file" accept="image/*, application/pdf" id="upload" multiple />
-									<label class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
+                                    <InputFile class="uploadButton-input" id="fileInput1" accept="image/*, application/pdf" multiple OnChange="UploadFiles" hidden />
+
+									<label @onclick="(()=>PrepareUpload())"  class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
 									<span class="uploadButton-file-name">Images or documents that might be helpful in describing your project</span>
 								</div>
+                                @if (DataProject.AttachmentUrls?.Length > 0)
+                                {
+                                    <ul>
+                                        @{
+                                            var files = DataProject.AttachmentUrls.Split(';');
+                                        }
+                                        @foreach (var fileurl in files)
+                                        {
+                                            <li>
+                                                <a href="@fileurl">@Path.GetFileNameWithoutExtension(fileurl.Replace(AppConstants.UploadUrlPrefix,""))</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
 							</div>
 						</div>
 
 					</div>
 				</div>
+                @if (IsFailed)
+                {
+                    <div class="notification error closeable">
+                        <p>@ErrorMsg</p>
+                        <a class="close" @onclick="CloseMessage"></a>
+                    </div>
+                }
 			</div>
 		</div>
 
 		<div class="col-xl-12">
-			<a href="#" class="button ripple-effect big margin-top-30"><i class="icon-feather-plus"></i> Post a Task</a>
+            <a href="#" @onclick:preventDefault @onclick="SaveProject" class="button ripple-effect big margin-top-30"><i class="icon-feather-plus"></i> Post a Task</a>
 		</div>
 
 	</div>
@@ -145,5 +184,203 @@
 
 </div>
 @code {
+    [Parameter]
+    public long ProjectId { get; set; } = -1;
+    List<string> Skills = new();
+    List<Company> ListCompany = new();
+    bool IsFailed = false;
+    UserProfile SelUser = new UserProfile();
+    Project DataProject = new();
+    string ErrorMsg = string.Empty;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    List<ProjectCategory> ListCategory = new List<ProjectCategory>();
+    string NewSkill = "";
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
 
+    async Task CloseMessage()
+    {
+        IsFailed = false;
+    }
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        var fileurls = new List<string>();
+        foreach (var file in e.GetMultipleFiles(e.FileCount))
+        {
+
+            //var file = e.File;
+            if (file != null)
+            {
+                var ms = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                //var bytes = SKiaImageHelper.FixedSize(ms, 900, 500, false);
+                string newName = string.Empty;
+
+                newName = $"ProjectFile_{(string.IsNullOrEmpty(SelUser.Username) ? "rojul" : SelUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+                await AzureBlobHelper.UploadFile(newName, bytes);
+                fileurls.Add(FileUrl);
+
+            }
+        }
+        DataProject.AttachmentUrls = string.Join(';', fileurls);
+    }
+    async Task PrepareUpload()
+    {
+        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInput1");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = service.GetItemByUsername(UserName);
+            DataProject.EmployerId = SelUser.Id;
+            DataProject.ExpiryDate = DateHelper.GetLocalTimeNow().AddMonths(3);
+            DataProject.ProjectPaymentType = ProjectPaymentTypes.Fix;
+        }
+        ListCategory = CategorySvc.GetAllData();
+        ListCompany = CompanySvc.GetAllData();
+        if (ProjectId > 0)
+        {
+            DataProject = ProjectSvc.GetDataById(ProjectId);
+        }
+        AppState.OnLocationChange += SelectLocation;
+    }
+
+    async Task AddSkill()
+    {
+        if (string.IsNullOrEmpty(NewSkill)) return;
+        Skills.Add(NewSkill);
+        NewSkill = string.Empty;
+    }
+
+    async Task RemoveSkill(string Name)
+    {
+        Skills.Remove(Name);
+    }
+
+    async Task SaveProject()
+    {
+        IsFailed = true;
+        bool isPengurus = false;
+        ErrorMsg = "";
+
+
+        if (string.IsNullOrEmpty(DataProject.ProjectName))
+        {
+            ErrorMsg += "Tolong di isi nama proyek. ";
+
+        }
+        if (string.IsNullOrEmpty(DataProject.Location))
+        {
+            ErrorMsg += "Tolong di isi lokasi proyek. ";
+
+        }
+        if (string.IsNullOrEmpty(DataProject.ProjectDesc))
+        {
+            ErrorMsg += "Tolong di isi deskripsi proyek. ";
+
+        }
+        if (DataProject.BudgetMax <= 0 || DataProject.BudgetMin <= 0 || DataProject.BudgetMax < DataProject.BudgetMin)
+        {
+            ErrorMsg += "Tolong di isi nilai proyek dengan benar. ";
+
+        }
+
+        if (string.IsNullOrEmpty(DataProject.Category))
+        {
+            ErrorMsg += "Tolong di isi kategori proyek. ";
+
+        }
+
+        DataProject.EmployerId = SelUser.Id;
+        if (Skills.Count > 0)
+        {
+            DataProject.Skills = string.Join(';', Skills);
+        }
+        else
+        {
+            ErrorMsg += "Skill tolong di isi. ";
+        }
+
+        if (ErrorMsg.Length > 0)
+        {
+            toastService.ShowWarning(ErrorMsg, "Perhatian");
+            return;
+        }
+
+        DataProject.CreatedDate = DateHelper.GetLocalTimeNow();
+
+        if (ProjectId > 0)
+        {
+            if (ProjectSvc.UpdateData(DataProject))
+            {
+
+                toastService.ShowSuccess("Project berhasil di simpan.", "Info");
+                IsFailed = false;
+                DataProject = new();
+                await Open("/manage-Project");
+            }
+            else
+            {
+                IsFailed = true;
+                ErrorMsg += " Data Gagal disimpan.";
+
+            }
+        }
+        else
+        {
+            if (ProjectSvc.InsertData(DataProject))
+            {
+
+                toastService.ShowSuccess("Project berhasil di simpan.", "Info");
+                IsFailed = false;
+                DataProject = new();
+                Skills.Clear();
+            }
+            else
+            {
+                ErrorMsg += " Data Gagal disimpan.";
+                IsFailed = true;
+            }
+        }
+
+    }
+
+    async Task SetProjectType(ProjectPaymentTypes PaymentType)
+    {
+        DataProject.ProjectPaymentType = PaymentType;
+    }
+
+    async void SelectLocation(string tousername, GeoLocation loc)
+    {
+        if (SelUser.Username == tousername)
+        {
+            DataProject.Latitude = loc.Latitude.ToString();
+            DataProject.Longitude = loc.Longitude.ToString();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    void PrepareForPick()
+    {
+        Layout.SetLocation(DataProject.Location);
+    }
+    public void Dispose()
+    {
+        AppState.OnLocationChange -= SelectLocation;
+
+    }
+    async Task Open(string url)
+    {
+        if (!string.IsNullOrEmpty(url))
+            await IJS.InvokeVoidAsync("OpenUrl", url);
+    }
 }

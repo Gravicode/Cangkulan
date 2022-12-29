@@ -71,7 +71,7 @@
 
                                 <!-- Buttons -->
                                 <div class="buttons-to-right always-visible">
-                                    <a href="@($"/manage-candidate/{item.EmployerId}")" class="button ripple-effect"><i class="icon-material-outline-supervisor-account"></i> Manage Candidates <span class="button-info">0</span></a>
+                                    <a href="@($"/manage-candidate/{item.EmployerId}")" class="button ripple-effect"><i class="icon-material-outline-supervisor-account"></i> Manage Candidates <span class="button-info">@(item.JobCandidates==null ? 0 : item.JobCandidates.Count)</span></a>
                                     <a href="#" @onclick:preventDefault @onclick='()=>Open($"/post-job/{item.Id}")' class="button gray ripple-effect ico" title="Edit" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
                                     <a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button gray ripple-effect ico" title="Remove" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
                                 </div>

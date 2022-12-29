@@ -26,8 +26,41 @@ namespace Cangkulan.Data
             var localTimeZone = TimeZoneInfo.FindSystemTimeZoneById(localTimeZoneId);
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, localTimeZone);
         }
+        public static string GetTimeLeft(DateTime date)
+        {
+            var now = GetLocalTimeNow();
+            if(now > date)
+            {
+                return "No time left (expire)";
+            }
+            else
+            {
+                var ts = date - now;
+                var speak = "";
+                if (ts.Days > 0)
+                {
+                    speak = $"{ts.Days} days";
+                }
+				if (ts.Hours > 0)
+				{
+					speak += string.IsNullOrEmpty( speak)? $"{ts.Hours} hours" : $", {ts.Hours} hours";
+				}
 
-        public static string GetElapsedTime(DateTime date)
+				if (ts.Minutes > 0)
+				{
+					speak += string.IsNullOrEmpty(speak) ? $"{ts.Minutes} minutes" : $", {ts.Minutes} minutes";
+				}
+
+				if (ts.Seconds > 0)
+				{
+					speak += string.IsNullOrEmpty(speak) ? $"{ts.Seconds} seconds" : $", {ts.Seconds} seconds";
+				}
+
+                speak += " left";
+                return speak;
+			}
+        }
+			public static string GetElapsedTime(DateTime date)
         {
             const int SECOND = 1;
             const int MINUTE = 60 * SECOND;

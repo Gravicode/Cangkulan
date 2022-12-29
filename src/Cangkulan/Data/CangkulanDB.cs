@@ -20,6 +20,8 @@ namespace Cangkulan.Data
         {
         }
 
+         
+        public DbSet<ProjectCategory> ProjectCategorys { get; set; }     
         public DbSet<CompanyCategory> CompanyCategorys { get; set; }     
         public DbSet<JobCategory> JobCategorys { get; set; }     
         public DbSet<UserProfile> UserProfiles { get; set; }     

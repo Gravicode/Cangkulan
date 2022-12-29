@@ -8,6 +8,12 @@ using System.Reflection;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class ProjectStatus
+    {
+        public const string Active = "Active";
+		public const string Expire = "Expire";
+		public const string NonActive = "NonActive";
+	}
     public class JobStatus
     {
         public const string Active = "Active";
@@ -62,6 +68,16 @@ namespace Cangkulan.Models
         public bool IsSucceed { get; set; }
     }
     #endregion
+
+    [Table("project_category")]
+    public class ProjectCategory
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
+
+        public string Category { get; set; }
+    }
     [Table("company_category")]
     public class CompanyCategory
     {
@@ -217,7 +233,10 @@ namespace Cangkulan.Models
         public ICollection<Testimonial> Testimonials { get; set; }
         public ICollection<Company> Companies { get; set; }
         [InverseProperty(nameof(Job.Employer))]
-        public ICollection<Job> VacancyList { get; set; }
+        public ICollection<Job> VacancyList { get; set; } 
+        
+        [InverseProperty(nameof(Project.Employer))]
+        public ICollection<Project> ProjectList { get; set; }
 
 
     }
@@ -424,6 +443,10 @@ namespace Cangkulan.Models
         [Key, Column(Order = 0)]
         public long Id { get; set; }
 
+        [ForeignKey(nameof(Employer)), Column(Order = 1)]
+        public long EmployerId { set; get; }
+        public UserProfile Employer { set; get; }
+
         public string ProjectName { set; get; }
         public string Category { set; get; }
         public string Location { set; get; }
@@ -432,6 +455,7 @@ namespace Cangkulan.Models
         public double BudgetMin { set; get; }
         public double BudgetMax { set; get; }
         public string Skills { set; get; }
+        public string Status { set; get; } = "Active";
         public ProjectPaymentTypes ProjectPaymentType { set; get; }
         public string ProjectDesc { set; get; }
         public string AttachmentUrls { set; get; }
@@ -439,12 +463,14 @@ namespace Cangkulan.Models
         public bool Active { set; get; } = true;
         public bool IsBidActive { set; get; } = true;
         [ForeignKey(nameof(Winner)), Column(Order = 0)]
-        public long WinnerId { set; get; }
-        public UserProfile Winner { set; get; }
+        public long? WinnerId { set; get; }
+        public UserProfile? Winner { set; get; }
+        public DateTime CreatedDate { set; get; }
         public DateTime ExpiryDate { set; get; }
 
         public ICollection<Review> Reviews { get; set; }
-    }
+		public ICollection<ProjectBidder> ProjectBidders { get; set; }
+	}
 
     [Table("review_company")]
     public class ReviewCompany
@@ -521,7 +547,7 @@ namespace Cangkulan.Models
         public string CVUrl { set; get; }
         public DateTime ApplyDate { set; get; }
 
-        public ICollection<ProjectBidder> ProjectBidders { get; set; }
+        
     }
 
     [Table("project_bidder")]

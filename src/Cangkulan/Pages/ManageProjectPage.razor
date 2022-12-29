@@ -1,121 +1,172 @@
 ﻿@page "/manage-project"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@inject ProjectService ProjectSvc
+@inject UserProfileService service
+@inject CompanyService CompanySvc
+@inject ProjectCategoryService CategorySvc
+@inject AzureBlobHelper AzureBlobHelper
+@inject AppState AppState
+@implements IDisposable
 <div class="dashboard-content-inner">
 
-	<!-- Dashboard Headline -->
-	<div class="dashboard-headline">
-		<h3>Manage Tasks</h3>
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Manage Projects</h3>
 
-		<!-- Breadcrumbs -->
-		<nav id="breadcrumbs" class="dark">
-			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Dashboard</a></li>
-				<li>Manage Tasks</li>
-			</ul>
-		</nav>
-	</div>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li>Manage Projects</li>
+            </ul>
+        </nav>
+    </div>
 
-	<!-- Row -->
-	<div class="row">
+    <!-- Row -->
+    <div class="row">
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div class="dashboard-box margin-top-0">
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box margin-top-0">
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-material-outline-assignment"></i> My Tasks</h3>
-				</div>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-assignment"></i> My Projects</h3>
+                </div>
 
-				<div class="content">
-					<ul class="dashboard-box-list">
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing width-adjustment">
+                <div class="content">
+                    <ul class="dashboard-box-list">
+                        <Virtualize Items="@ListProject" Context="item">
+                            <li @key="item.Id">
+                                <!-- Project Listing -->
+                                <div class="Project-listing width-adjustment">
 
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
+                                    <!-- Project Listing Details -->
+                                    <div class="Project-listing-details">
 
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Design a Landing Page</a> <span class="dashboard-status-button yellow">Expiring</span></h3>
+                                        <!-- Details -->
+                                        <div class="Project-listing-description">
+                                            <h3 class="Project-listing-title"><a href="@($"/project-detail/{item.Id}")">@item.ProjectName</a> <span class="dashboard-status-button @GetStatusClass(item.Status)">@item.Status</span></h3>
 
-										<!-- Job Listing Footer -->
-										<div class="job-listing-footer">
-											<ul>
-												<li><i class="icon-material-outline-access-time"></i> 23 hours left</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
+                                            <!-- Project Listing Footer -->
+                                            <div class="Project-listing-footer">
+                                                <ul>
+                                                    <li><i class="icon-material-outline-access-time"></i> @DateHelper.GetTimeLeft(item.ExpiryDate)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-							<!-- Task Details -->
-							<ul class="dashboard-task-info">
-								<li><strong>3</strong><span>Bids</span></li>
-								<li><strong>$22</strong><span>Avg. Bid</span></li>
-								<li><strong>$15 - $30</strong><span>Hourly Rate</span></li>
-							</ul>
+                                <!-- Task Details -->
+                                <ul class="dashboard-task-info">
+                                    <li><strong>@(item.ProjectBidders == null ? 0 : item.ProjectBidders.Count)</strong><span>Bids</span></li>
+                                    <li><strong>Rp@(item.ProjectBidders == null ? 0 : item.ProjectBidders.Average(x => x.OfferingPrice))</strong><span>Avg. Bid</span></li>
+                                    <li><strong>Rp @item.BudgetMin.ToString("n0") - Rp @item.BudgetMax.ToString("n0")</strong><span>@(item.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "Hourly Rate" : "Fixed Price")</span></li>
+                                </ul>
 
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="dashboard-manage-bidders.html" class="button ripple-effect"><i class="icon-material-outline-supervisor-account"></i> Manage Bidders <span class="button-info">3</span></a>
-								<a href="#" class="button gray ripple-effect ico" title="Edit" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button gray ripple-effect ico" title="Remove" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
+                                <!-- Buttons -->
+                                <div class="buttons-to-right always-visible">
+                                    <a href="@($"manage-bidder/{item.Id}")" class="button ripple-effect"><i class="icon-material-outline-supervisor-account"></i> Manage Bidders <span class="button-info">3</span></a>
+                                    <a href="#" @onclick:preventDefault @onclick='()=>Open($"/post-project/{item.Id}")' class="button gray ripple-effect ico" title="Edit" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
+                                    <a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button gray ripple-effect ico" title="Remove" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
+                                </div>
+                            </li>
+                        </Virtualize>
 
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing width-adjustment">
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Food Delivery Mobile Application</a></h3>
-
-										<!-- Job Listing Footer -->
-										<div class="job-listing-footer">
-											<ul>
-												<li><i class="icon-material-outline-access-time"></i> 6 days, 23 hours left</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<!-- Task Details -->
-							<ul class="dashboard-task-info">
-								<li><strong>3</strong><span>Bids</span></li>
-								<li><strong>$3,200</strong><span>Avg. Bid</span></li>
-								<li><strong>$2,500 - $4,500</strong><span>Fixed Price</span></li>
-							</ul>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="dashboard-manage-bidders.html" class="button ripple-effect"><i class="icon-material-outline-supervisor-account"></i> Manage Bidders <span class="button-info">3</span></a>
-								<a href="#" class="button gray ripple-effect ico" title="Edit" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button gray ripple-effect ico" title="Remove" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-
-					</ul>
-				</div>
-			</div>
-		</div>
-
-	</div>
-	<!-- Row / End -->
-	<!-- Footer -->
-	<div class="dashboard-footer-spacer"></div>
-	<SmallFooterPage></SmallFooterPage>
-	<!-- Footer / End -->
+    </div>
+    <!-- Row / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
 
 </div>
 @code {
+    List<Project> ListProject = new();
+    UserProfile SelUser = new UserProfile();
+    Project DataProject = new();
+    string ErrorMsg = string.Empty;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
 
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
+
+    private void PrepareForDelete(Project item)
+    {
+        DataProject = item;
+        Layout.PrepareDeleteProject(item);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = service.GetItemByUsername(UserName);
+            DataProject.EmployerId = SelUser.Id;
+            await LoadData();
+        }
+        AppState.OnProjectChange += RefreshProject;
+
+
+    }
+
+    async Task LoadData()
+    {
+        ListProject = ProjectSvc.GetAllData(SelUser);
+    }
+    public void Dispose()
+    {
+        AppState.OnProjectChange -= RefreshProject;
+
+    }
+    async void RefreshProject(string tousername)
+    {
+        await LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
+    string GetStatusClass(string State)
+    {
+        switch (State)
+        {
+            default:
+            case ProjectStatus.Active:
+                return "green";
+                break;
+            case ProjectStatus.NonActive:
+                return "yellow";
+                break;
+            case ProjectStatus.Expire:
+                return "red";
+                break;
+        }
+    }
+
+    async Task Open(string url)
+    {
+        if (!string.IsNullOrEmpty(url))
+            await IJS.InvokeVoidAsync("OpenUrl", url);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            //IJS.InvokeVoidAsync("InitJs");
+        }
+    }
 }

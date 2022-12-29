@@ -8,56 +8,53 @@ using System.Threading.Tasks;
 
 namespace Cangkulan.Data
 {
-    public class ProjectService : ICrud<Project>
+    public class ProjectCategoryService : ICrud<ProjectCategory>
     {
         CangkulanDB db;
 
-        public ProjectService()
+        public ProjectCategoryService()
         {
             if (db == null) db = new CangkulanDB();
 
         }
         public bool DeleteData(object Id)
         {
-            var selData = (db.Projects.Where(x => x.Id == (long)Id).FirstOrDefault());
-            db.Projects.Remove(selData);
+            var selData = (db.ProjectCategorys.Where(x => x.Id == (long)Id).FirstOrDefault());
+            db.ProjectCategorys.Remove(selData);
             db.SaveChanges();
             return true;
         }
 
-        public List<Project> FindByKeyword(string Keyword)
+        public List<ProjectCategory> FindByKeyword(string Keyword)
         {
-            var data = from x in db.Projects
-                       where x.ProjectName.Contains(Keyword)
+            var data = from x in db.ProjectCategorys
+                       where x.Category.Contains(Keyword) 
                        select x;
             return data.ToList();
         }
-		public List<Project> GetAllData(UserProfile user)
-		{
-			return db.Projects.Include(c => c.Employer).Where(x => x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
-		}
-		public List<Project> GetAllData()
+
+        public List<ProjectCategory> GetAllData()
         {
-            return db.Projects.OrderBy(x => x.Id).ToList();
+            return db.ProjectCategorys.OrderBy(x => x.Category).ToList();
         }
 
-        public Project GetDataById(object Id)
+        public ProjectCategory GetDataById(object Id)
         {
-            return db.Projects.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.ProjectCategorys.Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 
-        public bool InsertData(Project data)
+        public bool InsertData(ProjectCategory data)
         {
             try
             {
-                db.Projects.Add(data);
+                db.ProjectCategorys.Add(data);
                 db.SaveChanges();
                 return true;
             }
-            catch(Exception ex) 
+            catch
             {
-                Console.WriteLine(ex);
+
             }
             return false;
 
@@ -65,7 +62,7 @@ namespace Cangkulan.Data
 
 
 
-        public bool UpdateData(Project data)
+        public bool UpdateData(ProjectCategory data)
         {
             try
             {
@@ -94,7 +91,7 @@ namespace Cangkulan.Data
 
         public long GetLastId()
         {
-            return db.Projects.Max(x => x.Id);
+            return db.ProjectCategorys.Max(x => x.Id);
         }
     }
 
