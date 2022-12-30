@@ -349,6 +349,7 @@ namespace Cangkulan.Models
         public long Id { get; set; }
         public string Category { get; set; }
         public string? Desc { get; set; }
+        public string? PicUrl { get; set; }
     }
 
     [Table("company")]

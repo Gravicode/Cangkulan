@@ -40,8 +40,16 @@ namespace Cangkulan.Data
         {
             return db.Projects.OrderBy(x => x.Id).ToList();
         }
+		public long GetProjectCount()
+		{
+			return db.Projects.Count();
+		}
+		public long GetJobCount()
+		{
+			return db.Projects.Count();
+		}
 
-        public Project GetDataById(object Id)
+		public Project GetDataById(object Id)
         {
             return db.Projects.Where(x => x.Id == (long)Id).FirstOrDefault();
         }

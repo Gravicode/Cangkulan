@@ -32,8 +32,11 @@ namespace Cangkulan.Data
                        select x;
             return data.ToList();
         }
-
-        public List<Job> GetAllData()
+		public long GetJobCount()
+		{
+			return db.Jobs.Count();
+		}
+		public List<Job> GetAllData()
         {
             return db.Jobs.OrderBy(x => x.Id).ToList();
         }

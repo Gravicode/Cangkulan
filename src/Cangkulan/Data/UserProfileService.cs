@@ -107,6 +107,12 @@ namespace Cangkulan.Data
         {
             var lastId = db.UserProfiles.OrderByDescending(x => x.Id).FirstOrDefault();
             return lastId.Id + 1;
+        } 
+        
+        public long GetFreelancerCount()
+        {
+            var count = db.UserProfiles.Where(x=>x.AccountType == AccountTypes.Freelancer).Count();
+            return count;
         }
         public bool IsUserExists(string Email)
         {

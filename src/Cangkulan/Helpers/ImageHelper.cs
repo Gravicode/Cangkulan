@@ -44,6 +44,7 @@ namespace Cangkulan.Helpers
         }
 
     }
+    
     public class ImageHelper
     {
         public static string GetImageAsBase64Url(string url)

@@ -1,0 +1,33 @@
+﻿@inject JobService JobSvc
+@inject ProjectService ProjectSvc
+@inject UserProfileService UserSvc
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="intro-stats margin-top-45 hide-under-992px">
+            <li>
+                <strong class="counter">@JobCount.ToString("n0")</strong>
+                <span>Jobs Posted</span>
+            </li>
+            <li>
+                <strong class="counter">@ProjectCount.ToString("n0")</strong>
+                <span>Tasks Posted</span>
+            </li>
+            <li>
+                <strong class="counter">@UserCount.ToString("n0")</strong>
+                <span>Freelancers/Professionals</span>
+            </li>
+        </ul>
+    </div>
+</div>
+@code {
+    long JobCount = 0;
+    long ProjectCount = 0;
+    long UserCount = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        JobCount = JobSvc.GetJobCount();
+        ProjectCount = ProjectSvc.GetProjectCount();
+        UserCount = UserSvc.GetFreelancerCount();
+    }
+}

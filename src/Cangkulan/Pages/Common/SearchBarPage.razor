@@ -1,0 +1,69 @@
+﻿@inject IJSRuntime IJS
+@inject NavigationManager NavMgr
+<div class="row">
+	<div class="col-md-12">
+		<div class="intro-banner-search-form margin-top-95">
+
+			<!-- Search Field -->
+			<div class="intro-search-field with-autocomplete">
+				<label for="autocomplete-input" class="field-title ripple-effect">Where?</label>
+				<div class="input-with-icon">
+					<input id="autocomplete-input" @bind="Location" type="text" placeholder="Online Job">
+					<i class="icon-material-outline-location-on"></i>
+				</div>
+			</div>
+
+			<!-- Search Field -->
+			<div class="intro-search-field">
+				<label for="intro-keywords" class="field-title ripple-effect">What you need done?</label>
+				<input id="intro-keywords" @bind="Keyword" type="text" placeholder="e.g. build me a website">
+			</div>
+
+			<!-- Search Field -->
+			<div class="intro-search-field">
+				<select @bind="JobType" class="default" title="All Categories">
+					<option value="Job" selected>Job</option>
+					<option value="Project">Project</option>
+
+				</select>
+			</div>
+
+			<!-- Button -->
+			<div class="intro-search-button">
+				<button class="button ripple-effect" @onclick="Search" >Search</button>
+			</div>
+		</div>
+	</div>
+</div>
+@code {
+	[Parameter]
+	public string JobType { get; set; } = "Job";
+
+	[Parameter]
+	public string Location { get; set; }
+
+	[Parameter]
+	public string Keyword { get; set; }
+
+	async Task Search()
+	{
+		string Url = string.Empty;
+		switch (JobType)
+		{
+			case "Job":
+				Url = $"/find-job/?q={Keyword}&l={Location}";
+				break;
+			case "Project":
+				Url = $"/find-project/?q={Keyword}&location={Location}";
+				break;
+		}
+		if (!string.IsNullOrEmpty(Url))
+		{
+			NavMgr.NavigateTo(Url);
+		}
+		else
+		{
+			
+		}
+	}
+}
