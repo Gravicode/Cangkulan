@@ -1,0 +1,48 @@
+﻿@inject JobService JobSvc
+@inject JobCategoryService JobCategorySvc
+
+<div class="section margin-top-65 margin-bottom-30">
+	<div class="container">
+		<div class="row">
+
+			<!-- Section Headline -->
+			<div class="col-xl-12">
+				<div class="section-headline centered margin-top-0 margin-bottom-45">
+					<h3>Popular Categories</h3>
+				</div>
+			</div>
+			
+			@foreach(var item in ListCategory){	
+			<div class="col-xl-3 col-md-6">
+				<!-- Photo Box -->
+				<a href="@($"/find-job/category/{item.Category}")" class="photo-box small" data-background-image="@item.PicUrl">
+					<div class="photo-box-content">
+						<h3>@item.Category</h3>
+						<span>@item.Count</span>
+					</div>
+				</a>
+			</div>
+			}
+			
+
+		</div>
+	</div>
+</div>
+@code {
+	List<JobCategoryCls> ListCategory = new();
+	protected override async Task OnInitializedAsync()
+	{
+		Dictionary<string, JobCategoryCls> JobCategories = new();
+		var categories = JobCategorySvc.GetAllData();
+		categories.ForEach(x => { JobCategories.Add(x.Category, new JobCategoryCls() { PicUrl = x.PicUrl, Count = 0, Category = x.Category }); });
+		var CategoryFromData = JobSvc.GetCategoriesCount();
+		foreach (var cat in CategoryFromData)
+		{
+			if (JobCategories.ContainsKey(cat.Category))
+			{
+				JobCategories[cat.Category].Count = cat.Count;
+			}
+		}
+		ListCategory = JobCategories.OrderByDescending(x => x.Value.Count).Select(x => x.Value).ToList();
+	}
+	}

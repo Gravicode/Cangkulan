@@ -8,6 +8,13 @@ using System.Reflection;
 namespace Cangkulan.Models
 {
     #region helpers model
+
+    public class JobCategoryCls
+    {
+        public string Category { get; set; }
+        public long Count { get; set; }
+        public string PicUrl { get; set; }
+    }
     public class ProjectStatus
     {
         public const string Active = "Active";
@@ -499,7 +506,7 @@ namespace Cangkulan.Models
         public long UserId { set; get; }
         public UserProfile User { set; get; }
         public string Message { set; get; }
-        public string CreatedDate { set; get; }
+        public DateTime CreatedDate { set; get; }
     }
 
     [Table("job")]

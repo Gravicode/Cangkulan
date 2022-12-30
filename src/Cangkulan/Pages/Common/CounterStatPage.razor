@@ -1,0 +1,62 @@
+﻿@inject JobService JobSvc
+@inject ProjectService ProjectSvc
+@inject UserProfileService UserSvc
+<div class="section padding-top-70 padding-bottom-75">
+	<div class="container">
+		<div class="row">
+
+			<div class="col-xl-12">
+				<div class="counters-container">
+
+					<!-- Counter -->
+					<div class="single-counter">
+						<i class="icon-line-awesome-suitcase"></i>
+						<div class="counter-inner">
+							<h3><span class="counter">@JobCount.ToString("n0")</span></h3>
+							<span class="counter-title">Kerjaan Ditawarkan</span>
+						</div>
+					</div>
+
+					<!-- Counter -->
+					<div class="single-counter">
+						<i class="icon-line-awesome-legal"></i>
+						<div class="counter-inner">
+							<h3><span class="counter">@ProjectCount.ToString("n0")</span></h3>
+							<span class="counter-title">Proyek Ditawarkan</span>
+						</div>
+					</div>
+
+					<!-- Counter -->
+					<div class="single-counter">
+						<i class="icon-line-awesome-user"></i>
+						<div class="counter-inner">
+							<h3><span class="counter">@UserCount.ToString("n0")</span></h3>
+							<span class="counter-title">Active Members</span>
+						</div>
+					</div>
+
+					<!-- Counter -->
+					<div class="single-counter">
+						<i class="icon-line-awesome-trophy"></i>
+						<div class="counter-inner">
+							<h3><span class="counter">99</span>%</h3>
+							<span class="counter-title">Tingkat Kepuasan</span>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@code {
+	long JobCount = 0;
+	long ProjectCount = 0;
+	long UserCount = 0;
+	protected override async Task OnInitializedAsync()
+	{
+		JobCount = JobSvc.GetJobCount();
+		ProjectCount = ProjectSvc.GetProjectCount();
+		UserCount = UserSvc.GetUsersCount();
+	}
+}

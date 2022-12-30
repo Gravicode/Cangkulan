@@ -113,6 +113,11 @@ namespace Cangkulan.Data
         {
             var count = db.UserProfiles.Where(x=>x.AccountType == AccountTypes.Freelancer).Count();
             return count;
+        }  
+        public long GetUsersCount()
+        {
+            var count = db.UserProfiles.Count();
+            return count;
         }
         public bool IsUserExists(string Email)
         {

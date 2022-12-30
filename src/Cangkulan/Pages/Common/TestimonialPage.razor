@@ -1,0 +1,48 @@
+﻿@inject TestimonialService TestimonialSvc
+<div class="section gray padding-top-65 padding-bottom-55">
+
+	<div class="container">
+		<div class="row">
+			<div class="col-xl-12">
+				<!-- Section Headline -->
+				<div class="section-headline centered margin-top-0 margin-bottom-5">
+					<h3>Testimonial</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Categories Carousel -->
+	<div class="fullwidth-carousel-container margin-top-20">
+		<div class="testimonial-carousel testimonials">
+			@foreach(var item in ListTesti){
+			
+			<!-- Item -->
+			<div class="fw-carousel-review">
+				<div class="testimonial-box">
+					<div class="testimonial-avatar">
+							<img src="@(string.IsNullOrEmpty(item.User.PicUrl)?"images/user-avatar-small-02.jpg":item.User.PicUrl)" alt="">
+					</div>
+					<div class="testimonial-author">
+						<h4>@item.User.FullName</h4>
+						<span>@(item.User.AccountType == AccountTypes.Freelancer ? "Freelancer":"Employer")</span>
+					</div>
+					<div class="testimonial">@item.Message</div>
+				</div>
+			</div>
+				
+			}
+			
+
+		</div>
+	</div>
+	<!-- Categories Carousel / End -->
+
+</div>
+@code {
+	public List<Testimonial> ListTesti { get; set; } = new();
+	protected override async Task OnInitializedAsync()
+	{
+		ListTesti = TestimonialSvc.GetLatest();
+	}
+	}

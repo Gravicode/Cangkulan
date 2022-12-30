@@ -1,4 +1,5 @@
 ﻿@page "/project-detail"
+@page "/project-detail/{ProjectId:long}"
 @layout ContentLayoutBlack
 @inject IJSRuntime IJS
 <!-- Titlebar
@@ -285,5 +286,6 @@
 <div class="margin-top-15"></div>
 <!-- Spacer / End-->
 @code {
-
+	[Parameter]
+	public long ProjectId { get; set; }
 }

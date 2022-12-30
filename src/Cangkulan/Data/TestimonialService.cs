@@ -37,6 +37,11 @@ namespace Cangkulan.Data
         {
             return db.Testimonials.OrderBy(x => x.Id).ToList();
         }
+        
+        public List<Testimonial> GetLatest(int Limit=5)
+        {
+            return db.Testimonials.Include(c=>c.User).OrderByDescending(x => x.CreatedDate).Take(Limit).ToList();
+        }
 
         public Testimonial GetDataById(object Id)
         {

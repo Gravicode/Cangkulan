@@ -1,0 +1,75 @@
+﻿@inject NavigationManager NavMgr
+@inject ProjectService ProjectSvc
+
+<div class="section gray margin-top-45 padding-top-65 padding-bottom-75">
+	<div class="container">
+		<div class="row">
+			<div class="col-xl-12">
+
+				<!-- Section Headline -->
+				<div class="section-headline margin-top-0 margin-bottom-35">
+					<h3>Proyek Terbaru</h3>
+					<a href="/find-project" class="headline-link">Lihat Semua Proyek</a>
+				</div>
+				<Virtualize Items="@ListProject" Context="item">
+				
+				<!-- Jobs Container -->
+				<div @key="item.Id" class="tasks-list-container compact-list margin-top-35">
+
+					<!-- Task -->
+					<a href="@($"/project-detail/{item.Id}")" class="task-listing">
+
+						<!-- Job Listing Details -->
+						<div class="task-listing-details">
+
+							<!-- Details -->
+							<div class="task-listing-description">
+								<h3 class="task-listing-title">@item.ProjectName</h3>
+								<ul class="task-icons">
+									<li><i class="icon-material-outline-location-on"></i> @(string.IsNullOrEmpty(item.Location)?"Online":item.Location)</li>
+									<li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>
+								</ul>
+								<div class="task-tags margin-top-15">
+										@foreach(var tag in item.Skills.Split(';'))
+										{
+											<span>@tag</span>
+										}									
+									
+								</div>
+							</div>
+
+						</div>
+
+						<div class="task-listing-bid">
+							<div class="task-listing-bid-inner">
+								<div class="task-offers">
+									<strong>@($"Rp{item.BudgetMin.ToString("n0")} - Rp{item.BudgetMax.ToString("n0")}")</strong>
+									<span>@(item.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "Hourly Rate":"Fixed Price")</span>
+								</div>
+								<span class="button button-sliding-icon ripple-effect">Lihat <i class="icon-material-outline-arrow-right-alt"></i></span>
+							</div>
+						</div>
+					</a>
+
+
+				</div>
+				<!-- Jobs Container / End -->
+					
+				</Virtualize>
+			</div>
+		</div>
+	</div>
+</div>
+@code {
+	List<Project> ListProject = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		ListProject = ProjectSvc.GetLatestProject();
+	}
+
+	async Task Bid(Project item)
+	{
+		NavMgr.NavigateTo($"/project-detail/{item.Id}");
+	}
+	}

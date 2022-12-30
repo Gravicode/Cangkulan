@@ -40,10 +40,26 @@ namespace Cangkulan.Data
         {
             return db.Jobs.OrderBy(x => x.Id).ToList();
         }
+        
+        public List<Job> GetLatestJob(int Limit=10)
+        {
+			return db.Jobs.Include(c=>c.Company).Where(x => x.Active).OrderByDescending(x => x.CreatedDate).Take(Limit).ToList();
+		}
         public List<Job> GetAllData(UserProfile user)
         {
             return db.Jobs.Include(c=>c.Employer).Where(x=>x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
         }
+        public List<JobCategoryCls> GetCategoriesCount()
+        {
+            
+			var tmp = db.Jobs.GroupBy(x => x.JobCategory)
+					  .Select(y => new JobCategoryCls {
+						  Category = y.Key,
+						  Count = y.Count(),
+                          PicUrl=""
+					  });
+            return tmp.ToList();
+		}
         public Job GetDataById(object Id)
         {
             return db.Jobs.Where(x => x.Id == (long)Id).FirstOrDefault();

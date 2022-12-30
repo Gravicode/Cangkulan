@@ -40,6 +40,10 @@ namespace Cangkulan.Data
         {
             return db.Projects.OrderBy(x => x.Id).ToList();
         }
+        public List<Project> GetLatestProject(int Limit = 10)
+        {
+            return db.Projects.Where(x => x.Active).OrderByDescending(x => x.CreatedDate).Take(Limit).ToList();
+        }
 		public long GetProjectCount()
 		{
 			return db.Projects.Count();
