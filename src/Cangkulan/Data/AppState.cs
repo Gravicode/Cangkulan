@@ -9,6 +9,7 @@ namespace Cangkulan.Data
         public event Action<string> OnCompanyChange;
         public event Action<string, GeoLocation> OnLocationChange;
         public event Action<string> OnJobChange;
+        public event Action<string> OnJobCandidateChange;
         public event Action<string> OnProjectChange;
 
         public void RefreshProfile(string username)
@@ -30,6 +31,10 @@ namespace Cangkulan.Data
         {
             JobStateChanged(username);
         }  
+        public void RefreshJobCandidate(string username)
+        {
+            JobCandidateStateChanged(username);
+        }  
         public void RefreshProject(string username)
         {
             ProjectStateChanged(username);
@@ -39,6 +44,7 @@ namespace Cangkulan.Data
         private void CompanyStateChanged(string username) => OnCompanyChange?.Invoke(username);
         private void LocationStateChanged(string username, GeoLocation loc) => OnLocationChange?.Invoke(username,loc);
         private void JobStateChanged(string username) => OnJobChange?.Invoke(username);
+        private void JobCandidateStateChanged(string username) => OnJobCandidateChange?.Invoke(username);
         private void ProjectStateChanged(string username) => OnProjectChange?.Invoke(username);
     }
 }

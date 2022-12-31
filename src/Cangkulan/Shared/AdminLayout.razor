@@ -8,6 +8,7 @@
 @inject ProjectService ProjectSvc
 @inject IJSRuntime IJS
 @inject AppState AppState
+@inject JobCandidateService JobCandidateSvc
 
 <PageTitle>Cangkulan App</PageTitle>
 
@@ -113,6 +114,8 @@
 
     public Project DeleteProjectItem { get; set; }
 
+    public JobCandidate DeleteJobCandidateItem { get; set; }
+
     [Parameter]
     public bool IsTransparent { get; set; } = true;
 
@@ -172,6 +175,13 @@
         DeleteJobItem = item;
         StateHasChanged();
     }
+    
+    public void PrepareDeleteJobCandidate(JobCandidate item)
+    {
+        SelectDelete = "JobCandidate";
+        DeleteJobCandidateItem = item;
+        StateHasChanged();
+    }
 
  
     public void PrepareDeleteProject(Project item)
@@ -198,6 +208,11 @@
                 if (DeleteProjectItem != null)
                     await DeleteProject();
 
+                break; 
+            case "JobCandidate":
+                if (DeleteJobCandidateItem != null)
+                    await DeleteJobCandidate();
+
                 break;
             default:
                 break;
@@ -220,6 +235,15 @@
         //await LoadData();
         DeleteJobItem = null;
         AppState.RefreshJob(UserName);
+    }
+    
+    private async Task DeleteJobCandidate()
+    {
+        var task = JobCandidateSvc.DeleteData(DeleteJobCandidateItem.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        //await LoadData();
+        DeleteJobCandidateItem = null;
+        AppState.RefreshJobCandidate(UserName);
     }
     
     private async Task DeleteProject()
