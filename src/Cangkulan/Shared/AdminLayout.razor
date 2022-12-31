@@ -60,7 +60,7 @@
             <!-- Dashboard Sidebar / End -->
             <!-- Dashboard Content
             ================================================== data-simplebar -->
-            <div class="dashboard-content-container" >
+            <div class="dashboard-content-container">
                 <!-- Main Content -->
                 @Body
                 <!-- Footer / End -->
@@ -84,12 +84,12 @@
     <ReviewPopupPage></ReviewPopupPage>
     <ReviewFreelancePopupPage></ReviewFreelancePopupPage>
     <DirectMessagePopupPage></DirectMessagePopupPage>
-   
-    <EditBidPopupPage></EditBidPopupPage>
+
+    <EditBidPopupPage @ref="EditBidPopup"></EditBidPopupPage>
     <PickLocation @ref="loc" DataChanged="@RefreshLocation">
         <CustomHeader>Pilih Lokasi</CustomHeader>
     </PickLocation>
-   
+
 </CascadingValue>
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"
@@ -98,6 +98,7 @@
                 ErrorIconClass="fa fa-bug" />
 
 @code {
+    EditBidPopupPage EditBidPopup;
     BidAccPopupPage BidAcc;
     public PickLocation loc { get; set; }
     string SelectDelete;
@@ -153,7 +154,11 @@
     }
     public void SetBidder(Project project, ProjectBidder bidder)
     {
-        BidAcc?.SetBidder(project,bidder);
+        BidAcc?.SetBidder(project, bidder);
+    }
+    public void EditBid(ProjectBidder bidder)
+    {
+        EditBidPopup?.SetBidder(bidder);
     }
     public void EditCompany(Company item)
     {
@@ -175,14 +180,14 @@
         DeleteJobItem = item;
         StateHasChanged();
     }
-    
+
     public void PrepareDeleteJobCandidate(JobCandidate item)
     {
         SelectDelete = "JobCandidate";
         DeleteJobCandidateItem = item;
         StateHasChanged();
-    } 
-    
+    }
+
     public void PrepareDeleteProjectBidder(ProjectBidder item)
     {
         SelectDelete = "ProjectBidder";
@@ -192,7 +197,7 @@
 
 
 
- 
+
     public void PrepareDeleteProject(Project item)
     {
         SelectDelete = "Project";
@@ -212,18 +217,18 @@
                 if (DeleteJobItem != null)
                     await DeleteJob();
 
-                break;   
-                case "Project":
+                break;
+            case "Project":
                 if (DeleteProjectItem != null)
                     await DeleteProject();
 
-                break; 
+                break;
             case "JobCandidate":
                 if (DeleteJobCandidateItem != null)
                     await DeleteJobCandidate();
-                break; 
-                
-                case "ProjectBidder":
+                break;
+
+            case "ProjectBidder":
                 if (DeleteProjectBidderItem != null)
                     await DeleteProjectBidder();
                 break;
@@ -249,7 +254,7 @@
         DeleteJobItem = null;
         AppState.RefreshJob(UserName);
     }
-    
+
     private async Task DeleteJobCandidate()
     {
         var task = JobCandidateSvc.DeleteData(DeleteJobCandidateItem.Id);
@@ -258,7 +263,7 @@
         DeleteJobCandidateItem = null;
         AppState.RefreshJobCandidate(UserName);
     }
-    
+
     private async Task DeleteProjectBidder()
     {
         var task = ProjectBidderSvc.DeleteData(DeleteProjectBidderItem.Id);
@@ -267,7 +272,7 @@
         DeleteProjectBidderItem = null;
         AppState.RefreshProjectBidder(UserName);
     }
-    
+
     private async Task DeleteProject()
     {
         var task = ProjectSvc.DeleteData(DeleteProjectItem.Id);

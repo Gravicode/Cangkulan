@@ -1,6 +1,6 @@
 
 "use strict";
-
+var myslider = {};
 function InitJs() {
 
     /*--------------------------------------------------*/
@@ -881,7 +881,7 @@ function InitJs() {
     }
 
     // Bidding Slider Init
-    $('.bidding-slider').slider();
+    myslider = $('.bidding-slider').slider();
 
     $(".bidding-slider").on("slide", function (slideEvt) {
         $("#biddingVal").text(ThousandSeparator(parseInt(slideEvt.value)));
@@ -1397,3 +1397,24 @@ function LoadChart() {
     });
 }
 
+function ReBindingSlider() {
+    //var element = $('.bidding-slider');
+    if (myslider != null) {
+        myslider.refresh({ useCurrentValue: true });
+        /*
+        // Bidding Slider Average Value
+        var avgValue = (parseInt($('.bidding-slider').attr("data-slider-min")) + parseInt($('.bidding-slider').attr("data-slider-max"))) / 2;
+        if ($('.bidding-slider').data("slider-value") === 'auto') {
+            $('.bidding-slider').attr({ 'data-slider-value': avgValue });
+        }
+        
+        // Bidding Slider Init
+        $('.bidding-slider').slider();
+        
+        $(".bidding-slider").on("slide", function (slideEvt) {
+            $("#biddingVal").text(ThousandSeparator(parseInt(slideEvt.value)));
+        });
+        $("#biddingVal").text(ThousandSeparator(parseInt($('.bidding-slider').val())));
+        */
+    }
+}

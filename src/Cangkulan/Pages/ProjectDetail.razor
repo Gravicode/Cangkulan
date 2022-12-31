@@ -161,7 +161,7 @@
 									<!-- Quantity Buttons -->
 									<div class="qtyButtons">
 										<div class="qtyDec"></div>
-										<input @bind="Duration" type="text" name="qtyInput" >
+										<input @bind="Duration" type="text" id="qtyInput" name="qtyInput">
 										<div class="qtyInc"></div>
 									</div>
 								</div>
@@ -306,6 +306,7 @@
 		}
 		else
 		{
+			Duration = await IJS.InvokeAsync<int>("GetValue", "qtyInput");
 			if (BidType == "Days")
 			{
 				NewBid.DeliveryTime = new TimeSpan(Duration,0,0,0);

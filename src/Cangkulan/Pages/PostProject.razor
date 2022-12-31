@@ -159,9 +159,9 @@
 								<h5>Describe Your Project</h5>
 								<textarea @bind="DataProject.ProjectDesc" cols="30" rows="5" class="with-border"></textarea>
 								<div class="uploadButton margin-top-30">
-                                    <InputFile class="uploadButton-input" id="fileInput1" accept="image/*, application/pdf" multiple OnChange="UploadFiles" hidden />
+                                    <InputFile class="uploadButton-input" id="fileInputProject" accept="image/*, application/pdf" multiple OnChange="UploadFiles" hidden />
 
-									<label @onclick="(()=>PrepareUpload())"  class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
+                                    <label @onclick="(()=>PrepareUpload())" class="uploadButton-button ripple-effect" for="fileInputProject">Upload Files</label>
 									<span class="uploadButton-file-name">Images or documents that might be helpful in describing your project</span>
 								</div>
                                 @if (DataProject.AttachmentUrls?.Length > 0)
@@ -252,7 +252,7 @@
     }
     async Task PrepareUpload()
     {
-        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInput1");
+        await IJS.InvokeVoidAsync("OpenFileUpload", "fileInputProject");
     }
 
     protected override async Task OnInitializedAsync()

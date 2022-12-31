@@ -1,61 +1,125 @@
-﻿
+﻿@inject ProjectService ProjectSvc
+@inject ProjectBidderService ProjectBidderSvc
+@inject ToastInfoService Toast
+@inject AppState AppState
+@inject IJSRuntime IJS
 <!-- Edit Bid Popup
-================================================== -->
-<div id="small-dialog" class="zoom-anim-dialog mfp-hide dialog-with-tabs">
+================================================== class="zoom-anim-dialog mfp-hide dialog-with-tabs" -->
+<div id="editbid-small-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <!--Tabs -->
+        <div class="sign-in-form" style="background-color:white;">
 
-	<!--Tabs -->
-	<div class="sign-in-form">
+            <ul class="popup-tabs-nav">
+                <li><a href="#tab">Edit Bid</a></li>
+            </ul>
 
-		<ul class="popup-tabs-nav">
-			<li><a href="#tab">Edit Bid</a></li>
-		</ul>
+            <div class="popup-tabs-container">
 
-		<div class="popup-tabs-container">
+                <!-- Tab -->
+                <div class="popup-tab-content" id="tab">
 
-			<!-- Tab -->
-			<div class="popup-tab-content" id="tab">
+                    <!-- Bidding -->
+                    <div class="bidding-widget">
+                        <!-- Headline -->
+                        <span class="bidding-detail">Set harga <strong>
+                                @if (CurrentBid.Project != null)
+                                {
+                                    @(CurrentBid.Project.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "per jam" : "total final")
+                                }
+                            </strong></span>
 
-					<!-- Bidding -->
-					<div class="bidding-widget">
-						<!-- Headline -->
-						<span class="bidding-detail">Set your <strong>minimal hourly rate</strong></span>
+                        <!-- Price Slider -->
+                        <div class="bidding-value">Rp<span id="biddingVal"></span></div>
+                        <input class="bidding-slider" type="number" id="BidSlider1" @bind="CurrentBid.OfferingPrice" data-slider-handle="custom" data-slider-currency="Rp" data-slider-min="@(CurrentBid.Project == null ? 10000 : CurrentBid.Project.BudgetMin)" data-slider-max="@(CurrentBid.Project == null ? 250000000 :CurrentBid.Project.BudgetMax)" data-slider-value="auto" data-slider-step="50" data-slider-tooltip="hide" />
 
-						<!-- Price Slider -->
-						<div class="bidding-value">$<span id="biddingVal"></span></div>
-						<input class="bidding-slider" type="text" value="" data-slider-handle="custom" data-slider-currency="$" data-slider-min="10" data-slider-max="60" data-slider-value="40" data-slider-step="1" data-slider-tooltip="hide" />
+                        <!-- Headline -->
+                        <span class="bidding-detail margin-top-30">Set your <strong>delivery time</strong></span>
 
-						<!-- Headline -->
-						<span class="bidding-detail margin-top-30">Set your <strong>delivery time</strong></span>
+                        <!-- Fields -->
+                        <div class="bidding-fields">
+                            <div class="bidding-field">
+                                <!-- Quantity Buttons -->
+                                <div class="qtyButtons with-border">
+                                    <div class="qtyDec"></div>
+                                    <input type="text" name="qtyInput" id="qtyInput" @bind="Duration">
+                                    <div class="qtyInc"></div>
+                                </div>
+                            </div>
+                            <div class="bidding-field">
+                                <select @bind="BidType">
+                                    <option value="Days" selected>Days</option>
+                                    <option value="Hours">Hours</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-						<!-- Fields -->
-						<div class="bidding-fields">
-							<div class="bidding-field">
-								<!-- Quantity Buttons -->
-								<div class="qtyButtons with-border">
-									<div class="qtyDec"></div>
-									<input type="text" name="qtyInput" value="2">
-									<div class="qtyInc"></div>
-								</div>
-							</div>
-							<div class="bidding-field">
-								<select class="selectpicker default with-border">
-									<option selected>Days</option>
-									<option>Hours</option>
-								</select>
-							</div>
-						</div>
-				</div>
+                    <!-- Button -->
+                    <button class="button full-width button-sliding-icon ripple-effect" @onclick="Submit" type="button">Save Changes <i class="icon-material-outline-arrow-right-alt"></i></button>
 
-				<!-- Button -->
-				<button class="button full-width button-sliding-icon ripple-effect" type="submit">Save Changes <i class="icon-material-outline-arrow-right-alt"></i></button>
+                </div>
 
-			</div>
-
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Edit Bid Popup / End -->
-
 @code {
+    int Duration = 1;
+    string BidType = "Days";
+    public bool Agree { get; set; }
+    [Parameter]
+    public ProjectBidder CurrentBid { get; set; } = new();
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+        }
+
+    }
+    public void SetBidder(ProjectBidder UserBidder)
+    {
+
+        this.CurrentBid = UserBidder;
+        StateHasChanged();
+    }
+
+    async Task Submit()
+    {
+        //if (Agree)
+        {
+            Duration = await IJS.InvokeAsync<int>("GetValue", "qtyInput");
+            if (BidType == "Days")
+            {
+                CurrentBid.DeliveryTime = new TimeSpan(Duration, 0, 0, 0);
+            }
+            else
+            {
+                CurrentBid.DeliveryTime = new TimeSpan(Duration, 0, 0);
+
+            }
+            CurrentBid.OfferingPrice = await IJS.InvokeAsync<double>("GetValue", "BidSlider1");
+            var res = ProjectBidderSvc.UpdateData(CurrentBid);
+            if (res)
+            {
+                await Toast.ShowInfo($"Penawaran di ubah.");
+                AppState.RefreshProjectBidder(UserName);
+                await IJS.InvokeVoidAsync("CloseModal", "editbid-small-dialog");
+            }
+            else
+            {
+                await Toast.ShowInfo($"Gagal ubah penawaran.");
+
+            }
+        }
+    }
 }

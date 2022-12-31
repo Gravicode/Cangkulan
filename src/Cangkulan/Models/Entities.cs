@@ -247,6 +247,9 @@ namespace Cangkulan.Models
         
         [InverseProperty(nameof(Project.Employer))]
         public ICollection<Project> ProjectList { get; set; }
+        
+        [InverseProperty(nameof(ProjectBidder.UserBidder))]
+        public ICollection<ProjectBidder> ProjectBids { get; set; }
 
 
     }

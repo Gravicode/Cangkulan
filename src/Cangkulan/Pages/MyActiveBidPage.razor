@@ -1,18 +1,25 @@
 ﻿@page "/my-active-bid"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject ProjectBidderService ProjectBidderSvc
+@inject NavigationManager NavMgr
+@inject ToastInfoService Toast
+@inject ProjectService ProjectSvc
+@inject UserProfileService service
+@inject AppState AppState
+@implements IDisposable
 <div class="dashboard-content-inner">
 
 	<!-- Dashboard Headline -->
 	<div class="dashboard-headline">
-		<h3>My Active Bids</h3>
+		<h3>Daftar Penawaran Saya</h3>
 
 		<!-- Breadcrumbs -->
 		<nav id="breadcrumbs" class="dark">
 			<ul>
-				<li><a href="#">Home</a></li>
+				<li><a href="/">Home</a></li>
 				<li><a href="#">Dashboard</a></li>
-				<li>My Active Bids</li>
+				<li>Daftar Penawaran Saya</li>
 			</ul>
 		</nav>
 	</div>
@@ -26,12 +33,14 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-material-outline-gavel"></i> Bids List</h3>
+					<h3><i class="icon-material-outline-gavel"></i> Daftar Penawaran</h3>
 				</div>
 
 				<div class="content">
 					<ul class="dashboard-box-list">
-						<li>
+						<Virtualize Items="@ListProjectBidder" Context="item">
+							
+						<li @key="item.Id">
 							<!-- Job Listing -->
 							<div class="job-listing width-adjustment">
 
@@ -40,102 +49,27 @@
 
 									<!-- Details -->
 									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">WordPress Guru Needed</a></h3>
+										<h3 class="job-listing-title"><a href="@($"/project-detail/{item.Project.Id}")">@item.Project.ProjectName</a></h3>
 									</div>
 								</div>
 							</div>
 
 							<!-- Task Details -->
 							<ul class="dashboard-task-info">
-								<li><strong>$40</strong><span>Hourly Rate</span></li>
-								<li><strong>2 Days</strong><span>Delivery Time</span></li>
+									<li><strong>Rp @item.OfferingPrice.ToString("n0")</strong><span>@(item.Project.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "Hourly Rate" : "Fixed Price")</span></li>
+								<li><strong>@(item.DeliveryTime.Days>0? item.DeliveryTime.Days + " hari": item.DeliveryTime.Hours + " jam")</strong><span>Delivery Time</span></li>
 							</ul>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="#small-dialog" class="popup-with-zoom-anim button dark ripple-effect ico" title="Edit Bid" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button red ripple-effect ico" title="Cancel Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing width-adjustment">
-
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Build me a website in Angular JS</a></h3>
+								@if (!item.Project.WinnerId.HasValue)
+								{
+									<!-- Buttons -->
+									<div class="buttons-to-right always-visible">
+										<a href="#small-dialog" @onclick:preventDefault @onclick="()=>EditBid(item)" class="popup-with-zoom-anim button dark ripple-effect ico" title="Edit Bid" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
+										<a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button red ripple-effect ico" title="Cancel Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
 									</div>
-								</div>
-							</div>
-
-							<!-- Task Details -->
-							<ul class="dashboard-task-info">
-								<li><strong>$2,550</strong><span>Fixed price</span></li>
-								<li><strong>14 Days</strong><span>Delivery Time</span></li>
-							</ul>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="#small-dialog" class="popup-with-zoom-anim button dark ripple-effect ico" title="Edit Bid" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button red ripple-effect ico" title="Cancel Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing width-adjustment">
-
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Android and iOS React Appe</a></h3>
-									</div>
-								</div>
-							</div>
-
-							<!-- Task Details -->
-							<ul class="dashboard-task-info">
-								<li><strong>$3,000</strong><span>Fixed Price</span></li>
-								<li><strong>21 Days</strong><span>Delivery Time</span></li>
-							</ul>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="#small-dialog" class="popup-with-zoom-anim button dark ripple-effect ico" title="Edit Bid" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button red ripple-effect ico" title="Cancel Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-						<li>
-							<!-- Job Listing -->
-							<div class="job-listing width-adjustment">
-
-								<!-- Job Listing Details -->
-								<div class="job-listing-details">
-
-									<!-- Details -->
-									<div class="job-listing-description">
-										<h3 class="job-listing-title"><a href="#">Write Simple Python Script</a></h3>
-									</div>
-								</div>
-							</div>
-
-							<!-- Task Details -->
-							<ul class="dashboard-task-info">
-								<li><strong>$30</strong><span>Hourly Rate</span></li>
-								<li><strong>1 Day</strong><span>Delivery Time</span></li>
-							</ul>
-
-							<!-- Buttons -->
-							<div class="buttons-to-right always-visible">
-								<a href="#small-dialog" class="popup-with-zoom-anim button dark ripple-effect ico" title="Edit Bid" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
-								<a href="#" class="button red ripple-effect ico" title="Cancel Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-							</div>
-						</li>
-
+								}
+							</li>
+				
+						</Virtualize>
 					</ul>
 				</div>
 			</div>
@@ -150,5 +84,63 @@
 
 </div>
 @code {
+	List<ProjectBidder> ListProjectBidder = new();
+	UserProfile SelUser = new UserProfile();
 
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+	string UserName;
+
+	[CascadingParameter]
+	public AdminLayout Layout { get; set; }
+
+	private void PrepareForDelete(ProjectBidder item)
+	{
+		Layout.PrepareDeleteProjectBidder(item);
+	}
+	protected override async Task OnInitializedAsync()
+	{
+
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			UserName = user.Identity.Name;
+			SelUser = service.GetItemByUsername(UserName);
+			await LoadData();
+		}
+		AppState.OnProjectBidderChange += RefreshProjectBidder;
+
+
+	}
+	async Task EditBid(ProjectBidder item)
+	{
+		Layout.EditBid(item);
+		await IJS.InvokeVoidAsync("ShowModal", "editbid-small-dialog");
+		//await IJS.InvokeVoidAsync("ReBindingSlider");
+	}
+	async Task LoadData()
+	{
+
+		ListProjectBidder = ProjectBidderSvc.GetAllData(SelUser.Id);
+	}
+	public void Dispose()
+	{
+		AppState.OnProjectBidderChange -= RefreshProjectBidder;
+
+	}
+	async void RefreshProjectBidder(string tousername)
+	{
+		await LoadData();
+		await InvokeAsync(StateHasChanged);
+	}
+	
+	protected override void OnAfterRender(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			//IJS.InvokeVoidAsync("InitJs");
+		}
+	}
 }

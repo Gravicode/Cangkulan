@@ -207,7 +207,8 @@
     async Task SelectWinner(ProjectBidder item)
     {
         Layout.SetBidder(DataProject,item);
-        await IJS.InvokeVoidAsync("ShowModalNew", "small-dialog-1");
+        await IJS.InvokeVoidAsync("ShowModal", "bidacc-small-dialog");
+      
     }
     
     protected override void OnAfterRender(bool firstRender)

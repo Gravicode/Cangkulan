@@ -36,6 +36,11 @@ namespace Cangkulan.Data
         public List<ProjectBidder> GetAllData()
         {
             return db.ProjectBidders.OrderBy(x => x.Id).ToList();
+        }  
+        
+        public List<ProjectBidder> GetAllData(long UserId)
+        {
+            return db.ProjectBidders.Where(x=>x.UserBidderId == UserId).Include(c=>c.Project).Include(c=>c.UserBidder).OrderBy(x => x.Id).ToList();
         }
 
         public ProjectBidder GetDataById(object Id)
