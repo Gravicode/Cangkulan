@@ -1,176 +1,221 @@
 ﻿@page "/manage-bidder"
+@page "/manage-bidder/{ProjectId:long}"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject ProjectService ProjectSvc
+@inject UserProfileService UserSvc
+@inject ProjectBidderService ProjectBidderSvc
+@inject ToastInfoService Toast
+@inject AppState AppState
+@implements IDisposable
+@inject NavigationManager NavMgr
 <div class="dashboard-content-inner">
 
-	<!-- Dashboard Headline -->
-	<div class="dashboard-headline">
-		<h3>Manage Bidders</h3>
-		<span class="margin-top-7">Bids for <a href="#">Food Delivery Mobile Application</a></span>
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Daftar Penawaran</h3>
+        <span class="margin-top-7">Penawaran untuk proyek: <a href="#">@DataProject.ProjectName</a></span>
 
-		<!-- Breadcrumbs -->
-		<nav id="breadcrumbs" class="dark">
-			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Dashboard</a></li>
-				<li>Manage Bidders</li>
-			</ul>
-		</nav>
-	</div>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li>Daftar Penawaran</li>
+            </ul>
+        </nav>
+    </div>
 
-	<!-- Row -->
-	<div class="row">
+    <!-- Row -->
+    <div class="row">
 
-		<!-- Dashboard Box -->
-		<div class="col-xl-12">
-			<div class="dashboard-box margin-top-0">
+        <!-- Dashboard Box -->
+        <div class="col-xl-12">
+            <div class="dashboard-box margin-top-0">
 
-				<!-- Headline -->
-				<div class="headline">
-					<h3><i class="icon-material-outline-supervisor-account"></i> 3 Bidders</h3>
-					<div class="sort-by">
-						<select class="selectpicker hide-tick">
-							<option>Highest First</option>
-							<option>Lowest First</option>
-							<option>Fastest First</option>
-						</select>
-					</div>
-				</div>
+                <!-- Headline -->
+                <div class="headline">
+                    <h3><i class="icon-material-outline-supervisor-account"></i> @(DataProject.ProjectBidders != null ? DataProject.ProjectBidders.Count().ToString("n0") : 0) Penawar</h3>
+                    <div class="sort-by">
+                        <select @bind="SortBy">
+                            <option selected value="highest">Highest First</option>
+                            <option value="lowest">Lowest First</option>
+                            <option value="fastest">Fastest First</option>
+                        </select>
+                    </div>
+                </div>
 
-				<div class="content">
-					<ul class="dashboard-box-list">
-						<li>
-							<!-- Overview -->
-							<div class="freelancer-overview manage-candidates">
-								<div class="freelancer-overview-inner">
+                <div class="content">
+                    <ul class="dashboard-box-list">
+                        @if (ListBidder != null)
+                            @foreach (var item in ListBidder)
+                            {
+                                <li>
+                                    <!-- Overview -->
+                                    <div class="freelancer-overview manage-candidates">
+                                        <div class="freelancer-overview-inner">
 
-									<!-- Avatar -->
-									<div class="freelancer-avatar">
-										<div class="verified-badge"></div>
-										<a href="#"><img src="images/user-avatar-big-02.jpg" alt=""></a>
-									</div>
+                                            <!-- Avatar -->
+                                            <div class="freelancer-avatar">
+                                                <div class="verified-badge"></div>
+                                                <a href="#"><img src="@(string.IsNullOrEmpty(item.UserBidder.PicUrl)?"images/user-avatar-big-02.jpg":item.UserBidder.PicUrl)" alt=""></a>
+                                            </div>
 
-									<!-- Name -->
-									<div class="freelancer-name">
-										<h4><a href="#">David Peterson <img class="flag" src="images/flags/de.svg" alt="" title="Germany" data-tippy-placement="top"></a></h4>
+                                            <!-- Name -->
+                                            <div class="freelancer-name">
+                                                <h4><a href="@($"freelance-detail/{item.UserBidder.Id}")">@item.UserBidder.FullName <img class="flag" src="@(string.IsNullOrEmpty(item.UserBidder.Nationality)?"images/flags/id.svg": $"images/flags/{item.UserBidder.Nationality}.svg")" alt="" title="@item.UserBidder.Nationality" data-tippy-placement="top"></a></h4>
 
-										<!-- Details -->
-										<span class="freelancer-detail-item"><a href="#"><i class="icon-feather-mail"></i> david@example.com</a></span>
+                                                <!-- Details -->
+                                                <span class="freelancer-detail-item"><a href="#"><i class="icon-feather-mail"></i> @item.UserBidder.Email</a></span>
 
-										<!-- Rating -->
-										<div class="freelancer-rating">
-											<div class="star-rating" data-rating="5.0"></div>
-										</div>
-
-										<!-- Bid Details -->
-										<ul class="dashboard-task-info bid-info">
-											<li><strong>$3,200</strong><span>Fixed Price</span></li>
-											<li><strong>14 Days</strong><span>Delivery Time</span></li>
-										</ul>
-
-										<!-- Buttons -->
-										<div class="buttons-to-right always-visible margin-top-25 margin-bottom-0">
-											<a href="#small-dialog-1" class="popup-with-zoom-anim button ripple-effect"><i class="icon-material-outline-check"></i> Accept Offer</a>
-											<a href="#small-dialog-2" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
-											<a href="#" class="button gray ripple-effect ico" title="Remove Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</li>
-						<li>
-							<!-- Overview -->
-							<div class="freelancer-overview manage-candidates">
-								<div class="freelancer-overview-inner">
-
-									<!-- Avatar -->
-									<div class="freelancer-avatar">
-										<a href="#"><img src="images/user-avatar-placeholder.png" alt=""></a>
-									</div>
-
-									<!-- Name -->
-									<div class="freelancer-name">
-										<h4><a href="#">Oldrich Ćuk <img class="flag" src="images/flags/sk.svg" alt="" title="Slovakia" data-tippy-placement="top"></a></h4>
-
-										<!-- Details -->
-										<span class="freelancer-detail-item"><a href="#"><i class="icon-feather-mail"></i> oldrich@example.com</a></span>
-										<span class="freelancer-detail-item"><i class="icon-feather-phone"></i> (+421) 123-456-789</span>
+                                                <!-- Rating -->
+                                                @if (item.UserBidder.ReviewByEmployers != null && item.UserBidder.ReviewByEmployers.Count >= 3)
+                                                {
+                                                    <div class="freelancer-rating">
+                                                        <div class="star-rating" data-rating="@item.UserBidder.Rating"></div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <br>
+                                                    <span class="company-not-rated">Minimum of 3 votes required</span>
+                                                }
 
 
-										<!-- Rating -->
-										<br>
-										<span class="company-not-rated">Minimum of 3 votes required</span>
+                                                <!-- Bid Details -->
+                                                <ul class="dashboard-task-info bid-info">
+                                                    <li><strong>Rp @item.OfferingPrice.ToString("n0")</strong><span>Fixed Price</span></li>
+                                                    <li><strong>@(item.DeliveryTime.Days > 0 ? item.DeliveryTime.Days + " Hari" : item.DeliveryTime.Hours + " Jam") </strong><span>Delivery Time</span></li>
+                                                </ul>
 
-										<!-- Bid Details -->
-										<ul class="dashboard-task-info bid-info">
-											<li><strong>$3,000</strong><span>Fixed Price</span></li>
-											<li><strong>14 Days</strong><span>Delivery Time</span></li>
-										</ul>
 
-										<!-- Buttons -->
-										<div class="buttons-to-right always-visible margin-top-25 margin-bottom-0">
-											<a href="#small-dialog-1" class="popup-with-zoom-anim button ripple-effect"><i class="icon-material-outline-check"></i> Accept Offer</a>
-											<a href="#small-dialog-2" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
-											<a href="#" class="button gray ripple-effect ico" title="Remove Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</li>
-						<li>
-							<!-- Overview -->
-							<div class="freelancer-overview manage-candidates">
-								<div class="freelancer-overview-inner">
+                                                <!-- Buttons -->
+                                                @if (DataProject.WinnerId > 0)
+                                                {
+                                                    if (DataProject.WinnerId == item.UserBidder.Id)
+                                                    { 
+                                                        <br>
+                                                        <br>
+                                                        <span class="alert alert-success"><b>Pemenang Proyek</b></span>
+                                                      
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="buttons-to-right always-visible margin-top-25 margin-bottom-0">
+                                                        <a href="#small-dialog-1" @onclick:preventDefault @onclick="()=>SelectWinner(item)" class="popup-with-zoom-anim button ripple-effect"><i class="icon-material-outline-check"></i> Accept Offer</a>
+                                                        <a href="#small-dialog-2" @onclick="()=>SendMessage(item)" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
+                                                        <a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button gray ripple-effect ico" title="Remove Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
+                                                    </div>
+                                                }
 
-									<!-- Avatar -->
-									<div class="freelancer-avatar">
-										<div class="verified-badge"></div>
-										<a href="#"><img src="images/user-avatar-placeholder.png" alt=""></a>
-									</div>
 
-									<!-- Name -->
-									<div class="freelancer-name">
-										<h4><a href="#">Kuba Adamczyk <img class="flag" src="images/flags/pl.svg" alt="" title="Poland" data-tippy-placement="top"></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
 
-										<!-- Details -->
-										<span class="freelancer-detail-item"><a href="#"><i class="icon-feather-mail"></i> kuba@example.com</a></span>
-										<span class="freelancer-detail-item"><i class="icon-feather-phone"></i> (+48) 123-456-789</span>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-										<!-- Rating -->
-										<div class="freelancer-rating">
-											<div class="star-rating" data-rating="5.0"></div>
-										</div>
-
-										<!-- Bid Details -->
-										<ul class="dashboard-task-info bid-info">
-											<li><strong>$2,700</strong><span>Fixed Price</span></li>
-											<li><strong>30 Days</strong><span>Delivery Time</span></li>
-										</ul>
-
-										<!-- Buttons -->
-										<div class="buttons-to-right always-visible margin-top-25 margin-bottom-0">
-											<a href="#small-dialog-1" class="popup-with-zoom-anim button ripple-effect"><i class="icon-material-outline-check"></i> Accept Offer</a>
-											<a href="#small-dialog-2" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
-											<a href="#" class="button gray ripple-effect ico" title="Remove Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</li>
-
-					</ul>
-				</div>
-			</div>
-		</div>
-
-	</div>
-	<!-- Row / End -->
-	<!-- Footer -->
-	<div class="dashboard-footer-spacer"></div>
-	<SmallFooterPage></SmallFooterPage>
-	<!-- Footer / End -->
+    </div>
+    <!-- Row / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
 
 </div>
 @code {
+    List<ProjectBidder> ListBidder = new();
+    public string SortBy { get { return _SortBy; } set { _SortBy = value; ReSort(); } }
+    string _SortBy = "highest";
+    [Parameter]
+    public long ProjectId { get; set; } = -1;
+    UserProfile SelUser = new UserProfile();
+    Project DataProject = new();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
 
+    private void PrepareForDelete(ProjectBidder item)
+    {
+
+        Layout.PrepareDeleteProjectBidder(item);
+    }
+    public void Dispose()
+    {
+        AppState.OnProjectBidderChange -= RefreshProjectBidder;
+
+    }
+    async void RefreshProjectBidder(string tousername)
+    {
+        LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = UserSvc.GetItemByUsername(UserName);
+
+        }
+        LoadData();
+        AppState.OnProjectBidderChange += RefreshProjectBidder;
+    }
+
+    void LoadData()
+    {
+        if (ProjectId > 0)
+        {
+            DataProject = ProjectSvc.GetDataById(ProjectId);
+            ReSort();
+        }
+    }
+
+    void ReSort()
+    {
+        switch (SortBy)
+        {
+            case "highest":
+                ListBidder = DataProject.ProjectBidders.OrderByDescending(x => x.OfferingPrice).ToList();
+                break;
+            case "lowest":
+                ListBidder = DataProject.ProjectBidders.OrderBy(x => x.OfferingPrice).ToList();
+                break;
+            case "fastest":
+                ListBidder = DataProject.ProjectBidders.OrderBy(x => x.DeliveryTime).ToList();
+                break;
+
+        }
+    }
+
+    async Task SendMessage(ProjectBidder item)
+    {
+        NavMgr.NavigateTo($"/list-message/{Uri.EscapeDataString(item.UserBidder.Username)}");
+    }
+
+    async Task SelectWinner(ProjectBidder item)
+    {
+        Layout.SetBidder(DataProject,item);
+        await IJS.InvokeVoidAsync("ShowModalNew", "small-dialog-1");
+    }
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            //IJS.InvokeVoidAsync("InitJs");
+        }
+    }
 }

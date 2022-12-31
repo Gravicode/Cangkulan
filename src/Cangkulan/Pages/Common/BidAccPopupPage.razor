@@ -1,4 +1,7 @@
-﻿<!-- Bid Acceptance Popup
+﻿@inject ProjectService ProjectSvc
+@inject ToastInfoService Toast
+@inject AppState AppState
+<!-- Bid Acceptance Popup
 ================================================== -->
 <div id="small-dialog-1" class="zoom-anim-dialog mfp-hide dialog-with-tabs">
 
@@ -16,9 +19,9 @@
 
 				<!-- Welcome Text -->
 				<div class="welcome-text">
-					<h3>Accept Offer From David</h3>
+					<h3>Accept Offer From @NewBid.UserBidder?.FullName</h3>
 					<div class="bid-acceptance margin-top-15">
-						$3200
+						Rp @NewBid.OfferingPrice.ToString("n0")
 					</div>
 
 				</div>
@@ -31,7 +34,7 @@
 				</form>
 
 				<!-- Button -->
-				<button class="margin-top-15 button full-width button-sliding-icon ripple-effect" type="submit" form="terms">Accept <i class="icon-material-outline-arrow-right-alt"></i></button>
+				<button class="margin-top-15 button full-width button-sliding-icon ripple-effect" @onclick="Submit" type="button" form="terms">Accept <i class="icon-material-outline-arrow-right-alt"></i></button>
 
 			</div>
 
@@ -40,5 +43,48 @@
 </div>
 <!-- Bid Acceptance Popup / End -->
 @code {
+	public bool Agree { get; set; }
+	[Parameter]
+	public ProjectBidder NewBid { get; set; } = new();
+	[Parameter]
+	public Project DataProject { get; set; } = new();
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+	string UserName;
+	protected override async Task OnInitializedAsync()
+	{
 
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			UserName = user.Identity.Name;
+		}
+
+	}
+	public void SetBidder(Project ProjectItem, ProjectBidder UserBidder)
+	{
+		this.DataProject = ProjectItem;
+		this.NewBid = UserBidder;
+		StateHasChanged();
+	}
+
+	async Task Submit()
+	{
+		//if (Agree)
+		{
+			DataProject.WinnerId = NewBid.UserBidderId;
+			var res = ProjectSvc.UpdateData(DataProject);
+			if (res)
+			{
+				await Toast.ShowInfo($"Pemenang sudah dipilih: {NewBid.UserBidder.FullName}");
+				AppState.RefreshProjectBidder(UserName);
+			}
+			else
+			{
+				await Toast.ShowInfo($"Gagal memilih pemenang, problem system.");
+
+			}
+		}
+	}
 }

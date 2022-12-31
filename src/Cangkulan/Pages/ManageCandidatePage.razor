@@ -55,16 +55,25 @@
 
                                             <!-- Name -->
                                             <div class="freelancer-name">
-                                                <h4><a href="#">@item.Candidate.FullName <img class="flag" src="@(string.IsNullOrEmpty(item.Candidate.Nationality)?"images/flags/id.svg": $"images/flags/{item.Candidate.Nationality}.svg")" alt="" title="@item.Candidate.Nationality" data-tippy-placement="top"></a></h4>
+                                                <h4><a href="@($"freelance-detail/{item.Candidate.Id}")">@item.Candidate.FullName <img class="flag" src="@(string.IsNullOrEmpty(item.Candidate.Nationality)?"images/flags/id.svg": $"images/flags/{item.Candidate.Nationality}.svg")" alt="" title="@item.Candidate.Nationality" data-tippy-placement="top"></a></h4>
 
                                                 <!-- Details -->
                                                 <span class="freelancer-detail-item"><a href="#"><i class="icon-feather-mail"></i> @item.Candidate.Email</a></span>
                                                 <span class="freelancer-detail-item"><i class="icon-feather-phone"></i> @item.Candidate.Phone</span>
 
                                                 <!-- Rating -->
-                                                <div class="freelancer-rating">
-                                                    <div class="star-rating" data-rating="@item.Candidate.Rating"></div>
-                                                </div>
+                                                @if (item.Candidate.ReviewByEmployers != null && item.Candidate.ReviewByEmployers.Count >= 3)
+                                                {
+                                                    <div class="freelancer-rating">
+                                                        <div class="star-rating" data-rating="@item.Candidate.Rating"></div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <br>
+                                                    <span class="company-not-rated">Minimum of 3 votes required</span>
+                                                }
+                                             
 
                                                 <!-- Buttons -->
                                                 <div class="buttons-to-right always-visible margin-top-25 margin-bottom-5">

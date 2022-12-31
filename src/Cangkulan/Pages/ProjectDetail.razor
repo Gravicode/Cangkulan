@@ -150,7 +150,7 @@
 
 							<!-- Price Slider -->
 							<div class="bidding-value">Rp<span id="biddingVal"></span></div>
-							<input class="bidding-slider" id="bid-slider" type="number" @bind="NewBid.OfferingPrice" data-slider-handle="custom" data-slider-currency="$" data-slider-min="10000" data-slider-max="100000000000" data-slider-value="auto" data-slider-step="50" data-slider-tooltip="hide" />
+							<input class="bidding-slider" id="bid-slider" type="number" @bind="NewBid.OfferingPrice" data-slider-handle="custom" data-slider-currency="Rp" data-slider-min="@DataProject.BudgetMin" data-slider-max="@DataProject.BudgetMax" data-slider-value="auto" data-slider-step="50" data-slider-tooltip="hide" />
 
 							<!-- Headline -->
 							<span class="bidding-detail margin-top-30">Set your <strong>delivery time</strong></span>
@@ -172,10 +172,15 @@
 									</select>
 								</div>
 							</div>
-
-							<!-- Button -->
-							<button id="snackbar-place-bid" @onclick="PlaceBid" class="button ripple-effect move-on-hover full-width margin-top-30"><span>Place a Bid</span></button>
-
+							@if (DataProject.WinnerId > 0)
+							{
+								<div class="alert alert-info">Pemenang proyek sudah terpilih</div>
+							}
+							else
+							{
+								<!-- Button -->
+								<button id="snackbar-place-bid" @onclick="PlaceBid" class="button ripple-effect move-on-hover full-width margin-top-30"><span>Place a Bid</span></button>
+							}
 						</div>
 						   <AuthorizeView>
 								<NotAuthorized>
@@ -319,6 +324,10 @@
 			{
 				HasBid = true;
 				await Toast.ShowInfo("Penawaran sudah terkirim.");
+			}
+			else
+			{
+				await Toast.ShowInfo("Penawaran gagal terkirim.");
 			}
 			//Layout.SetProjectItem(SelUser.Id, DataProject.Id);
 		}

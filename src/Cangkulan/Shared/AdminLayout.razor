@@ -9,6 +9,7 @@
 @inject IJSRuntime IJS
 @inject AppState AppState
 @inject JobCandidateService JobCandidateSvc
+@inject ProjectBidderService ProjectBidderSvc
 
 <PageTitle>Cangkulan App</PageTitle>
 
@@ -73,6 +74,7 @@
 
     </div>
     <!-- Wrapper / End -->
+    <BidAccPopupPage @ref="BidAcc"></BidAccPopupPage>
     <ConfirmDialog OnClick="@Delete" />
     <CompanyDetail @ref="detail" TaskObject=@CompanyItem DataChanged="@CompanyDataChanged">
         <CustomHeader>@CompanyDetailHeader</CustomHeader>
@@ -82,11 +84,12 @@
     <ReviewPopupPage></ReviewPopupPage>
     <ReviewFreelancePopupPage></ReviewFreelancePopupPage>
     <DirectMessagePopupPage></DirectMessagePopupPage>
-    <BidAccPopupPage></BidAccPopupPage>
+   
     <EditBidPopupPage></EditBidPopupPage>
     <PickLocation @ref="loc" DataChanged="@RefreshLocation">
         <CustomHeader>Pilih Lokasi</CustomHeader>
     </PickLocation>
+   
 </CascadingValue>
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"
@@ -95,6 +98,7 @@
                 ErrorIconClass="fa fa-bug" />
 
 @code {
+    BidAccPopupPage BidAcc;
     public PickLocation loc { get; set; }
     string SelectDelete;
     CompanyDetail detail;
@@ -110,6 +114,7 @@
     public Project DeleteProjectItem { get; set; }
 
     public JobCandidate DeleteJobCandidateItem { get; set; }
+    public ProjectBidder DeleteProjectBidderItem { get; set; }
 
     [Parameter]
     public bool IsTransparent { get; set; } = true;
@@ -146,7 +151,10 @@
         AppState.RefreshCompany(UserName);
         //StateHasChanged();
     }
-
+    public void SetBidder(Project project, ProjectBidder bidder)
+    {
+        BidAcc?.SetBidder(project,bidder);
+    }
     public void EditCompany(Company item)
     {
         CompanyDetailHeader = "Ubah Data Company";
@@ -173,7 +181,16 @@
         SelectDelete = "JobCandidate";
         DeleteJobCandidateItem = item;
         StateHasChanged();
+    } 
+    
+    public void PrepareDeleteProjectBidder(ProjectBidder item)
+    {
+        SelectDelete = "ProjectBidder";
+        DeleteProjectBidderItem = item;
+        StateHasChanged();
     }
+
+
 
  
     public void PrepareDeleteProject(Project item)
@@ -204,6 +221,11 @@
             case "JobCandidate":
                 if (DeleteJobCandidateItem != null)
                     await DeleteJobCandidate();
+                break; 
+                
+                case "ProjectBidder":
+                if (DeleteProjectBidderItem != null)
+                    await DeleteProjectBidder();
                 break;
             default:
                 break;
@@ -235,6 +257,15 @@
         //await LoadData();
         DeleteJobCandidateItem = null;
         AppState.RefreshJobCandidate(UserName);
+    }
+    
+    private async Task DeleteProjectBidder()
+    {
+        var task = ProjectBidderSvc.DeleteData(DeleteProjectBidderItem.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        //await LoadData();
+        DeleteProjectBidderItem = null;
+        AppState.RefreshProjectBidder(UserName);
     }
     
     private async Task DeleteProject()

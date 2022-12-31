@@ -171,6 +171,15 @@
                 text: msg,
             });
         }
+
+        function ShowModalNew(modalid){
+            $("#"+modalid).removeClass("mfp-hide");
+            //$('#' + modalid).modal('show');
+        } 
+        function CloseModalNew(modalid){
+            $("#"+modalid).addClass("mfp-hide");
+            //$('#' + modalid).modal('show');
+        }
         </script>
 
     <script src="_framework/blazor.server.js"></script>

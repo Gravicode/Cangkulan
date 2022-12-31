@@ -11,6 +11,7 @@ namespace Cangkulan.Data
         public event Action<string> OnJobChange;
         public event Action<string> OnJobCandidateChange;
         public event Action<string> OnProjectChange;
+        public event Action<string> OnProjectBidderChange;
 
         public void RefreshProfile(string username)
         {
@@ -38,6 +39,11 @@ namespace Cangkulan.Data
         public void RefreshProject(string username)
         {
             ProjectStateChanged(username);
+        }  
+        
+        public void RefreshProjectBidder(string username)
+        {
+            ProjectBidderStateChanged(username);
         }
 
         private void ProfileStateChanged(string username) => OnProfileChange?.Invoke(username);
@@ -46,5 +52,6 @@ namespace Cangkulan.Data
         private void JobStateChanged(string username) => OnJobChange?.Invoke(username);
         private void JobCandidateStateChanged(string username) => OnJobCandidateChange?.Invoke(username);
         private void ProjectStateChanged(string username) => OnProjectChange?.Invoke(username);
+        private void ProjectBidderStateChanged(string username) => OnProjectBidderChange?.Invoke(username);
     }
 }

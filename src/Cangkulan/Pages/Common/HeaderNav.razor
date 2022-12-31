@@ -1,96 +1,104 @@
 ﻿<nav id="navigation">
-	<ul id="responsive">
+    <ul id="responsive">
 
-		<li>
-			<a href="#" class="current">Beranda</a>
-			<ul class="dropdown-nav">
-				<li><a href="index">Utama</a></li>
+        <li>
+            <a href="#" class="current">Beranda</a>
+            <ul class="dropdown-nav">
+                <li><a href="index">Utama</a></li>
 
-			</ul>
-		</li>
+            </ul>
+        </li>
 
-		<li>
-			<a href="#">Cari Pekerjaan</a>
-			<ul class="dropdown-nav">
-				<li>
-					<a href="#">Cari Kerja</a>
-					<ul class="dropdown-nav">
-					
-						<li><a href="find-job">Cari Kerjaan</a></li>
-						<li><a href="find-job-map">Cari Kerjaan dengan Map</a></li>
-						
-					</ul>
-				</li>
-				<li>
-					<a href="#">Cari Proyek</a>
-					<ul class="dropdown-nav">
-				
-						<li><a href="find-project">Cari Proyek</a></li>
-					</ul>
-				</li>
-				<li><a href="browse-company">Cari Perusahaan</a></li>
-				<li><a href="job-detail">Detail Job</a></li>
-				<li><a href="project-detail">Detail Proyek</a></li>
-				<li><a href="company-detail">Info Perusahaan Detail</a></li>
-			</ul>
-		</li>
+        <li>
+            <a href="#">Cari Pekerjaan</a>
+            <ul class="dropdown-nav">
+                <li>
+                    <a href="#">Cari Kerja</a>
+                    <ul class="dropdown-nav">
 
-		<li>
-			<a href="#">Mencari Pekerja</a>
-			<ul class="dropdown-nav">
-				<li>
-					<a href="#">Cari Pekerja</a>
-					<ul class="dropdown-nav">
-						
-						<li><a href="find-freelance">Cari Pekerja</a></li>
-					</ul>
-				</li>
-				<li><a href="freelance-detail">Profil Pekerja</a></li>
-				<li><a href="post-job">Bikin Lowongan Kerja</a></li>
-				<li><a href="post-project">Bikin Proyek</a></li>
-			</ul>
-		</li>
+                        <li><a href="find-job">Cari Kerjaan</a></li>
+                        <li><a href="find-job-map">Cari Kerjaan dengan Map</a></li>
 
-		<li>
-			<a href="#">Dashboard</a>
-			<ul class="dropdown-nav">
-				<li><a href="dashboard">Dashboard</a></li>
-				<li><a href="list-message">Kotak Pesan</a></li>
-				<li><a href="list-bookmark">Daftar Bookmark</a></li>
-				<li><a href="list-review">Daftar Review</a></li>
-				<li>
-					<a href="dashboard-manage-jobs">Kerjaan</a>
-					<ul class="dropdown-nav">
-						<li><a href="manage-job">Daftar Kerjaan</a></li>
-						<li><a href="post-job">Bikin Kerjaan</a></li>
-					</ul>
-				</li>
-				<li>
-					<a href="dashboard-manage-tasks">Proyek</a>
-					<ul class="dropdown-nav">
-						<li><a href="manage-project">Daftar Proyek</a></li>						
-						<li><a href="my-active-bid">Daftar Proyek Yang Diikuti</a></li>
-						<li><a href="post-project">Bikin Proyek</a></li>
-					</ul>
-				</li>
-				<li><a href="settings">Settings</a></li>
-			</ul>
-		</li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Cari Proyek</a>
+                    <ul class="dropdown-nav">
 
-		<li>
-			<a href="#">Pages</a>
-			<ul class="dropdown-nav">
-				<li><a href="list-blog">Daftar Artikel</a></li>
-				<li><a href="pricing-plan">Paket Harga</a></li>
-				<li><a href="checkout">Checkout Paket</a></li>
-				<li><a href="invoice">Invoice Template</a></li>
-				<li><a href="sign-in">Login & Register</a></li>
-				<li><a href="page-404">404 Page</a></li>
-				<li><a href="contact">Contact</a></li>
-			</ul>
-		</li>
+                        <li><a href="find-project">Cari Proyek</a></li>
+                    </ul>
+                </li>
+                <li><a href="browse-company">Cari Perusahaan</a></li>
+                @*<li><a href="job-detail">Detail Job</a></li>
+                <li><a href="project-detail">Detail Proyek</a></li>
+                <li><a href="company-detail">Info Perusahaan Detail</a></li>*@
+            </ul>
+        </li>
 
-	</ul>
+        <li>
+            <a href="#">Mencari Pekerja</a>
+            <ul class="dropdown-nav">
+                <li>
+                    <a href="#">Cari Pekerja</a>
+                    <ul class="dropdown-nav">
+
+                        <li><a href="find-freelance">Cari Pekerja</a></li>
+                    </ul>
+                </li>
+                @*<li><a href="freelance-detail">Profil Pekerja</a></li>*@
+                <li><a href="post-job">Bikin Kerjaan</a></li>
+                <li><a href="post-project">Bikin Proyek</a></li>
+            </ul>
+        </li>
+
+
+
+        <AuthorizeView>
+            <Authorized>
+                <li>
+                    <a href="#">Dashboard</a>
+                    <ul class="dropdown-nav">
+                        <li><a href="dashboard">Dashboard</a></li>
+                        <li><a href="list-message">Kotak Pesan</a></li>
+                        <li><a href="list-bookmark">Daftar Bookmark</a></li>
+                        <li><a href="list-review">Daftar Review</a></li>
+                        <li>
+                            <a href="dashboard-manage-jobs">Kerjaan</a>
+                            <ul class="dropdown-nav">
+                                <li><a href="manage-job">Daftar Kerjaan</a></li>
+                                <li><a href="post-job">Bikin Kerjaan</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="dashboard-manage-tasks">Proyek</a>
+                            <ul class="dropdown-nav">
+                                <li><a href="manage-project">Daftar Proyek</a></li>
+                                <li><a href="my-active-bid">Daftar Proyek Yang Diikuti</a></li>
+                                <li><a href="post-project">Bikin Proyek</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="settings">Settings</a></li>
+                    </ul>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+
+
+
+        <li>
+            <a href="#">Pages</a>
+            <ul class="dropdown-nav">
+                <li><a href="list-blog">Daftar Artikel</a></li>
+               @* <li><a href="pricing-plan">Paket Harga</a></li>
+                <li><a href="checkout">Checkout Paket</a></li>
+                <li><a href="invoice">Invoice Template</a></li>
+                <li><a href="sign-in">Login & Register</a></li>
+                <li><a href="page-404">404 Page</a></li>*@
+                <li><a href="contact">Contact</a></li>
+            </ul>
+        </li>
+
+    </ul>
 </nav>
 @code {
 
