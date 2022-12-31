@@ -1,0 +1,149 @@
+﻿@inject JobCandidateService JobCandidateSvc
+@inject UserProfileService UserSvc
+@inject JobService JobSvc
+@inject AzureBlobHelper AzureBlobHelper
+@inject ToastInfoService Toast
+@inject NavigationManager NavMgr
+@inject IJSRuntime IJS
+
+<!-- Apply for a job popup
+================================================== -->
+<div id="small-dialog" class="zoom-anim-dialog mfp-hide dialog-with-tabs">
+
+	<!--Tabs -->
+	<div class="sign-in-form">
+
+		<ul class="popup-tabs-nav">
+			<li><a href="#tab">Apply Now</a></li>
+		</ul>
+
+		<div class="popup-tabs-container">
+
+			<!-- Tab -->
+			<div class="popup-tab-content" id="tab">
+
+				<!-- Welcome Text -->
+				<div class="welcome-text">
+					<h3>Attach File With CV</h3>
+				</div>
+
+				<!-- Form -->
+				<form style="@(HasLogin ? "": "display:none;")" id="apply-now-form">
+
+					<div class="input-with-icon-left">
+						<i class="icon-material-outline-account-circle"></i>
+						<input readonly type="text" @bind="user.FullName" class="input-text with-border" name="name" id="name" placeholder="First and Last Name" required />
+					</div>
+
+					<div class="input-with-icon-left">
+						<i class="icon-material-baseline-mail-outline"></i>
+						<input readonly type="text" @bind="user.Email" class="input-text with-border" name="emailaddress" id="emailaddress" placeholder="Email Address" required />
+					</div>
+
+					<div class="uploadButton">
+						<InputFile class="uploadButton-input" type="file" accept="image/*, application/pdf" id="upload-cv"  OnChange="UploadFiles" />
+						
+						<label class="uploadButton-button ripple-effect" for="upload-cv">Select File</label>
+						<span class="uploadButton-file-name">@(string.IsNullOrEmpty(NewItem.CVUrl) ? "Upload CV / resume file." : "CV sudah di upload.") <br> Max. file size: 50 MB.</span>
+					</div>
+
+				</form>
+				@if (HasLogin)
+				{
+					<!-- Button -->
+					<button class="button margin-top-35 full-width button-sliding-icon ripple-effect" @onclick="Apply" type="button" form="apply-now-form">Apply Now <i class="icon-material-outline-arrow-right-alt"></i></button>
+				}
+				else
+				{
+					<button class="button margin-top-35 full-width button-sliding-icon ripple-effect" @onclick="Login" type="button" form="apply-now-form">Login First <i class="icon-material-outline-arrow-right-alt"></i></button>
+				}
+			</div>
+
+		</div>
+	</div>
+</div>
+<!-- Apply for a job popup / End -->
+@code {
+	public JobCandidate NewItem { get; set; } = new();
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+	string UserName;
+	UserProfile user = new();
+	Job job = new();
+	bool HasLogin = false;
+	protected override async Task OnInitializedAsync()
+	{
+
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			HasLogin = true;
+		}
+
+	}
+	async Task Login()
+	{
+		await IJS.InvokeVoidAsync("OpenUrl", "sign-in");
+		//NavMgr.NavigateTo("/sign-in");
+	}
+
+	public async Task Refresh(JobCandidate item)
+	{
+		if (item.JobId > 0 && item.CandidateId > 0)
+		{
+			NewItem = item;
+			user = UserSvc.GetDataById(NewItem.CandidateId);
+			job = JobSvc.GetDataById(NewItem.JobId);
+		}
+		StateHasChanged();
+	}
+
+	private async Task UploadFiles(InputFileChangeEventArgs e)
+	{
+		var file = e.File;
+		if (file != null)
+		{
+			var ms = new MemoryStream();
+			await file.OpenReadStream().CopyToAsync(ms);
+			var bytes = ms.ToArray();
+			string newName = string.Empty;
+
+			newName = $"cv_{(string.IsNullOrEmpty(user.Username) ? "rojul" : user.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+			var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+			await AzureBlobHelper.UploadFile(newName, bytes);
+			NewItem.CVUrl = FileUrl;
+
+		}
+	}
+	bool HasSent = false;
+	string ErrorMsg;
+	async Task Apply()
+	{
+		ErrorMsg = "";
+		if (HasSent)
+		{
+			await Toast.ShowInfo("Dilarang mengirim CV berkali-kali.");
+		}
+
+		if (string.IsNullOrEmpty(NewItem.CVUrl))
+		{
+			ErrorMsg += "Tolong upload CV dulu. ";
+
+		}
+		if (!string.IsNullOrEmpty(ErrorMsg))
+		{
+			await Toast.ShowInfo(ErrorMsg);
+			return;
+		}
+		if (JobCandidateSvc.InsertData(NewItem))
+		{
+			HasSent = true;
+			await Toast.ShowInfo("CV Anda sudah dikirimkan.");
+		}
+		else
+		{
+			await Toast.ShowInfo("CV Anda gagal dikirimkan.");
+		}
+	}
+}

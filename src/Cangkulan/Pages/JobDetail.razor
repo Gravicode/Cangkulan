@@ -2,6 +2,11 @@
 @page "/job-detail/{JobId:long}"
 @layout ContentLayoutBlack
 @inject IJSRuntime IJS
+@inject JobService	JobSvc
+@inject UserProfileService	UserSvc
+@inject BookmarkedJobService BookmarkedJobSvc
+@inject NavigationManager NavMgr
+@inject ToastInfoService Toast
 <!-- Titlebar
 ================================================== -->
 <div class="single-page-header" data-background-image="images/single-job.jpg">
@@ -10,22 +15,26 @@
 			<div class="col-md-12">
 				<div class="single-page-header-inner">
 					<div class="left-side">
-						<div class="header-image"><a href="single-company-profile.html"><img src="images/company-logo-03a.png" alt=""></a></div>
+						<div class="header-image"><a href="@($"/company-detail/{DataJob.CompanyId}")"><img src="@(string.IsNullOrEmpty(DataJob.Company.LogoUrl)?"images/company-logo-03a.png":DataJob.Company.LogoUrl)" alt=""></a></div>
 						<div class="header-details">
-							<h3>Restaurant General Manager</h3>
+							<h3>@DataJob.JobTitle</h3>
 							<h5>About the Employer</h5>
 							<ul>
-								<li><a href="single-company-profile.html"><i class="icon-material-outline-business"></i> King</a></li>
-								<li><div class="star-rating" data-rating="4.9"></div></li>
-								<li><img class="flag" src="images/flags/gb.svg" alt=""> United Kingdom</li>
-								<li><div class="verified-badge-with-title">Verified</div></li>
+								<li><a href="single-company-profile.html"><i class="icon-material-outline-business"></i> @DataJob.Employer.FullName</a></li>
+								<li><div class="star-rating" data-rating="@DataJob.Employer.Rating"></div></li>
+								<li><img class="flag" src="@(string.IsNullOrEmpty(DataJob.Employer.Nationality)?"images/flags/id.svg":$"images/flags/{DataJob.Employer.Nationality}.svg")" alt=""> @DataJob.Location</li>
+								<li>@if (DataJob.Company.IsVerified)
+									{
+										<div class="verified-badge-with-title">Verified</div>
+									}
+								</li>
 							</ul>
 						</div>
 					</div>
 					<div class="right-side">
 						<div class="salary-box">
-							<div class="salary-type">Annual Salary</div>
-							<div class="salary-amount">$35k - $38k</div>
+							<div class="salary-type">Salary</div>
+							<div class="salary-amount">@($"Rp{NumberHelper.FormatNumber(DataJob.SalaryMin)} - Rp{NumberHelper.FormatNumber(DataJob.SalaryMax)}")</div>
 						</div>
 					</div>
 				</div>
@@ -45,17 +54,13 @@
 
 			<div class="single-page-section">
 				<h3 class="margin-bottom-25">Job Description</h3>
-				<p>Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.</p>
-
-				<p>Bring to the table win-win survival strategies to ensure proactive domination. At the end of the day, going forward, a new normal that has evolved from generation X is on the runway heading towards a streamlined cloud solution. User generated content in real-time will have multiple touchpoints for offshoring.</p>
-
-				<p>Capitalize on low hanging fruit to identify a ballpark value added activity to beta test. Override the digital divide with additional clickthroughs from DevOps. Nanotechnology immersion along the information highway will close the loop on focusing solely on the bottom line.</p>
+				<p>@DataJob.JobDesc</p>
 			</div>
 
 			<div class="single-page-section">
 				<h3 class="margin-bottom-30">Location</h3>
 				<div id="single-job-map-container">
-					<div id="singleListingMap" data-latitude="51.507717" data-longitude="-0.131095" data-map-icon="im im-icon-Hamburger"></div>
+					<div id="singleListingMap" data-latitude="@DataJob.Latitude" data-longitude="@DataJob.Longitude" data-map-icon="im im-icon-Hamburger"></div>
 					<a href="#" id="streetView">Street View</a>
 				</div>
 			</div>
@@ -65,7 +70,7 @@
 
 				<!-- Listings Container -->
 				<div class="listings-container grid-layout">
-
+					@foreach(var item in SimilarJobs){
 					<!-- Job Listing -->
 					<a href="#" class="job-listing">
 
@@ -73,54 +78,28 @@
 						<div class="job-listing-details">
 							<!-- Logo -->
 							<div class="job-listing-company-logo">
-								<img src="images/company-logo-02.png" alt="">
+								<img src="@(string.IsNullOrEmpty(item.Company.LogoUrl)?"images/company-logo-02.png":item.Company.LogoUrl)" alt="">
 							</div>
 
 							<!-- Details -->
 							<div class="job-listing-description">
-								<h4 class="job-listing-company">Coffee</h4>
-								<h3 class="job-listing-title">Barista and Cashier</h3>
+								<h4 class="job-listing-company">@item.Company.FullName</h4>
+								<h3 class="job-listing-title">@item.JobTitle</h3>
 							</div>
 						</div>
 
 						<!-- Job Listing Footer -->
 						<div class="job-listing-footer">
 							<ul>
-								<li><i class="icon-material-outline-location-on"></i> San Francisco</li>
-								<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-								<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-								<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
+								<li><i class="icon-material-outline-location-on"></i> @item.Location</li>
+								<li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
+									<li><i class="icon-material-outline-account-balance-wallet"></i> @($"Rp{NumberHelper.FormatNumber(item.SalaryMin)}-Rp{NumberHelper.FormatNumber(item.SalaryMax)}")</li>
+								<li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>
 							</ul>
 						</div>
 					</a>
-
-					<!-- Job Listing -->
-					<a href="#" class="job-listing">
-
-						<!-- Job Listing Details -->
-						<div class="job-listing-details">
-							<!-- Logo -->
-							<div class="job-listing-company-logo">
-								<img src="images/company-logo-03.png" alt="">
-							</div>
-
-							<!-- Details -->
-							<div class="job-listing-description">
-								<h4 class="job-listing-company">King <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span></h4>
-								<h3 class="job-listing-title">Restaurant Manager</h3>
-							</div>
-						</div>
-
-						<!-- Job Listing Footer -->
-						<div class="job-listing-footer">
-							<ul>
-								<li><i class="icon-material-outline-location-on"></i> San Francisco</li>
-								<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-								<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-								<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-							</ul>
-						</div>
-					</a>
+					}
+					
 				</div>
 				<!-- Listings Container / End -->
 
@@ -132,7 +111,7 @@
 		<div class="col-xl-4 col-lg-4">
 			<div class="sidebar-container">
 
-				<a href="#small-dialog" class="apply-now-button popup-with-zoom-anim">Apply Now <i class="icon-material-outline-arrow-right-alt"></i></a>
+				<a href="#small-dialog" @onclick="ApplyJob" class="apply-now-button popup-with-zoom-anim">Apply Now <i class="icon-material-outline-arrow-right-alt"></i></a>
 
 				<!-- Sidebar Widget -->
 				<div class="sidebar-widget">
@@ -143,22 +122,22 @@
 								<li>
 									<i class="icon-material-outline-location-on"></i>
 									<span>Location</span>
-									<h5>London, United Kingdom</h5>
+									<h5>@DataJob.Location</h5>
 								</li>
 								<li>
 									<i class="icon-material-outline-business-center"></i>
 									<span>Job Type</span>
-									<h5>Full Time</h5>
+									<h5>@DataJob.JobType</h5>
 								</li>
 								<li>
 									<i class="icon-material-outline-local-atm"></i>
 									<span>Salary</span>
-									<h5>$35k - $38k</h5>
+									<h5>@($"Rp{NumberHelper.FormatNumber(DataJob.SalaryMin)} - Rp{NumberHelper.FormatNumber(DataJob.SalaryMax)}")</h5>
 								</li>
 								<li>
 									<i class="icon-material-outline-access-time"></i>
 									<span>Date Posted</span>
-									<h5>2 days ago</h5>
+									<h5>@DateHelper.GetElapsedTime(DataJob.CreatedDate)</h5>
 								</li>
 							</ul>
 						</div>
@@ -170,7 +149,7 @@
 					<h3>Bookmark or Share</h3>
 
 					<!-- Bookmark Button -->
-					<button class="bookmark-button margin-bottom-25">
+					<button @onclick="ToggleBookmark" class="bookmark-button margin-bottom-25 @(BookMarked ? "bookmarked" : "")">
 						<span class="bookmark-icon"></span>
 						<span class="bookmark-text">Bookmark</span>
 						<span class="bookmarked-text">Bookmarked</span>
@@ -178,7 +157,7 @@
 
 					<!-- Copy URL -->
 					<div class="copy-url">
-						<input id="copy-url" type="text" value="" class="with-border">
+						<input id="copy-url" type="text" @bind="ThisUrl" class="with-border">
 						<button class="copy-url-button ripple-effect" data-clipboard-target="#copy-url" title="Copy to Clipboard" data-tippy-placement="top"><i class="icon-material-outline-file-copy"></i></button>
 					</div>
 
@@ -204,6 +183,71 @@
 </div>
 
 @code {
+	bool BookMarked = false;
+	string ThisUrl;
+	List<Job> SimilarJobs = new();
+	public Job DataJob { get; set; } = new();
+	public UserProfile SelUser { get; set; } = new();
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+	string UserName;
 	[Parameter]
 	public long JobId { get; set; }
+	[CascadingParameter]
+	public ContentLayoutBlack Layout { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			UserName = user.Identity.Name;
+			SelUser = UserSvc.GetItemByUsername(UserName);
+
+		}
+		if (JobId > 0)
+		{
+			DataJob = JobSvc.GetDataById(JobId);			
+			SimilarJobs = JobSvc.GetSimilar(DataJob);
+			if (!string.IsNullOrEmpty(UserName ))
+				BookMarked = SelUser.BookmarkedJobs.Any(x => x.JobId == JobId && x.UserId == SelUser.Id);
+		}
+		ThisUrl = NavMgr.Uri;
+
+	}
+
+	async Task ToggleBookmark()
+	{
+		if (string.IsNullOrEmpty(UserName))
+		{
+			await Toast.ShowInfo("Login terlebih dahulu untuk lakukan bookmark");
+			return;
+		}
+		BookMarked = !BookMarked;
+		if (BookMarked)
+			BookmarkedJobSvc.Bookmark(SelUser.Id, DataJob.Id);
+		else
+			BookmarkedJobSvc.UnBookmark(SelUser.Id, DataJob.Id);
+
+	}
+
+	async Task CopyToClip()
+	{
+		await IJS.InvokeVoidAsync("CopyToClipboard", "copy-url");
+	}
+
+	async Task ApplyJob()
+	{
+		if (SelUser == null)
+		{
+			await Toast.ShowInfo("Silakan login terlebih dahulu.");
+			Layout.SetJobItem(0,0);
+		}
+		else
+		{
+			
+			Layout.SetJobItem(SelUser.Id, DataJob.Id);
+		}
+	}
 }

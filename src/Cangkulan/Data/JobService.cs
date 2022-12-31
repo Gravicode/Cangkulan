@@ -25,8 +25,19 @@ namespace Cangkulan.Data
             return true;
         }
 
-        public List<Job> FindByKeyword(string Keyword)
+		public List<Job> GetSimilar(Job item,int Limit = 2)
+		{
+            if (item == null) return new List<Job>();
+			var data = from x in db.Jobs
+					   where x.JobCategory == item.JobCategory && x.JobType == item.JobType && x.Active && x.Id!=item.Id
+                       orderby x.CreatedDate descending
+					   select x;
+			return data.Take(Limit).ToList();
+		}
+
+		public List<Job> FindByKeyword(string Keyword)
         {
+
             var data = from x in db.Jobs
                        where x.JobTitle.Contains(Keyword) || x.JobDesc.Contains(Keyword)
                        select x;
@@ -62,7 +73,7 @@ namespace Cangkulan.Data
 		}
         public Job GetDataById(object Id)
         {
-            return db.Jobs.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.Jobs.Include(x=>x.Company).Include(x=>x.Employer).Include(x=>x.JobCandidates).Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 

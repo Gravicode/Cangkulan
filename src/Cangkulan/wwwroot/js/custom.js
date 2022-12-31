@@ -180,6 +180,7 @@ function InitJs() {
     /*--------------------------------------------------*/
     /*  Sliding Button Icon
     /*--------------------------------------------------*/
+    /*
     $('.bookmark-icon').on('click', function (e) {
         e.preventDefault();
         $(this).toggleClass('bookmarked');
@@ -189,7 +190,7 @@ function InitJs() {
         e.preventDefault();
         $(this).toggleClass('bookmarked');
     });
-
+    */
 
     /*----------------------------------------------------*/
     /*  Notifications Boxes

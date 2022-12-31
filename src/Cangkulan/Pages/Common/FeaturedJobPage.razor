@@ -33,7 +33,7 @@
 								<!-- Job Listing Footer -->
 								<div class="job-listing-footer">
 									<ul>
-										<li><i class="icon-material-outline-business"></i> @item.Company.FullName @(item.Company.IsVerified ? "<div class='verified - badge' title='Verified Employer' data-tippy-placement='top'></div>" : "")</li>
+										<li><i class="icon-material-outline-business"></i> @item.Company.FullName @(item.Company.IsVerified ? (MarkupString)"<div class='verified - badge' title='Verified Employer' data-tippy-placement='top'></div>" : "")</li>
 										<li><i class="icon-material-outline-location-on"></i> @item.Location</li>
 										<li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
 										<li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>

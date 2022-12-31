@@ -11,6 +11,7 @@ using PdfSharp.Charting;
 using System.Net;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Cangkulan.Models;
+using Cangkulan.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -68,6 +69,7 @@ builder.Services.AddTransient<JobCategoryService>();
 builder.Services.AddTransient<CompanyCategoryService>();
 builder.Services.AddTransient<ProjectCategoryService>();
 builder.Services.AddTransient<TestimonialService>();
+builder.Services.AddTransient<ToastInfoService>();
 
 builder.Services.AddCors(options =>
 {

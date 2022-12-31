@@ -25,6 +25,34 @@ namespace Cangkulan.Data
             return true;
         }
 
+        public bool UnBookmark(long UserId,long JobId)
+        {
+            var item = db.BookmarkedJobs.Where(x => x.UserId == UserId && x.JobId == JobId).FirstOrDefault();
+            if (item != null)
+            {
+                db.BookmarkedJobs.Remove(item);
+            }
+            else
+            {
+                return false;
+            }
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        } 
+        public bool Bookmark(long UserId,long JobId)
+        {
+            var item = db.BookmarkedJobs.Where(x => x.UserId == UserId && x.JobId == JobId).FirstOrDefault();
+            if (item != null)
+            {
+                return false;
+            }
+            item = new BookmarkedJob() { JobId = JobId, UserId = UserId };
+            db.BookmarkedJobs.Add(item);
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        }
         public List<BookmarkedJob> FindByKeyword(string Keyword)
         {
             var data = from x in db.BookmarkedJobs.Include(c=>c.Job)

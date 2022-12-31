@@ -143,7 +143,29 @@
                 var topPosition = $(".table_container").scrollTop();
                 $(table + " thead tr th").css({ "top": (topPosition) });
             });
-        }</script>
+        }
+        
+        function CopyToClipboard(elementid) {
+            // Get the text field
+            var copyText = document.getElementById(elementid);
+
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            //alert("Copied the text: " + copyText.value);
+        }
+        
+        function ShowInfo(msg){
+            Snackbar.show({
+                text: msg,
+            });
+        }
+        </script>
 
     <script src="_framework/blazor.server.js"></script>
 </body>
