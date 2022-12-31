@@ -43,7 +43,7 @@
 						<div class="task-listing-bid">
 							<div class="task-listing-bid-inner">
 								<div class="task-offers">
-									<strong>@($"Rp{item.BudgetMin.ToString("n0")} - Rp{item.BudgetMax.ToString("n0")}")</strong>
+									<strong>@($"Rp{NumberHelper.FormatNumber( item.BudgetMin)} - Rp{NumberHelper.FormatNumber( item.BudgetMax)}")</strong>
 									<span>@(item.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "Hourly Rate":"Fixed Price")</span>
 								</div>
 								<span class="button button-sliding-icon ripple-effect">Lihat <i class="icon-material-outline-arrow-right-alt"></i></span>

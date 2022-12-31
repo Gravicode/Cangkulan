@@ -61,7 +61,14 @@
 							</div>
 						</div>
 
-						<div class="col-xl-4">
+                        <div class="col-xl-4">
+                            <div class="submit-field">
+                                <h5>Expiry Date</h5>
+                                <input @bind="DataProject.ExpiryDate" type="date" placeholder="Expiry Date" class="with-border">
+                            </div>
+                        </div>
+
+						<div class="col-xl-6">
 							<div class="submit-field">
 								<h5>Location  <i class="help-icon" data-tippy-placement="right" title="Leave blank if it's an online Project"></i></h5>
 								<div class="input-with-icon">
@@ -74,6 +81,21 @@
                                 <a class="btn btn-success btn-sm mt-2 mb-2" style="cursor:crosshair;color:white;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Peta</a>
 							</div>
 						</div>
+
+
+                        <div class="col-xl-6">
+                            <div class="submit-field">
+                                <h5>Company</h5>
+                                <select @bind="DataProject.CompanyId" title="Select Company">
+                                    @foreach (var com in ListCompany)
+                                    {
+                                        <option value="@com.Id">@com.FullName</option>
+                                    }
+
+                                </select>
+                                <a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-company")'>Add New Company</a>
+                            </div>
+                        </div>
 
 						<div class="col-xl-6">
 							<div class="submit-field">
@@ -294,7 +316,11 @@
             ErrorMsg += "Tolong di isi nilai proyek dengan benar. ";
 
         }
+        if (DataProject.CompanyId<=0)
+        {
+            ErrorMsg += "Tolong di pilih company. ";
 
+        }
         if (string.IsNullOrEmpty(DataProject.Category))
         {
             ErrorMsg += "Tolong di isi kategori proyek. ";

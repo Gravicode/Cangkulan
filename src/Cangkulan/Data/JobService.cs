@@ -58,7 +58,7 @@ namespace Cangkulan.Data
 		}
         public List<Job> GetAllData(UserProfile user)
         {
-            return db.Jobs.Include(c=>c.Employer).Where(x=>x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
+            return db.Jobs.Include(c=>c.JobCandidates).Include(c=>c.Employer).Where(x=>x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
         }
         public List<JobCategoryCls> GetCategoriesCount()
         {

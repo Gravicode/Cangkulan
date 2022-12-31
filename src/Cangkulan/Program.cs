@@ -70,6 +70,7 @@ builder.Services.AddTransient<CompanyCategoryService>();
 builder.Services.AddTransient<ProjectCategoryService>();
 builder.Services.AddTransient<TestimonialService>();
 builder.Services.AddTransient<ToastInfoService>();
+builder.Services.AddTransient<BookmarkedProjectService>();
 
 builder.Services.AddCors(options =>
 {

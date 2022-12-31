@@ -24,8 +24,16 @@ namespace Cangkulan.Data
             db.SaveChanges();
             return true;
         }
-
-        public List<Project> FindByKeyword(string Keyword)
+		public List<Project> GetSimilar(Project item, int Limit = 2)
+		{
+			if (item == null) return new List<Project>();
+			var data = from x in db.Projects
+					   where x.Category == item.Category && x.Active && x.Id != item.Id
+					   orderby x.CreatedDate descending
+					   select x;
+			return data.Take(Limit).ToList();
+		}
+		public List<Project> FindByKeyword(string Keyword)
         {
             var data = from x in db.Projects
                        where x.ProjectName.Contains(Keyword)
@@ -34,7 +42,7 @@ namespace Cangkulan.Data
         }
 		public List<Project> GetAllData(UserProfile user)
 		{
-			return db.Projects.Include(c => c.Employer).Where(x => x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
+			return db.Projects.Include(c=>c.ProjectBidders).Include(c => c.Employer).Where(x => x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
 		}
 		public List<Project> GetAllData()
         {
@@ -55,7 +63,7 @@ namespace Cangkulan.Data
 
 		public Project GetDataById(object Id)
         {
-            return db.Projects.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.Projects.Include(c=>c.Employer).Include(c=>c.Company).Include(c=>c.ProjectBidders).ThenInclude(c=>c.UserBidder).Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 

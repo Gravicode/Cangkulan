@@ -20,7 +20,7 @@
 							<h3>@DataJob.JobTitle</h3>
 							<h5>About the Employer</h5>
 							<ul>
-								<li><a href="single-company-profile.html"><i class="icon-material-outline-business"></i> @DataJob.Employer.FullName</a></li>
+								<li><a href="@($"/company-detail/{DataJob.CompanyId}")"><i class="icon-material-outline-business"></i> @DataJob.Employer.FullName</a></li>
 								<li><div class="star-rating" data-rating="@DataJob.Employer.Rating"></div></li>
 								<li><img class="flag" src="@(string.IsNullOrEmpty(DataJob.Employer.Nationality)?"images/flags/id.svg":$"images/flags/{DataJob.Employer.Nationality}.svg")" alt=""> @DataJob.Location</li>
 								<li>@if (DataJob.Company.IsVerified)
@@ -158,7 +158,7 @@
 					<!-- Copy URL -->
 					<div class="copy-url">
 						<input id="copy-url" type="text" @bind="ThisUrl" class="with-border">
-						<button class="copy-url-button ripple-effect" data-clipboard-target="#copy-url" title="Copy to Clipboard" data-tippy-placement="top"><i class="icon-material-outline-file-copy"></i></button>
+						<button @onclick="CopyToClip" class="copy-url-button ripple-effect" data-clipboard-target="#copy-url" title="Copy to Clipboard" data-tippy-placement="top"><i class="icon-material-outline-file-copy"></i></button>
 					</div>
 
 					<!-- Share Buttons -->
@@ -248,6 +248,14 @@
 		{
 			
 			Layout.SetJobItem(SelUser.Id, DataJob.Id);
+		}
+	}
+	protected override void OnAfterRender(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			IJS.InvokeVoidAsync("LoadMap");
 		}
 	}
 }

@@ -228,6 +228,9 @@ namespace Cangkulan.Models
 
         [InverseProperty(nameof(BookmarkedJob.User))]
         public ICollection<BookmarkedJob> BookmarkedJobs { get; set; }
+        
+        [InverseProperty(nameof(BookmarkedProject.User))]
+        public ICollection<BookmarkedProject> BookmarkedProjects { get; set; }
 
         [InverseProperty(nameof(Review.FreelancerUser))]
         public ICollection<Review> ReviewByEmployers { get; set; }
@@ -272,6 +275,21 @@ namespace Cangkulan.Models
         [ForeignKey(nameof(Job))]
         public long JobId { set; get; }
         public Job Job { set; get; }
+        [ForeignKey(nameof(User))]
+        public long UserId { set; get; }
+        public UserProfile User { set; get; }
+        public DateTime CreatedDate { set; get; }
+    } 
+    
+    [Table("bookmarked_project")]
+    public class BookmarkedProject
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
+        [ForeignKey(nameof(Project))]
+        public long ProjectId { set; get; }
+        public Project Project { set; get; }
         [ForeignKey(nameof(User))]
         public long UserId { set; get; }
         public UserProfile User { set; get; }
@@ -388,6 +406,8 @@ namespace Cangkulan.Models
         public bool IsVerified { set; get; }
 
         public ICollection<BookmarkedCompany> BookmarkedCompanies { get; set; }
+        public ICollection<Job> Jobs { get; set; }
+        public ICollection<Project> Projects { get; set; }
     }
 
     [Table("bookmarked_company")]
@@ -470,13 +490,17 @@ namespace Cangkulan.Models
         public bool IsCompleted { set; get; } = false;
         public bool Active { set; get; } = true;
         public bool IsBidActive { set; get; } = true;
-        [ForeignKey(nameof(Winner)), Column(Order = 0)]
+        [ForeignKey(nameof(Winner)), Column(Order = 2)]
         public long? WinnerId { set; get; }
         public UserProfile? Winner { set; get; }
         public DateTime CreatedDate { set; get; }
         public DateTime ExpiryDate { set; get; }
 
-        public ICollection<Review> Reviews { get; set; }
+		[ForeignKey(nameof(Company)), Column(Order = 3)]
+		public long CompanyId { set; get; }
+		public Company Company { set; get; }
+
+		public ICollection<Review> Reviews { get; set; }
 		public ICollection<ProjectBidder> ProjectBidders { get; set; }
 	}
 

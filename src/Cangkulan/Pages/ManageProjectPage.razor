@@ -65,7 +65,7 @@
                                 <!-- Task Details -->
                                 <ul class="dashboard-task-info">
                                     <li><strong>@(item.ProjectBidders == null ? 0 : item.ProjectBidders.Count)</strong><span>Bids</span></li>
-                                    <li><strong>Rp@(item.ProjectBidders == null ? 0 : item.ProjectBidders.Average(x => x.OfferingPrice))</strong><span>Avg. Bid</span></li>
+                                    <li><strong>Rp@(item.ProjectBidders == null ? 0 : item.ProjectBidders.Average(x => x.OfferingPrice).ToString("n0"))</strong><span>Avg. Bid</span></li>
                                     <li><strong>Rp @item.BudgetMin.ToString("n0") - Rp @item.BudgetMax.ToString("n0")</strong><span>@(item.ProjectPaymentType == ProjectPaymentTypes.Hourly ? "Hourly Rate" : "Fixed Price")</span></li>
                                 </ul>
 

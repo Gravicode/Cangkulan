@@ -49,7 +49,7 @@ namespace Cangkulan.Data
         public UserProfile GetItemByUsername(string UName)
         {
             if (string.IsNullOrEmpty(UName)) return null;
-            var selItem = db.UserProfiles.Include(c => c.BookmarkedFreelancers).Include(c => c.BookmarkedJobs).Include(c=>c.Attachments).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
+            var selItem = db.UserProfiles.Include(c => c.BookmarkedFreelancers).Include(c => c.BookmarkedProjects).Include(c => c.BookmarkedJobs).Include(c=>c.Attachments).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
             return selItem;
         }
         public UserProfile GetItemByEmail(string Email)

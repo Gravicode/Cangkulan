@@ -159,7 +159,13 @@
             // Alert the copied text
             //alert("Copied the text: " + copyText.value);
         }
-        
+        function GetValue(elementid){
+            var el = $("#"+elementid);
+            if(el)
+                return parseFloat(el.val());
+            else
+                return 0;
+        }
         function ShowInfo(msg){
             Snackbar.show({
                 text: msg,
