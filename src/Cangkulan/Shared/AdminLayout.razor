@@ -58,15 +58,10 @@
             <SideBarPage></SideBarPage>
             <!-- Dashboard Sidebar / End -->
             <!-- Dashboard Content
-            ================================================== -->
-            <div class="dashboard-content-container" data-simplebar>
-
-
-
+            ================================================== data-simplebar -->
+            <div class="dashboard-content-container" >
                 <!-- Main Content -->
                 @Body
-
-
                 <!-- Footer / End -->
 
             </div>
@@ -143,10 +138,7 @@
     }
     public void InitCompany()
     {
-
         CompanyItem = new Company();
-
-
         CompanyDetailHeader = "Masukan Company Baru";
     }
     public async void CompanyDataChanged()
@@ -212,7 +204,6 @@
             case "JobCandidate":
                 if (DeleteJobCandidateItem != null)
                     await DeleteJobCandidate();
-
                 break;
             default:
                 break;

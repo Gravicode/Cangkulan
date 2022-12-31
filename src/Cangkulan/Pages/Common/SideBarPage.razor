@@ -1,65 +1,63 @@
 ﻿@inject IJSRuntime IJS
 <div class="dashboard-sidebar">
-			<div class="dashboard-sidebar-inner" data-simplebar>
-				<div class="dashboard-nav-container">
+    <div class="dashboard-sidebar-inner" data-simplebar>
+        <div class="dashboard-nav-container">
 
-					<!-- Responsive Navigation Trigger -->
-					<a href="#" class="dashboard-responsive-nav-trigger">
-						<span class="hamburger hamburger--collapse">
-							<span class="hamburger-box">
-								<span class="hamburger-inner"></span>
-							</span>
-						</span>
-						<span class="trigger-title">Dashboard Navigation</span>
-					</a>
+            <!-- Responsive Navigation Trigger -->
+            <a href="#" class="dashboard-responsive-nav-trigger">
+                <span class="hamburger hamburger--collapse">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                    </span>
+                </span>
+                <span class="trigger-title">Dashboard Navigation</span>
+            </a>
 
-					<!-- Navigation -->
-					<div class="dashboard-nav">
-						<div class="dashboard-nav-inner">
+            <!-- Navigation -->
+            <div class="dashboard-nav">
+                <div class="dashboard-nav-inner">
 
-							<ul data-submenu-title="Start">
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/dashboard")'><i class="icon-material-outline-dashboard"></i> Dashboard</a></li>
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/list-message")'><i class="icon-material-outline-question-answer"></i> Messages <span class="nav-tag">2</span></a></li>
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/list-bookmark")'><i class="icon-material-outline-star-border"></i> Bookmarks</a></li>
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/list-review")'><i class="icon-material-outline-rate-review"></i> Reviews</a></li>
-							</ul>
+                    <ul data-submenu-title="Start">
+                        <li><a href="dashboard"><i class="icon-material-outline-dashboard"></i> Dashboard</a></li>
+                        <li><a href="list-message"><i class="icon-material-outline-question-answer"></i> Kotak Pesan <span class="nav-tag">2</span></a></li>
+                        <li><a href="list-bookmark"><i class="icon-material-outline-star-border"></i> Bookmark</a></li>
+                        <li><a href="list-review"><i class="icon-material-outline-rate-review"></i> Review</a></li>
+                    </ul>
 
-							<ul data-submenu-title="Organize and Manage">
-								<li>
-									<a href="#"><i class="icon-material-outline-business-center"></i> Jobs</a>
-									<ul>
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-job")'>Manage Jobs <span class="nav-tag">3</span></a></li>
-										@*<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-candidate")'>Manage Candidates</a></li>*@
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/post-job")'>Post a Job</a></li>
-									</ul>
-								</li>
-								<li>
-									<a href="#"><i class="icon-material-outline-assignment"></i> Tasks</a>
-									<ul>
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-project")'>Manage Tasks <span class="nav-tag">2</span></a></li>
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/manage-bidder")'>Manage Bidders</a></li>
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/my-active-bid")'>My Active Bids <span class="nav-tag">4</span></a></li>
-										<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/post-project")'>Post a Task</a></li>
-									</ul>
-								</li>
-							</ul>
+                    <ul data-submenu-title="Organize and Manage">
+                        <li>
+                            <a href="#"><i class="icon-material-outline-business-center"></i> Jobs</a>
+                            <ul>
+                                <li><a href="manage-job">Daftar Kerjaan <span class="nav-tag">3</span></a></li>                             
+                                <li><a href="post-job">Bikin Kerjaan</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="icon-material-outline-assignment"></i> Tasks</a>
+                            <ul>
+                                <li><a href="manage-project">Daftar Proyek <span class="nav-tag">2</span></a></li>
+                                <li><a href="my-active-bid">Daftar Penawaran Saya <span class="nav-tag">4</span></a></li>
+                                <li><a href="post-project">Bikin Proyek</a></li>
+                            </ul>
+                        </li>
+                    </ul>
 
-							<ul data-submenu-title="Account">
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/settings")'><i class="icon-material-outline-settings"></i> Settings</a></li>
-								<li><a href="#" @onclick:preventDefault @onclick='()=>Open("/logged-out")'><i class="icon-material-outline-power-settings-new"></i> Logout</a></li>
-							</ul>
+                    <ul data-submenu-title="Account">
+                        <li><a href="settings"><i class="icon-material-outline-settings"></i> Pengaturan</a></li>
+                        <li><a href="logout"><i class="icon-material-outline-power-settings-new"></i> Keluar</a></li>
+                    </ul>
 
-						</div>
-					</div>
-					<!-- Navigation / End -->
+                </div>
+            </div>
+            <!-- Navigation / End -->
 
-				</div>
-			</div>
-		</div>
+        </div>
+    </div>
+</div>
 @code {
     async Task Open(string url)
     {
-		if(!string.IsNullOrEmpty(url))
-			await IJS.InvokeVoidAsync("OpenUrl", url);
+        if (!string.IsNullOrEmpty(url))
+            await IJS.InvokeVoidAsync("OpenUrl", url);
     }
 }
