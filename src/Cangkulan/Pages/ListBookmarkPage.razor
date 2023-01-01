@@ -51,7 +51,7 @@
 									<div class="job-listing-details">
 
 										<!-- Logo -->
-										<a href="/job-detail/@(item.Id)" class="job-listing-company-logo">
+										<a href="/job-detail/@(item.JobId)" class="job-listing-company-logo">
 												<img src="@(string.IsNullOrEmpty(item.Job.Company.LogoUrl) ? "images/company-logo-02.png":item.Job.Company.LogoUrl)" alt="">
 										</a>
 
@@ -106,14 +106,17 @@
 										<div class="freelancer-overview-inner">
 
 											<!-- Avatar -->
-											<div class="freelancer-avatar">
-												<div class="verified-badge"></div>
-												<a href="#"><img src="@(string.IsNullOrEmpty(item.FreelancerUser.PicUrl)?"images/user-avatar-big-02.jpg":item.FreelancerUser.PicUrl)" alt=""></a>
+											<div class="freelancer-avatar">		
+												@if (item.FreelancerUser.Verified)
+												{
+													<div class="verified-badge"></div>
+												}												
+												<a href="@($"/freelance-detail/{item.FreelancerId}")"><img src="@(string.IsNullOrEmpty(item.FreelancerUser.PicUrl)?"images/user-avatar-big-02.jpg":item.FreelancerUser.PicUrl)" alt=""></a>
 											</div>
 
 											<!-- Name -->
 											<div class="freelancer-name">
-												<h4><a href="#">@item.FreelancerUser.FullName <img class="flag" src="images/flags/de.svg" alt="" title="Germany" data-tippy-placement="top"></a></h4>
+												<h4><a href="#">@item.FreelancerUser.FullName <img class="flag" src="@(string.IsNullOrEmpty(item.FreelancerUser.Nationality)?"images/flags/id.svg":$"images/flags/{item.FreelancerUser.Nationality}.svg")" alt="" title="@item.FreelancerUser.Nationality" data-tippy-placement="top"></a></h4>
 												<span>@item.FreelancerUser.TagLine</span>
 												<!-- Rating -->
 												<div class="freelancer-rating">

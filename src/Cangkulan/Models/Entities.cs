@@ -224,6 +224,8 @@ namespace Cangkulan.Models
 
         public bool IsOnline { get; set; } = true;
 
+        public bool Verified { get; set; } = false;
+
         [InverseProperty(nameof(MessageHeader.User))]
         public ICollection<MessageHeader> UserMessage { get; set; }
 
