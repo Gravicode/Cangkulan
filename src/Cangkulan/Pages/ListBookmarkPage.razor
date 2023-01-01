@@ -2,7 +2,9 @@
 @layout AdminLayout
 @inject IJSRuntime IJS
 @inject NavigationManager NavMgr
-@inject IToastService toastService
+@inject ToastInfoService Toast
+@inject AppState AppState
+@implements IDisposable
 
 @inject UserProfileService UserSvc
 @inject BookmarkedJobService BookmarkedJobSvc
@@ -12,14 +14,14 @@
 
 	<!-- Dashboard Headline -->
 	<div class="dashboard-headline">
-		<h3>Bookmarks</h3>
+		<h3>Bookmark</h3>
 
 		<!-- Breadcrumbs -->
 		<nav id="breadcrumbs" class="dark">
 			<ul>
-				<li><a href="#">Home</a></li>
+				<li><a href="/">Home</a></li>
 				<li><a href="#">Dashboard</a></li>
-				<li>Bookmarks</li>
+				<li>Bookmark</li>
 			</ul>
 		</nav>
 	</div>
@@ -33,7 +35,7 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-material-outline-business-center"></i> Bookmarked Jobs</h3>
+					<h3><i class="icon-material-outline-business-center"></i> Kerjaan yang di Bookmark</h3>
 				</div>
 
 				<div class="content">
@@ -50,7 +52,7 @@
 
 										<!-- Logo -->
 										<a href="/job-detail/@(item.Id)" class="job-listing-company-logo">
-												<img src="images/company-logo-02.png" alt="">
+												<img src="@(string.IsNullOrEmpty(item.Job.Company.LogoUrl) ? "images/company-logo-02.png":item.Job.Company.LogoUrl)" alt="">
 										</a>
 
 										<!-- Details -->
@@ -71,7 +73,7 @@
 								</div>
 								<!-- Buttons -->
 								<div class="buttons-to-right">
-									<a href="#" @onclick:preventDefault @onclick="()=>RemoveJob(item)" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
+										<a href="#" @onclick="(() => PrepareForDeleteJob(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
 								</div>
 							</li>
 							</Virtualize>
@@ -89,7 +91,7 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-material-outline-face"></i> Bookmarked Freelancers</h3>
+					<h3><i class="icon-material-outline-face"></i> Freelancer yang di Bookmark</h3>
 				</div>
 
 				<div class="content">
@@ -123,7 +125,7 @@
 
 									<!-- Buttons -->
 									<div class="buttons-to-right">
-										<a href="#" @onclick:preventDefault @onclick="()=>RemoveFreelancer(item)" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
+										<a href="#" @onclick="(() => PrepareForDeleteFreelancer(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button red ripple-effect ico" title="Remove" data-tippy-placement="left"><i class="icon-feather-trash-2"></i></a>
 									</div>
 								</li>
 							</Virtualize>
@@ -139,44 +141,39 @@
 	<!-- Row / End -->
 	<!-- Footer -->
 	<div class="dashboard-footer-spacer"></div>
-	<div class="small-footer margin-top-15">
-		<div class="small-footer-copyrights">
-			© 2019 <strong>Hireo</strong>. All Rights Reserved.
-		</div>
-		<ul class="footer-social-links">
-			<li>
-				<a href="#" title="Facebook" data-tippy-placement="top">
-					<i class="icon-brand-facebook-f"></i>
-				</a>
-			</li>
-			<li>
-				<a href="#" title="Twitter" data-tippy-placement="top">
-					<i class="icon-brand-twitter"></i>
-				</a>
-			</li>
-			<li>
-				<a href="#" title="Google Plus" data-tippy-placement="top">
-					<i class="icon-brand-google-plus-g"></i>
-				</a>
-			</li>
-			<li>
-				<a href="#" title="LinkedIn" data-tippy-placement="top">
-					<i class="icon-brand-linkedin-in"></i>
-				</a>
-			</li>
-		</ul>
-		<div class="clearfix"></div>
-	</div>
+	<SmallFooterPage></SmallFooterPage>
 	<!-- Footer / End -->
 
 </div>
 @code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationStateTask { get; set; }
-
+	[CascadingParameter]
+	public AdminLayout Layout { get; set; }
 
 	string Username;
 	UserProfile selUser; 
+	public void Dispose()
+	{
+		AppState.OnBookmarkedFreelancerChange -= Refresh;
+		AppState.OnBookmarkedJobChange -= Refresh;
+
+	}
+	async void Refresh(string tousername)
+	{
+		await LoadData();
+		await InvokeAsync(StateHasChanged);
+	}
+	private void PrepareForDeleteFreelancer(BookmarkedFreelancer item)
+	{
+
+		Layout.PrepareDeleteBookmarkedFreelancer(item);
+	}
+	private void PrepareForDeleteJob(BookmarkedJob item)
+	{
+
+		Layout.PrepareDeleteBookmarkedJob(item);
+	}
 	protected override async Task OnInitializedAsync()
 	{
 
@@ -189,7 +186,8 @@
 			selUser = UserSvc.GetItemByEmail(Username);
 
 		}
-
+		AppState.OnBookmarkedFreelancerChange += Refresh;
+		AppState.OnBookmarkedJobChange += Refresh;
 	}
 
 	async Task LoadData()
@@ -201,12 +199,12 @@
 		var res = BookmarkedFreelancerSvc.DeleteData(item);
 		if (res)
 		{
-			toastService.ShowSuccess("Berhasil di hapus");
+			await Toast.ShowInfo("Berhasil di hapus");
 			await LoadData();
 		}
 		else
 		{
-			toastService.ShowSuccess("Data tidak dapat dihapus, hubungi admin.");
+			await Toast.ShowInfo("Data tidak dapat dihapus, hubungi admin.");
 
 		}
 	}
@@ -216,12 +214,12 @@
 		var res = BookmarkedJobSvc.DeleteData(item);
 		if (res)
 		{
-			toastService.ShowSuccess("Berhasil di hapus");
+			await Toast.ShowInfo("Berhasil di hapus");
 			await LoadData();
 		}
 		else
 		{
-			toastService.ShowSuccess("Data tidak dapat dihapus, hubungi admin.");
+			await Toast.ShowInfo("Data tidak dapat dihapus, hubungi admin.");
 
 		}
 	}

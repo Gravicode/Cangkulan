@@ -21,6 +21,7 @@ namespace Cangkulan.Data
         }
 
          
+        public DbSet<NewsLetterSubscriber> NewsLetterSubscribers { get; set; }     
         public DbSet<BookmarkedProject> BookmarkedProjects { get; set; }     
         public DbSet<ProjectCategory> ProjectCategorys { get; set; }     
         public DbSet<CompanyCategory> CompanyCategorys { get; set; }     

@@ -1,4 +1,6 @@
-﻿<!-- Footer Top Section -->
+﻿@inject NewsLetterSubscriberService NewsSvc
+@inject ToastInfoService Toast
+<!-- Footer Top Section -->
 <div class="footer-top-section">
     <div class="container">
         <div class="row">
@@ -53,9 +55,7 @@
                             <div class="footer-row-inner">
                                 <select class="selectpicker language-switcher" data-selected-text-format="count" data-size="5">
                                     <option selected>English</option>
-                                    <option>Français</option>
-                                    <option>Español</option>
-                                    <option>Deutsch</option>
+                                    <option>Indonesia</option>
                                 </select>
                             </div>
                         </div>
@@ -76,12 +76,12 @@
             <!-- Links -->
             <div class="col-xl-2 col-lg-2 col-md-3">
                 <div class="footer-links">
-                    <h3>For Candidates</h3>
+                    <h3>Untuk Pencari Kerja</h3>
                     <ul>
-                        <li><a href="/browse-jobs"><span>Browse Jobs</span></a></li>
-                        <li><a href="/add-resume"><span>Add Resume</span></a></li>
-                        <li><a href="/job-alerts"><span>Job Alerts</span></a></li>
-                        <li><a href="/my-bookmark"><span>My Bookmarks</span></a></li>
+                        <li><a href="/find-job"><span>Cari Kerjaan</span></a></li>
+                        <li><a href="/settings"><span>Tambah Resume</span></a></li>
+                        <li><a href="/find-project"><span>Cari Proyek</span></a></li>
+                        <li><a href="/list-bookmark"><span>Daftar Bookmark</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -89,12 +89,11 @@
             <!-- Links -->
             <div class="col-xl-2 col-lg-2 col-md-3">
                 <div class="footer-links">
-                    <h3>For Employers</h3>
+                    <h3>Untuk Pemberi Kerja</h3>
                     <ul>
-                        <li><a href="/browser-candidates"><span>Browse Candidates</span></a></li>
-                        <li><a href="/post-job"><span>Post a Job</span></a></li>
-                        <li><a href="/post-project"><span>Post a Task</span></a></li>
-                        <li><a href="/plans"><span>Plans & Pricing</span></a></li>
+                        <li><a href="/find-freelance"><span>Cari Pekerja</span></a></li>
+                        <li><a href="/post-job"><span>Bikin Kerjaan</span></a></li>
+                        <li><a href="/post-project"><span>Bikin Proyek</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -102,9 +101,9 @@
             <!-- Links -->
             <div class="col-xl-2 col-lg-2 col-md-3">
                 <div class="footer-links">
-                    <h3>Helpful Links</h3>
+                    <h3>Tautan Pembantu</h3>
                     <ul>
-                        <li><a href="/contact"><span>Contact</span></a></li>
+                        <li><a href="/contact"><span>Kontak</span></a></li>
                         <li><a href="/privacy-policy"><span>Privacy Policy</span></a></li>
                         <li><a href="/terms"><span>Terms of Use</span></a></li>
                     </ul>
@@ -116,19 +115,19 @@
                 <div class="footer-links">
                     <h3>Account</h3>
                     <ul>
-                        <li><a href="/auth/login"><span>Log In</span></a></li>
-                        <li><a href="/edit-profile"><span>My Account</span></a></li>
+                        <li><a href="/sign-in"><span>Log In</span></a></li>
+                        <li><a href="/settings"><span>Akun Saya</span></a></li>
                     </ul>
                 </div>
             </div>
 
             <!-- Newsletter -->
             <div class="col-xl-4 col-lg-4 col-md-12">
-                <h3><i class="icon-feather-mail"></i> Sign Up For a Newsletter</h3>
-                <p>Weekly breaking news, analysis and cutting edge advices on job searching.</p>
-                <form action="#" method="get" class="newsletter">
-                    <input type="text" name="fname" placeholder="Enter your email address">
-                    <button type="submit"><i class="icon-feather-arrow-right"></i></button>
+                <h3><i class="icon-feather-mail"></i> Ikutin Newsletter</h3>
+                <p>Update seputar berita, analisa, dan tips dalam bekerja saat nyari kerjaan.</p>
+                <form class="newsletter">
+                    <input type="text" @bind="NewEmail" name="fname" placeholder="tulis email kamu">
+                    <button type="button" @onclick="Submit"><i class="icon-feather-arrow-right"></i></button>
                 </form>
             </div>
         </div>
@@ -147,5 +146,28 @@
 </div>
 <!-- Footer Copyrights / End -->
 @code {
+    string NewEmail = string.Empty;
     public int Tahun { set; get; } = DateHelper.GetLocalTimeNow().Year;
+
+    async Task Submit()
+    {
+        if (string.IsNullOrEmpty(NewEmail)) return;
+        if (NewsSvc.IsExist(NewEmail))
+        {
+            await Toast.ShowInfo("Anda sudah subscribe ke news letter kami.");
+        }
+        else
+        {
+            var newItem = new NewsLetterSubscriber() { CreatedDate = DateHelper.GetLocalTimeNow(), Email = NewEmail };
+            var res = NewsSvc.InsertData(newItem);
+            if (res)
+            {
+                await Toast.ShowInfo("Subscribe berhasil.");
+            }
+            else
+            {
+                await Toast.ShowInfo("Subscribe gagal.");
+            }
+        }
+    }
 }

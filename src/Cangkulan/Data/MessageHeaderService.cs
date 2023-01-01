@@ -24,7 +24,11 @@ namespace Cangkulan.Data
             db.SaveChanges();
             return true;
         }
-
+        public List<MessageHeader> GetLatestMessage(long userid)
+        {
+            var data = db.MessageHeaders.Where(x => x.UserId == userid && !x.IsRead).OrderByDescending(x => x.CreatedDate).ToList();
+            return data;
+        }
         public List<MessageHeader> FindByKeyword(string Keyword)
         {
             var data = from x in db.MessageHeaders

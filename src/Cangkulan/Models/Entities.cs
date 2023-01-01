@@ -115,8 +115,11 @@ namespace Cangkulan.Models
         public MessageTypes MessageType { set; get; }
         public string MemberIds { set; get; }
         public int MemberCount { set; get; }
-        public DateTime LastMessage { set; get; }
+        public string LastMessage { set; get; }
         public DateTime LastUpdate { set; get; }
+        public bool IsRead { get; set; } = false;
+        [InverseProperty(nameof(MessageDetail.MessageHeader))]
+        public ICollection<MessageDetail> Chats { get; set; }
     }
 
     [Table("message_detail")]
@@ -136,6 +139,7 @@ namespace Cangkulan.Models
         public string AttachmentUrls { set; get; }
         public string ImageUrls { set; get; }
         public string LinkUrls { set; get; }
+        public MessageHeader MessageHeader { set; get; }
     }
 
     [Table("notification")]
@@ -523,7 +527,17 @@ namespace Cangkulan.Models
         public DateTime CreatedDate { set; get; }
     }
 
-    [Table("testimonial")]
+    [Table("newsletter_subscriber")]
+    public class NewsLetterSubscriber
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string Email { get; set; }
+    }
+
+        [Table("testimonial")]
     public class Testimonial
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

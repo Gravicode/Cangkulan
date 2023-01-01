@@ -10,6 +10,8 @@
 @inject AppState AppState
 @inject JobCandidateService JobCandidateSvc
 @inject ProjectBidderService ProjectBidderSvc
+@inject BookmarkedJobService BookmarkedJobSvc
+@inject BookmarkedFreelancerService BookmarkedFreelancerSvc
 
 <PageTitle>Cangkulan App</PageTitle>
 
@@ -96,7 +98,7 @@
                 SuccessClass="success-toast-override"
                 SuccessIconClass="fa fa-thumbs-up"
                 ErrorIconClass="fa fa-bug" />
-
+<AuthControl></AuthControl>
 @code {
     EditBidPopupPage EditBidPopup;
     BidAccPopupPage BidAcc;
@@ -116,6 +118,8 @@
 
     public JobCandidate DeleteJobCandidateItem { get; set; }
     public ProjectBidder DeleteProjectBidderItem { get; set; }
+    public BookmarkedJob DeleteBookmarkedJobItem { get; set; }
+    public BookmarkedFreelancer DeleteBookmarkedFreelancerItem { get; set; }
 
     [Parameter]
     public bool IsTransparent { get; set; } = true;
@@ -194,6 +198,18 @@
         DeleteProjectBidderItem = item;
         StateHasChanged();
     }
+    public void PrepareDeleteBookmarkedJob(BookmarkedJob item)
+    {
+        SelectDelete = "BookmarkedJob";
+        DeleteBookmarkedJobItem = item;
+        StateHasChanged();
+    }
+    public void PrepareDeleteBookmarkedFreelancer(BookmarkedFreelancer item)
+    {
+        SelectDelete = "BookmarkedFreelancer";
+        DeleteBookmarkedFreelancerItem = item;
+        StateHasChanged();
+    }
 
 
 
@@ -231,6 +247,15 @@
             case "ProjectBidder":
                 if (DeleteProjectBidderItem != null)
                     await DeleteProjectBidder();
+                break;
+
+            case "BookmarkedJob":
+                if (DeleteBookmarkedJobItem != null)
+                    await DeleteBookmarkedJob();
+                break;
+            case "BookmarkedFreelancer":
+                if (DeleteBookmarkedFreelancerItem != null)
+                    await DeleteBookmarkedFreelancer();
                 break;
             default:
                 break;
@@ -280,6 +305,22 @@
         //await LoadData();
         DeleteProjectItem = null;
         AppState.RefreshProject(UserName);
+    }
+    private async Task DeleteBookmarkedJob()
+    {
+        var task = BookmarkedJobSvc.DeleteData(DeleteBookmarkedJobItem.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        //await LoadData();
+        DeleteBookmarkedJobItem = null;
+        AppState.RefreshBookmarkedJob(UserName);
+    }
+    private async Task DeleteBookmarkedFreelancer()
+    {
+        var task = BookmarkedFreelancerSvc.DeleteData(DeleteBookmarkedFreelancerItem.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        //await LoadData();
+        DeleteBookmarkedFreelancerItem = null;
+        AppState.RefreshBookmarkedFreelancer(UserName);
     }
 
     string Nama = "Saya";

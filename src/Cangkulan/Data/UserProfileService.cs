@@ -55,7 +55,7 @@ namespace Cangkulan.Data
         public UserProfile GetItemByEmail(string Email)
         {
             if (string.IsNullOrEmpty(Email)) return null;
-            var selItem = db.UserProfiles.Include(c => c.BookmarkedFreelancers).ThenInclude(x=>x.FreelancerUser).Include(c => c.BookmarkedJobs).ThenInclude(x => x.Job).Include(c => c.Attachments).Where(x => x.Email.ToLower() == Email.ToLower()).FirstOrDefault();
+            var selItem = db.UserProfiles.Include(c => c.BookmarkedFreelancers).ThenInclude(x=>x.FreelancerUser).Include(c => c.BookmarkedJobs).ThenInclude(x => x.Job).ThenInclude(x=>x.Company).Include(c => c.Attachments).Where(x => x.Email.ToLower() == Email.ToLower()).FirstOrDefault();
             return selItem;
         }
         public Roles GetUserRole(string Email)

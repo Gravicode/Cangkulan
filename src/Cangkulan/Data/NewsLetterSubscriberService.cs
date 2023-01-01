@@ -8,52 +8,47 @@ using System.Threading.Tasks;
 
 namespace Cangkulan.Data
 {
-    public class NotificationService : ICrud<Notification>
+    public class NewsLetterSubscriberService : ICrud<NewsLetterSubscriber>
     {
         CangkulanDB db;
 
-        public NotificationService()
+        public NewsLetterSubscriberService()
         {
             if (db == null) db = new CangkulanDB();
 
         }
-        public List<Notification> GetLatestNotifications(long userid)
-        {
-            var data = db.Notifications.Where(x => x.UserId == userid && x.IsRead == false).ToList();
-            return data.OrderByDescending(x => x.CreatedDate).ToList();
-        }
         public bool DeleteData(object Id)
         {
-            var selData = (db.Notifications.Where(x => x.Id == (long)Id).FirstOrDefault());
-            db.Notifications.Remove(selData);
+            var selData = (db.NewsLetterSubscribers.Where(x => x.Id == (long)Id).FirstOrDefault());
+            db.NewsLetterSubscribers.Remove(selData);
             db.SaveChanges();
             return true;
         }
 
-        public List<Notification> FindByKeyword(string Keyword)
+        public List<NewsLetterSubscriber> FindByKeyword(string Keyword)
         {
-            var data = from x in db.Notifications
-                       where x.Message.Contains(Keyword)
+            var data = from x in db.NewsLetterSubscribers
+                       where x.Email.Contains(Keyword)
                        select x;
             return data.ToList();
         }
 
-        public List<Notification> GetAllData()
+        public List<NewsLetterSubscriber> GetAllData()
         {
-            return db.Notifications.OrderBy(x => x.Id).ToList();
+            return db.NewsLetterSubscribers.OrderBy(x => x.Id).ToList();
         }
 
-        public Notification GetDataById(object Id)
+        public NewsLetterSubscriber GetDataById(object Id)
         {
-            return db.Notifications.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.NewsLetterSubscribers.Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 
-        public bool InsertData(Notification data)
+        public bool InsertData(NewsLetterSubscriber data)
         {
             try
             {
-                db.Notifications.Add(data);
+                db.NewsLetterSubscribers.Add(data);
                 db.SaveChanges();
                 return true;
             }
@@ -67,7 +62,7 @@ namespace Cangkulan.Data
 
 
 
-        public bool UpdateData(Notification data)
+        public bool UpdateData(NewsLetterSubscriber data)
         {
             try
             {
@@ -94,9 +89,14 @@ namespace Cangkulan.Data
             return false;
         }
 
+        public bool IsExist(string Email)
+        {
+            return db.NewsLetterSubscribers.Any(x => x.Email.ToLower() == Email.ToLower());
+        }
+
         public long GetLastId()
         {
-            return db.Notifications.Max(x => x.Id);
+            return db.NewsLetterSubscribers.Max(x => x.Id);
         }
     }
 
