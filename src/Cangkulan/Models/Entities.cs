@@ -672,7 +672,7 @@ namespace Cangkulan.Models
     }
     public enum ProjectPaymentTypes { Fix, Hourly };
 
-    public enum ReviewTypes { Project, Freelancer };
+    public enum ReviewTypes { Employer, Freelancer };
     public enum NotePriority { Low, Med, High }
 
     public enum AccountTypes { Employeers, Freelancer }

@@ -1,6 +1,13 @@
 ﻿@page "/list-review"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject ReviewService ReviewSvc
+@inject UserProfileService UserSvc
+
+@inject NavigationManager NavMgr
+@inject ToastInfoService Toast
+@inject AppState AppState
+@implements IDisposable
 <div class="dashboard-content-inner">
 
 	<!-- Dashboard Headline -->
@@ -26,65 +33,47 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-material-outline-business"></i> Rate Employers</h3>
+					<h3><i class="icon-material-outline-business"></i> Review Pemberi Kerja</h3>
 				</div>
 
 				<div class="content">
 					<ul class="dashboard-box-list">
-						<li>
-							<div class="boxed-list-item">
-								<!-- Content -->
-								<div class="item-content">
-									<h4>Simple Chrome Extension</h4>
-									<span class="company-not-rated margin-bottom-5">Not Rated</span>
-								</div>
-							</div>
+						
+						@foreach(var item in ListEmployer){
+							if (item.Id <= 0)
+							{
+								<li>
+									<div class="boxed-list-item">
+										<!-- Content -->
+										<div class="item-content">
+											<h4>@item.Project.ProjectName</h4>
+											<span class="company-not-rated margin-bottom-5">Not Rated</span>
+										</div>
+									</div>
 
-							<a href="#small-dialog-2" class="popup-with-zoom-anim button ripple-effect margin-top-5 margin-bottom-10"><i class="icon-material-outline-thumb-up"></i> Leave a Review</a>
-						</li>
-						<li>
-							<div class="boxed-list-item">
-								<!-- Content -->
-								<div class="item-content">
-									<h4>Adsense Expert</h4>
-									<span class="company-not-rated margin-bottom-5">Not Rated</span>
-								</div>
-							</div>
-
-							<a href="#small-dialog-2" class="popup-with-zoom-anim button ripple-effect margin-top-5 margin-bottom-10"><i class="icon-material-outline-thumb-up"></i> Leave a Review</a>
-						</li>
-						<li>
-							<div class="boxed-list-item">
-								<!-- Content -->
-								<div class="item-content">
-									<h4>Fix Python Selenium Code</h4>
-									<div class="item-details margin-top-10">
-										<div class="star-rating" data-rating="5.0"></div>
-										<div class="detail-item"><i class="icon-material-outline-date-range"></i> May 2019</div>
+									<a href="#" @onclick:preventDefault @onclick="()=>SelectReview(item)" class="button ripple-effect margin-top-5 margin-bottom-10"><i class="icon-material-outline-thumb-up"></i> Kasih Review</a>
+								</li>
+							}
+							else
+							{
+								<li>
+									<div class="boxed-list-item">
+										<!-- Content -->
+										<div class="item-content">
+											<h4>@item.Project.ProjectName</h4>
+											<div class="item-details margin-top-10">
+												<div class="star-rating" data-rating="@($"{item.Rating}.0")"></div>
+												<div class="detail-item"><i class="icon-material-outline-date-range"></i> @item.CreatedDate.ToString("dd MMM yyyy")</div>
+											</div>
+											<div class="item-description">
+												<p>@item.Message</p>
+											</div>
+										</div>
 									</div>
-									<div class="item-description">
-										<p>Great clarity in specification and communication. I got payment really fast. Really recommend this employer for his professionalism. I will work for him again with pleasure.</p>
-									</div>
-								</div>
-							</div>
-							<a href="#small-dialog-11" class="popup-with-zoom-anim button gray ripple-effect margin-top-5 margin-bottom-10"><i class="icon-feather-edit"></i> Edit Review</a>
-						</li>
-						<li>
-							<div class="boxed-list-item">
-								<!-- Content -->
-								<div class="item-content">
-									<h4>PHP Core Website Fixes</h4>
-									<div class="item-details margin-top-10">
-										<div class="star-rating" data-rating="5.0"></div>
-										<div class="detail-item"><i class="icon-material-outline-date-range"></i> May 2019</div>
-									</div>
-									<div class="item-description">
-										<p>Great clarity in specification and communication. I got payment really fast. Really recommend this employer for his professionalism. I will work for him again with pleasure.</p>
-									</div>
-								</div>
-							</div>
-							<a href="#small-dialog-11" class="popup-with-zoom-anim button gray ripple-effect margin-top-5 margin-bottom-10"><i class="icon-feather-edit"></i> Edit Review</a>
-						</li>
+									<a href="#" @onclick:preventDefault @onclick="()=>SelectReview(item)" class="button gray ripple-effect margin-top-5 margin-bottom-10"><i class="icon-feather-edit"></i> Ubah Review</a>
+								</li>
+							}
+						}
 
 					</ul>
 				</div>
@@ -92,7 +81,7 @@
 
 			<!-- Pagination -->
 			<div class="clearfix"></div>
-			<div class="pagination-container margin-top-40 margin-bottom-0">
+			<div style="display:none;" class="pagination-container margin-top-40 margin-bottom-0">
 				<nav class="pagination">
 					<ul>
 						<li><a href="#" class="ripple-effect current-page">1</a></li>
@@ -113,38 +102,46 @@
 
 				<!-- Headline -->
 				<div class="headline">
-					<h3><i class="icon-material-outline-face"></i> Rate Freelancers</h3>
+					<h3><i class="icon-material-outline-face"></i> Review Freelancer</h3>
 				</div>
 
 				<div class="content">
 					<ul class="dashboard-box-list">
-						<li>
-							<div class="boxed-list-item">
-								<!-- Content -->
-								<div class="item-content">
-									<h4>Simple Chrome Extension</h4>
-									<span class="company-not-rated margin-bottom-5">Not Rated</span>
-								</div>
-							</div>
+						@foreach(var item in ListFreelancer){
+							if (item.Id <= 0)
+							{
+								<li>
+									<div class="boxed-list-item">
+										<!-- Content -->
+										<div class="item-content">
+											<h4>@item.Project.ProjectName</h4>
+											<span class="company-not-rated margin-bottom-5">Not Rated</span>
+										</div>
+									</div>
 
-							<a href="#small-dialog-2" class="popup-with-zoom-anim button ripple-effect margin-top-5 margin-bottom-10"><i class="icon-material-outline-thumb-up"></i> Leave a Review</a>
-						</li>
-						<li>
-							<div class="boxed-list-item">
+									<a href="#" @onclick:preventDefault @onclick="()=>SelectReview(item)" class="button ripple-effect margin-top-5 margin-bottom-10"><i class="icon-material-outline-thumb-up"></i> Kasih Review</a>
+								</li>
+							}
+							else
+							{
+								<li>
+									<div class="boxed-list-item">
 								<!-- Content -->
 								<div class="item-content">
-									<h4>Help Fix Laravel PHP issue</h4>
+									<h4>@item.Project.ProjectName</h4>
 									<div class="item-details margin-top-10">
-										<div class="star-rating" data-rating="5.0"></div>
-										<div class="detail-item"><i class="icon-material-outline-date-range"></i> August 2019</div>
+										<div class="star-rating" data-rating="@($"{item.Rating}.0")"></div>
+										<div class="detail-item"><i class="icon-material-outline-date-range"></i> @item.CreatedDate.ToString("dd MMM yyyy")</div>
 									</div>
 									<div class="item-description">
-										<p>Excellent programmer - helped me fixing small issue.</p>
+										<p>@item.Message</p>
 									</div>
 								</div>
 							</div>
-							<a href="#small-dialog-11" class="popup-with-zoom-anim button gray ripple-effect margin-top-5 margin-bottom-10"><i class="icon-feather-edit"></i> Edit Review</a>
+									<a href="#" @onclick:preventDefault @onclick="()=>SelectReview(item)"  class="button gray ripple-effect margin-top-5 margin-bottom-10"><i class="icon-feather-edit"></i> Ubah Review</a>
 						</li>
+						}
+						}
 					</ul>
 				</div>
 			</div>
@@ -160,5 +157,62 @@
 
 </div>
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+	public List<Review> ListEmployer { get; set; } = new();
+	public List<Review> ListFreelancer { get; set; } = new();
+
+	[CascadingParameter]
+	public AdminLayout Layout { get; set; }
+
+	string Username;
+	UserProfile selUser;
+	public void Dispose()
+	{
+		AppState.OnReviewChange -= Refresh;
+
+
+	}
+	async void Refresh(string tousername)
+	{
+		await LoadData();
+		await InvokeAsync(StateHasChanged);
+	}
+	private void PrepareForDeleteFreelancer(BookmarkedFreelancer item)
+	{
+
+		Layout.PrepareDeleteBookmarkedFreelancer(item);
+	}
+	async Task SelectReview(Review item)
+	{
+		Layout.SetReview(item);
+		await IJS.InvokeVoidAsync("ShowModal", "review-small-dialog");
+
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+
+
+		var user = (await authenticationStateTask).User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			Username = user.Identity.Name;
+			selUser = UserSvc.GetItemByEmail(Username);
+			await LoadData();
+		}
+		AppState.OnReviewChange += Refresh;
+		
+	}
+
+	async Task LoadData()
+	{
+		ListEmployer = ReviewSvc.GetEmployerReview(selUser.Id);
+		ListFreelancer = ReviewSvc.GetFreelancerReview(selUser.Id);
+	}
+	
+
+	
 }

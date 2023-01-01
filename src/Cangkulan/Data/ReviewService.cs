@@ -37,6 +37,22 @@ namespace Cangkulan.Data
         {
             return db.Reviews.OrderBy(x => x.Id).ToList();
         }
+        
+        public List<Review> GetEmployerReview(long UserId)
+        {
+            var reviewed =  db.Reviews.Include(c=>c.Project).Include(c=>c.Employer).Include(c=>c.FreelancerUser).AsNoTracking().Where(x=> x.FreelancerUserId == UserId && x.ReviewType == ReviewTypes.Employer).ToList();
+            var now = DateHelper.GetLocalTimeNow();
+			var unreviewed =  db.Projects.Where(x=> x.WinnerId == UserId).ToList().Where(x=>!reviewed.Any(a=>a.ProjectId == x.Id)).Select(x=>new Review() { EmployerId = x.EmployerId, FreelancerUserId = x.WinnerId.Value, CreatedDate =now, IsReviewed = false, ProjectId = x.Id, ReviewType = ReviewTypes.Employer, Project = x }).ToList();
+            return reviewed.Union(unreviewed).ToList();
+        } 
+        
+        public List<Review> GetFreelancerReview(long UserId)
+        {
+            var reviewed =  db.Reviews.Include(c => c.Project).Include(c => c.Employer).Include(c => c.FreelancerUser).AsNoTracking().Where(x=> x.EmployerId == UserId && x.ReviewType == ReviewTypes.Freelancer).ToList();
+            var now = DateHelper.GetLocalTimeNow();
+			var unreviewed =  db.Projects.Where(x=> x.EmployerId == UserId && x.WinnerId>0).ToList().Where(x => !reviewed.Any(a=>a.ProjectId == x.Id)).Select(x=>new Review() { EmployerId = x.EmployerId, FreelancerUserId = x.WinnerId.Value, CreatedDate =now, IsReviewed = false, ProjectId = x.Id, ReviewType = ReviewTypes.Freelancer, Project = x }).ToList();
+            return reviewed.Union(unreviewed).ToList();
+        }
 
         public Review GetDataById(object Id)
         {
@@ -82,9 +98,9 @@ namespace Cangkulan.Data
                 }*/
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
             return false;
         }

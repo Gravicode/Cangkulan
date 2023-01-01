@@ -1,82 +1,165 @@
-﻿<!-- Edit Review Popup
+﻿@inject UserProfileService UserSvc
+@inject ReviewService ReviewSvc
+@inject ToastInfoService Toast
+@inject IJSRuntime IJS
+@inject AppState AppState
+<!-- Edit Review Popup
 ================================================== -->
-<div id="small-dialog-11" class="zoom-anim-dialog mfp-hide dialog-with-tabs">
+<div id="review-small-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="background-color:white;">
+        <!--Tabs -->
+        <div class="sign-in-form">
 
-	<!--Tabs -->
-	<div class="sign-in-form">
+            <ul class="popup-tabs-nav">
+            </ul>
 
-		<ul class="popup-tabs-nav">
-		</ul>
+            <div class="popup-tabs-container">
 
-		<div class="popup-tabs-container">
+                <!-- Tab -->
+                <div class="popup-tab-content" id="tab1">
 
-			<!-- Tab -->
-			<div class="popup-tab-content" id="tab1">
+                    <!-- Welcome Text -->
+                    <div class="welcome-text">
+                        <h3>Ubah Review</h3>
+                        <span>Review <a href="#">@(ReviewItem.ReviewType == ReviewTypes.Freelancer ? Freelancer.FullName : Employer.FullName)</a> untuk proyek <a href="#">@ReviewItem.Project?.ProjectName</a> </span>
+                    </div>
 
-				<!-- Welcome Text -->
-				<div class="welcome-text">
-					<h3>Change Review</h3>
-					<span>Rate <a href="#">Herman Ewout</a> for the project <a href="#">WordPress Theme Installation</a> </span>
-				</div>
+                    <!-- Form -->
+                    <form id="change-review-form">
 
-				<!-- Form -->
-				<form method="post" id="change-review-form">
+                        <div class="feedback-yes-no">
+                            <strong>Di kerjakan sesuai durasi waktu ?</strong>
+                            <div class="radio">
+                                <input id="radio-rating-1" @onclick="()=>SetBudget(true)" name="radio" type="radio" checked="@LastBudget==true">
+                                <label for="radio-rating-1"><span class="radio-label"></span> Yes</label>
+                            </div>
 
-					<div class="feedback-yes-no">
-						<strong>Was this delivered on budget?</strong>
-						<div class="radio">
-							<input id="radio-rating-1" name="radio" type="radio" checked>
-							<label for="radio-rating-1"><span class="radio-label"></span> Yes</label>
-						</div>
+                            <div class="radio">
+                                <input id="radio-rating-2" @onclick="()=>SetBudget(false)" name="radio" type="radio" checked="@LastBudget==false">
+                                <label for="radio-rating-2"><span class="radio-label"></span> No</label>
+                            </div>
+                        </div>
 
-						<div class="radio">
-							<input id="radio-rating-2" name="radio" type="radio">
-							<label for="radio-rating-2"><span class="radio-label"></span> No</label>
-						</div>
-					</div>
+                        <div class="feedback-yes-no">
+                            <strong>Waktunya ontime ?</strong>
+                            <div class="radio">
+                                <input id="radio-rating-3" @onclick="()=>SetTime(true)" name="radio2" type="radio" checked="@LastTime==true">
+                                <label for="radio-rating-3"><span class="radio-label"></span> Yes</label>
+                            </div>
 
-					<div class="feedback-yes-no">
-						<strong>Was this delivered on time?</strong>
-						<div class="radio">
-							<input id="radio-rating-3" name="radio2" type="radio" checked>
-							<label for="radio-rating-3"><span class="radio-label"></span> Yes</label>
-						</div>
+                            <div class="radio">
+                                <input id="radio-rating-4" @onclick="()=>SetTime(false)" name="radio2" type="radio" checked="@LastTime==false">
+                                <label for="radio-rating-4"><span class="radio-label"></span> No</label>
+                            </div>
+                        </div>
 
-						<div class="radio">
-							<input id="radio-rating-4" name="radio2" type="radio">
-							<label for="radio-rating-4"><span class="radio-label"></span> No</label>
-						</div>
-					</div>
+                        <div class="feedback-yes-no">
+                            <strong>Kasih Rating</strong>
+                            <div class="leave-rating">
+                                <input type="radio" name="rating" @onclick="()=>SetRating(5)" id="rating-1" value="1" checked="@(LastRating==5)" />
+                                <label for="rating-1"  class="icon-material-outline-star"></label>
+                                <input type="radio" name="rating" @onclick="()=>SetRating(4)" id="rating-2" value="2" checked="@(LastRating==4)" />
+                                <label for="rating-2"  class="icon-material-outline-star"></label>
+                                <input type="radio" name="rating" @onclick="()=>SetRating(3)" id="rating-3" value="3" checked="@(LastRating==3)" />
+                                <label for="rating-3"  class="icon-material-outline-star"></label>
+                                <input type="radio" name="rating" @onclick="()=>SetRating(2)" id="rating-4" value="4" checked="@(LastRating==2)" />
+                                <label for="rating-4"  class="icon-material-outline-star"></label>
+                                <input type="radio" name="rating" @onclick="()=>SetRating(1)" id="rating-5" value="5" checked="@(LastRating==1)" />
+                                <label for="rating-5"  class="icon-material-outline-star"></label>
+                            </div><div class="clearfix"></div>
+                        </div>
 
-					<div class="feedback-yes-no">
-						<strong>Your Rating</strong>
-						<div class="leave-rating">
-							<input type="radio" name="rating" id="rating-1" value="1" checked />
-							<label for="rating-1" class="icon-material-outline-star"></label>
-							<input type="radio" name="rating" id="rating-2" value="2" />
-							<label for="rating-2" class="icon-material-outline-star"></label>
-							<input type="radio" name="rating" id="rating-3" value="3" />
-							<label for="rating-3" class="icon-material-outline-star"></label>
-							<input type="radio" name="rating" id="rating-4" value="4" />
-							<label for="rating-4" class="icon-material-outline-star"></label>
-							<input type="radio" name="rating" id="rating-5" value="5" />
-							<label for="rating-5" class="icon-material-outline-star"></label>
-						</div><div class="clearfix"></div>
-					</div>
+                        <textarea class="with-border" @bind="ReviewItem.Message" placeholder="Comment" name="message" id="message" cols="7" required></textarea>
 
-					<textarea class="with-border" placeholder="Comment" name="message" id="message" cols="7" required>Excellent programmer - helped me fixing small issue.</textarea>
+                    </form>
 
-				</form>
+                    <!-- Button -->
+                    <button class="button full-width button-sliding-icon ripple-effect" type="button" @onclick="Submit" form="change-review-form">Simpan <i class="icon-material-outline-arrow-right-alt"></i></button>
 
-				<!-- Button -->
-				<button class="button full-width button-sliding-icon ripple-effect" type="submit" form="change-review-form">Save Changes <i class="icon-material-outline-arrow-right-alt"></i></button>
+                </div>
 
-			</div>
-
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Edit Review Popup / End -->
 @code {
+    int LastRating = 1;
+    bool LastBudget = true;
+    bool LastTime = true;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    UserProfile Freelancer = new();
+    UserProfile Employer = new();
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            
+
+        }
+      
+
+    }
+    async Task SetBudget(bool State)
+    {
+
+        LastBudget = State;
+    }
+    async Task SetTime(bool State)
+    {
+
+        LastTime = State;
+    }
+
+    async Task SetRating(int Rating)
+    {
+
+        LastRating = Rating;
+    }
+  
+    [Parameter]
+    public Review ReviewItem { get; set; } = new();
+
+    public void SetReview(Review NewItem)
+    {
+        ReviewItem = NewItem;
+        Freelancer = UserSvc.GetDataById(ReviewItem.FreelancerUserId);
+        Employer = UserSvc.GetDataById(ReviewItem.EmployerId);
+        StateHasChanged();
+    }
+
+    async Task Submit()
+    {
+        ReviewItem.OnBudget = LastBudget;
+        ReviewItem.OnTime = LastTime;
+        ReviewItem.Rating = LastRating;
+        bool res = false;
+        if (ReviewItem.Id <= 0)
+        {
+            ReviewItem.Project = null;
+            res = ReviewSvc.InsertData(ReviewItem);
+        }
+        else
+        {
+            res = ReviewSvc.UpdateData(ReviewItem);
+        }
+        if (res)
+        {
+            await Toast.ShowInfo("Review berhasil diupdate.");
+            await IJS.InvokeVoidAsync("CloseModal", "review-small-dialog");
+            AppState.RefreshReview(UserName);
+        }
+        else
+        {
+            await Toast.ShowInfo("Review gagal diupdate.");
+
+        }
+    }
 
 }
