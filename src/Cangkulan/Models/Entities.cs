@@ -10,6 +10,18 @@ using static OneOf.Types.TrueFalseOrNull;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class MapItem
+    {
+        public string Pageurl { get; set; }
+        public string Logourl { get; set; }
+        public string Company { get; set; }
+        public string Jobtitle { get; set; }
+        public string Verified { get; set; }
+        public float Lat { get; set; }
+        public float Lon { get; set; }
+        public int Index { get; set; }
+        public string Icon { get; set; }
+    }
     public class JobTypes
     {
         public const string FullTime = "FullTime";

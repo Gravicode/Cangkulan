@@ -37,7 +37,10 @@ namespace Cangkulan.Data
         {
             return db.Companys.OrderBy(x => x.FullName).ToList();
         }
-
+        public List<Company> GetAllData(string Alphabet)
+        {
+            return db.Companys.Where(x=>x.FullName.StartsWith(Alphabet)).OrderBy(x => x.FullName).ToList();
+        }
         public Company GetDataById(object Id)
         {
             return db.Companys.Where(x => x.Id == (long)Id).FirstOrDefault();

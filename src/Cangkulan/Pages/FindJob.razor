@@ -99,6 +99,8 @@
 
                     <!-- More Tags -->
                     <div class="keywords-container margin-top-20">
+                        <h3>Tags</h3>
+                        <div class="margin-top-55"></div>
                         <div class="keyword-input-container">
                             <input type="text" @bind="NewTag" class="keyword-input" placeholder="Daftar Tag" />
                             <button @onclick="AddTag" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
@@ -126,7 +128,7 @@
 
                 <div class="notify-box margin-top-15">
                     <div class="switch-container">
-                        <label class="switch"><input type="checkbox"><span class="switch-button"></span><span class="switch-text">Turn on email alerts for this search</span></label>
+                        <label class="switch"><input type="checkbox" @bind="SearchEmailAlert"><span class="switch-button"></span><span class="switch-text">Email Alert untuk Pencarian</span></label>
                     </div>
 
                     <div class="sort-by">
@@ -261,13 +263,19 @@
 
             ListJob = JobSvc.FindByKeyword(Keyword, SelCategory, SelLocation, Gaji,JobSelected.ToArray(), SelTags.ToArray(), SortBy);
             Bookmarked.Clear();
-            foreach(var item in ListJob)
-            {
-                Bookmarked.Add(item.Id, SelUser.BookmarkedJobs.Any(x => x.JobId == item.Id));
-            }
+            if(!string.IsNullOrEmpty(UserName))
+                foreach(var item in ListJob)
+                {
+                    Bookmarked.Add(item.Id, SelUser.BookmarkedJobs.Any(x => x.JobId == item.Id));
+                }
         }
         async Task ToggleBookmark(Job item)
         {
+            if (string.IsNullOrEmpty(UserName))
+            {
+                await Toast.ShowInfo("Silakan login terlebih dahulu untuk bookmark.");
+                return;
+            }
             var State = Bookmarked[item.Id];
             State = !State;
             var res = false;
