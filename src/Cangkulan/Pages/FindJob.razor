@@ -1,570 +1,303 @@
 ﻿@page "/find-job"
-@layout ContentLayout
+@layout MainLayout
 @inject IJSRuntime IJS
 
-<!-- Page Content
-================================================== -->
-<div class="full-page-container">
-
-	<div class="full-page-sidebar">
-		<div class="full-page-sidebar-inner" data-simplebar>
-			<div class="sidebar-container">
-
-				<!-- Location -->
-				<div class="sidebar-widget">
-					<h3>Location</h3>
-					<div class="input-with-icon">
-						<div id="autocomplete-container">
-							<input id="autocomplete-input" type="text" placeholder="Location">
-						</div>
-						<i class="icon-material-outline-location-on"></i>
-					</div>
-				</div>
-
-
-				<!-- Keywords -->
-				<div class="sidebar-widget">
-					<h3>Keywords</h3>
-					<div class="keywords-container">
-						<div class="keyword-input-container">
-							<input type="text" class="keyword-input" placeholder="e.g. job title" />
-							<button class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
-						</div>
-						<div class="keywords-list"><!-- keywords go here --></div>
-						<div class="clearfix"></div>
-					</div>
-				</div>
-
-				<!-- Category -->
-				<div class="sidebar-widget">
-					<h3>Category</h3>
-					<select class="selectpicker default" multiple data-selected-text-format="count" data-size="7" title="All Categories">
-						<option>Admin Support</option>
-						<option>Customer Service</option>
-						<option>Data Analytics</option>
-						<option>Design & Creative</option>
-						<option>Legal</option>
-						<option>Software Developing</option>
-						<option>IT & Networking</option>
-						<option>Writing</option>
-						<option>Translation</option>
-						<option>Sales & Marketing</option>
-					</select>
-				</div>
-
-				<!-- Job Types -->
-				<div class="sidebar-widget">
-					<h3>Job Type</h3>
-
-					<div class="switches-list">
-						<div class="switch-container">
-							<label class="switch"><input type="checkbox"><span class="switch-button"></span> Freelance</label>
-						</div>
-
-						<div class="switch-container">
-							<label class="switch"><input type="checkbox"><span class="switch-button"></span> Full Time</label>
-						</div>
-
-						<div class="switch-container">
-							<label class="switch"><input type="checkbox"><span class="switch-button"></span> Part Time</label>
-						</div>
-
-						<div class="switch-container">
-							<label class="switch"><input type="checkbox"><span class="switch-button"></span> Internship</label>
-						</div>
-						<div class="switch-container">
-							<label class="switch"><input type="checkbox"><span class="switch-button"></span> Temporary</label>
-						</div>
-					</div>
-
-				</div>
-
-				<!-- Salary -->
-				<div class="sidebar-widget">
-					<h3>Salary</h3>
-					<div class="margin-top-55"></div>
-
-					<!-- Range Slider -->
-					<input class="range-slider" type="text" value="" data-slider-currency="$" data-slider-min="1500" data-slider-max="15000" data-slider-step="100" data-slider-value="[1500,15000]" />
-				</div>
-
-				<!-- Tags -->
-				<div class="sidebar-widget">
-					<h3>Tags</h3>
-
-					<div class="tags-container">
-						<div class="tag">
-							<input type="checkbox" id="tag1" />
-							<label for="tag1">front-end dev</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag2" />
-							<label for="tag2">angular</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag3" />
-							<label for="tag3">react</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag4" />
-							<label for="tag4">vue js</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag5" />
-							<label for="tag5">web apps</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag6" />
-							<label for="tag6">design</label>
-						</div>
-						<div class="tag">
-							<input type="checkbox" id="tag7" />
-							<label for="tag7">wordpress</label>
-						</div>
-					</div>
-					<div class="clearfix"></div>
-				</div>
-
-			</div>
-			<!-- Sidebar Container / End -->
-			<!-- Search Button -->
-			<div class="sidebar-search-button-container">
-				<button class="button ripple-effect">Search</button>
-			</div>
-			<!-- Search Button / End-->
-
-		</div>
-	</div>
-	<!-- Full Page Sidebar / End -->
-	<!-- Full Page Content -->
-	<div class="full-page-content-container" data-simplebar>
-		<div class="full-page-content-inner">
-
-			<h3 class="page-title">Search Results</h3>
-
-			<div class="notify-box margin-top-15">
-				<div class="switch-container">
-					<label class="switch"><input type="checkbox"><span class="switch-button"></span><span class="switch-text">Turn on email alerts for this search</span></label>
-				</div>
-
-				<div class="sort-by">
-					<span>Sort by:</span>
-					<select class="selectpicker hide-tick">
-						<option>Relevance</option>
-						<option>Newest</option>
-						<option>Oldest</option>
-						<option>Random</option>
-					</select>
-				</div>
-			</div>
-
-			<div class="listings-container grid-layout margin-top-35">
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-01.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Hexagon <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span></h4>
-							<h3 class="job-listing-title">Bilingual Event Support Specialist</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-05.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Laxo</h4>
-							<h3 class="job-listing-title">Competition Law Officer</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-02.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Coffee</h4>
-							<h3 class="job-listing-title">Barista and Cashier</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-03.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">King <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span></h4>
-							<h3 class="job-listing-title">Restaurant General Manager</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-05.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Skyist</h4>
-							<h3 class="job-listing-title">International Marketing Coordinator</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-05.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Podous</h4>
-							<h3 class="job-listing-title">Construction Labourers</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-04.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Mates</h4>
-							<h3 class="job-listing-title">Administrative Assistant</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-06.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Trideo</h4>
-							<h3 class="job-listing-title">Human Resources Consultant</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-06.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Trideo</h4>
-							<h3 class="job-listing-title">International Marketing Specialist</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-02.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Coffee</h4>
-							<h3 class="job-listing-title">Terrain Cafe Barista</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-05.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Kinte</h4>
-							<h3 class="job-listing-title">Skilled Labourer</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-				<!-- Job Listing -->
-				<a href="single-job-page.html" class="job-listing">
-
-					<!-- Job Listing Details -->
-					<div class="job-listing-details">
-						<!-- Logo -->
-						<div class="job-listing-company-logo">
-							<img src="images/company-logo-05.png" alt="">
-						</div>
-
-						<!-- Details -->
-						<div class="job-listing-description">
-							<h4 class="job-listing-company">Alilia</h4>
-							<h3 class="job-listing-title">Healthcare Claims Advisor</h3>
-						</div>
-					</div>
-
-					<!-- Job Listing Footer -->
-					<div class="job-listing-footer">
-						<span class="bookmark-icon"></span>
-						<ul>
-							<li><i class="icon-material-outline-location-on"></i> San Francissco</li>
-							<li><i class="icon-material-outline-business-center"></i> Full Time</li>
-							<li><i class="icon-material-outline-account-balance-wallet"></i> $35000-$38000</li>
-							<li><i class="icon-material-outline-access-time"></i> 2 days ago</li>
-						</ul>
-					</div>
-				</a>
-
-			</div>
-
-			<!-- Pagination -->
-			<div class="clearfix"></div>
-			<div class="pagination-container margin-top-20 margin-bottom-20">
-				<nav class="pagination">
-					<ul>
-						<li class="pagination-arrow"><a href="#" class="ripple-effect"><i class="icon-material-outline-keyboard-arrow-left"></i></a></li>
-						<li><a href="#" class="ripple-effect">1</a></li>
-						<li><a href="#" class="ripple-effect current-page">2</a></li>
-						<li><a href="#" class="ripple-effect">3</a></li>
-						<li><a href="#" class="ripple-effect">4</a></li>
-						<li class="pagination-arrow"><a href="#" class="ripple-effect"><i class="icon-material-outline-keyboard-arrow-right"></i></a></li>
-					</ul>
-				</nav>
-			</div>
-			<div class="clearfix"></div>
-			<!-- Pagination / End -->
-			<!-- Footer -->
-			<div class="small-footer margin-top-15">
-				<div class="small-footer-copyrights">
-					© 2019 <strong>Hireo</strong>. All Rights Reserved.
-				</div>
-				<ul class="footer-social-links">
-					<li>
-						<a href="#" title="Facebook" data-tippy-placement="top">
-							<i class="icon-brand-facebook-f"></i>
-						</a>
-					</li>
-					<li>
-						<a href="#" title="Twitter" data-tippy-placement="top">
-							<i class="icon-brand-twitter"></i>
-						</a>
-					</li>
-					<li>
-						<a href="#" title="Google Plus" data-tippy-placement="top">
-							<i class="icon-brand-google-plus-g"></i>
-						</a>
-					</li>
-					<li>
-						<a href="#" title="LinkedIn" data-tippy-placement="top">
-							<i class="icon-brand-linkedin-in"></i>
-						</a>
-					</li>
-				</ul>
-				<div class="clearfix"></div>
-			</div>
-			<!-- Footer / End -->
-
-		</div>
-	</div>
-	<!-- Full Page Content / End -->
-
-</div>
-
-@code {
-
-}
+@inject NavigationManager NavMgr
+@inject ToastInfoService Toast
+@inject JobService JobSvc
+@inject UserProfileService service
+@inject CompanyService CompanySvc
+@inject JobCategoryService CategorySvc
+@inject BookmarkedJobService BookmarkedJobSvc
+    <!-- Spacer -->
+    <div class="margin-top-90"></div>
+    <!-- Spacer / End-->
+    <!-- Page Content
+    ================================================== -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-4">
+                <div class="sidebar-container">
+
+                    <!-- Location -->
+                    <div class="sidebar-widget">
+                        <h3>Location</h3>
+                        <div class="input-with-icon">
+                            <div id="autocomplete-container">
+                                <input id="autocomplete-input" @bind="SelLocation" type="text" placeholder="Location">
+                            </div>
+                            <i class="icon-material-outline-location-on"></i>
+                        </div>
+                    </div>
+
+
+                    <!-- Keywords -->
+                    <div class="sidebar-widget">
+                        <h3>Keywords</h3>
+                        <div class="keywords-container">
+                            <div class="keyword-input-container">
+                                <input type="text" class="keyword-input" @bind="Keyword" placeholder="cth. developer" />
+                                <button @onclick:preventDefault @onclick="Search" class="keyword-input-button ripple-effect"><i class="icon-material-outline-search"></i></button>
+                            </div>
+                            <div style="display:none;" class="keywords-list"><!-- keywords go here --></div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="sidebar-widget">
+                        <h3>Category</h3>
+                        <select @bind="SelCategory" title="All Categories">
+                            <option value="All">All</option>
+                            @foreach (var cat in ListCategory)
+                            {
+                                <option value="@cat.Category">@cat.Category</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Job Types -->
+                    <div class="sidebar-widget">
+                        <h3>Job Type</h3>
+
+                        <div class="switches-list">
+                            <div class="switch-container">
+                                <label class="switch"><input type="checkbox" @bind="JobFreelance"><span class="switch-button"></span> Freelance</label>
+                            </div>
+
+                            <div class="switch-container">
+                                <label class="switch"><input type="checkbox" @bind="JobFullTime"><span class="switch-button"></span> Full Time</label>
+                            </div>
+
+                            <div class="switch-container">
+                                <label class="switch"><input type="checkbox" @bind="JobPartTime"><span class="switch-button"></span> Part Time</label>
+                            </div>
+
+                            <div class="switch-container">
+                                <label class="switch"><input type="checkbox" @bind="JobInternship"><span class="switch-button"></span> Internship</label>
+                            </div>
+                            <div class="switch-container">
+                                <label class="switch"><input type="checkbox" @bind="JobTemporary"><span class="switch-button"></span> Temporary</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Salary -->
+                    <div class="sidebar-widget">
+                        <h3>Gaji (0 untuk semua)</h3>
+                        <div class="margin-top-55"></div>
+                        <div class="input-with-icon">
+                            <div id="autocomplete-container">
+                                <input @bind="Gaji" type="number" placeholder="0.0">
+                            </div>
+                            <i class="icon-material-outline-money"></i>
+                        </div>
+                        <!-- Range Slider -->
+                        <input type="range" class="form-range" @bind="Gaji" min="0" max="99000000000" id="customRange1">
+                    </div>
+
+                    <!-- More Tags -->
+                    <div class="keywords-container margin-top-20">
+                        <div class="keyword-input-container">
+                            <input type="text" @bind="NewTag" class="keyword-input" placeholder="Daftar Tag" />
+                            <button @onclick="AddTag" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                        </div>
+                        <div class="keywords-list">
+                            @if (SelTags.Count > 0)
+                            {
+                                foreach (var Tag in SelTags)
+                                {
+                                    <span class="keyword">
+                                        <span @onclick="()=>RemoveTag(Tag)" class="keyword-remove"></span>
+                                        <span class="keyword-text">@Tag</span>
+                                    </span>
+                                }
+                            }
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-xl-9 col-lg-8 content-left-offset">
+
+                <h3 class="page-title">Search Results</h3>
+
+                <div class="notify-box margin-top-15">
+                    <div class="switch-container">
+                        <label class="switch"><input type="checkbox"><span class="switch-button"></span><span class="switch-text">Turn on email alerts for this search</span></label>
+                    </div>
+
+                    <div class="sort-by">
+                        <span>Sort by:</span>
+                        <select @bind="SortBy" style="width:fit-content">
+                            <option>Relevance</option>
+                            <option>Newest</option>
+                            <option>Oldest</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="listings-container margin-top-35">
+                    <Virtualize Items="@ListJob" Context="item">
+                        <!-- Job Listing -->
+                        <a @key="item.Id" href="@($"/job-detail/{item.Id}")" class="job-listing">
+
+                            <!-- Job Listing Details -->
+                            <div class="job-listing-details">
+                                <!-- Logo -->
+                                <div class="job-listing-company-logo">
+                                    <img src="@(string.IsNullOrEmpty(item.Company.LogoUrl)? "images/company-logo-01.png":item.Company.LogoUrl)" alt="">
+                                </div>
+
+                                <!-- Details -->
+                                <div class="job-listing-description">
+                                    <h4 class="job-listing-company">@item.Company.FullName
+                                    @if (item.Company.IsVerified)
+                                        {
+                                            <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span>
+                                        }
+                                    </h4>
+                                    <h3 class="job-listing-title">@item.JobTitle</h3>
+                                    <p class="job-listing-text">@item.JobDesc</p>
+                                </div>
+
+                                <!-- Bookmark -->
+                                <span @onclick:preventDefault @onclick:stopPropagation @onclick="()=>ToggleBookmark(item)" class="bookmark-icon @((Bookmarked.ContainsKey(item.Id) && Bookmarked[item.Id])?"bookmarked":"")"></span>
+                            </div>
+
+                            <!-- Job Listing Footer -->
+                            <div class="job-listing-footer">
+                                <ul>
+                                    <li><i class="icon-material-outline-location-on"></i> @item.Location</li>
+                                    <li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
+                                    <li><i class="icon-material-outline-account-balance-wallet"></i> @($"Rp{NumberHelper.FormatNumber(item.SalaryMin)}-Rp{NumberHelper.FormatNumber(item.SalaryMax)}")</li>
+                                    <li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>
+                                </ul>
+                            </div>
+                        </a>
+                    </Virtualize>
+
+                    <!-- Pagination -->
+                    <div class="clearfix"></div>
+                    <div style="display:none;" class="row">
+                        <div class="col-md-12">
+                            <!-- Pagination -->
+                            <div class="pagination-container margin-top-30 margin-bottom-60">
+                                <nav class="pagination">
+                                    <ul>
+                                        <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-left"></i></a></li>
+                                        <li><a href="#">1</a></li>
+                                        <li><a href="#" class="current-page">2</a></li>
+                                        <li><a href="#">3</a></li>
+                                        <li><a href="#">4</a></li>
+                                        <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-right"></i></a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pagination / End -->
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @code {
+        bool SearchEmailAlert;
+        string Keyword, SelLocation, SelCategory, NewTag, SortBy;
+        double Gaji = 0;
+
+        List<string> SelTags = new();
+        List<Company> ListCompany = new();
+
+        UserProfile SelUser = new UserProfile();
+        string ErrorMsg = string.Empty;
+
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationStateTask { get; set; }
+        string UserName;
+        Dictionary<long, bool> Bookmarked = new();
+        List<JobCategory> ListCategory = new List<JobCategory>();
+
+        public List<Job> ListJob { get; set; }
+        public List<string> JobSelected { get; set; } = new();
+        bool JobFreelance;
+        bool JobFullTime;
+        bool JobPartTime;
+        bool JobInternship;
+        bool JobTemporary;
+
+
+        protected override async Task OnInitializedAsync()
+        {
+
+            var user = (await authenticationStateTask).User;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                UserName = user.Identity.Name;
+                SelUser = service.GetItemByUsername(UserName);
+
+            }
+            ListCategory = CategorySvc.GetAllData();
+            ListCompany = CompanySvc.GetAllData();
+            Search();
+        }
+
+        void Search()
+        {
+
+
+            JobSelected.Clear();
+            if (JobFreelance) JobSelected.Add(JobTypes.Freelance);
+            if (JobFullTime) JobSelected.Add(JobTypes.FullTime);
+            if (JobPartTime) JobSelected.Add(JobTypes.PartTime);
+            if (JobInternship) JobSelected.Add(JobTypes.Internship);
+            if (JobTemporary) JobSelected.Add(JobTypes.Temporary);
+
+            ListJob = JobSvc.FindByKeyword(Keyword, SelCategory, SelLocation, Gaji,JobSelected.ToArray(), SelTags.ToArray(), SortBy);
+            Bookmarked.Clear();
+            foreach(var item in ListJob)
+            {
+                Bookmarked.Add(item.Id, SelUser.BookmarkedJobs.Any(x => x.JobId == item.Id));
+            }
+        }
+        async Task ToggleBookmark(Job item)
+        {
+            var State = Bookmarked[item.Id];
+            State = !State;
+            var res = false;
+            if (State)
+            {
+                res = BookmarkedJobSvc.Bookmark( SelUser.Id, item.Id);
+            }
+            else
+            {
+                res = BookmarkedJobSvc.UnBookmark(SelUser.Id, item.Id);
+            }
+            if (res) await Toast.ShowInfo(State ? "bookmarked":"unbookmarked");
+            Bookmarked[item.Id] = State;
+        }
+        async Task AddTag()
+        {
+            if (string.IsNullOrEmpty(NewTag)) return;
+            SelTags.Add(NewTag);
+            NewTag = string.Empty;
+        }
+
+        async Task RemoveTag(string Name)
+        {
+            SelTags.Remove(Name);
+        }
+
+
+        async Task Open(string url)
+        {
+            if (!string.IsNullOrEmpty(url))
+                await IJS.InvokeVoidAsync("OpenUrl", url);
+        }
+    }

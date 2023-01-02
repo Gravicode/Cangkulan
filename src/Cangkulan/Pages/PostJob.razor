@@ -56,11 +56,11 @@
                                 <h5>Job Type</h5>
                                 <select @bind="DataJob.JobType" title="Select Job Type">
                                     <option value="Pilih">Pilih</option>
-                                    <option value="Full Time">Full Time</option>
-                                    <option value="Freelance">Freelance</option>
-                                    <option value="Part Time">Part Time</option>
-                                    <option value="Internship">Internship</option>
-                                    <option value="Temporary">Temporary</option>
+                                    <option value="@JobTypes.FullTime">Full Time</option>
+                                    <option value="@JobTypes.Freelance">Freelance</option>
+                                    <option value="@JobTypes.PartTime">Part Time</option>
+                                    <option value="@JobTypes.Internship">Internship</option>
+                                    <option value="@JobTypes.Temporary">Temporary</option>
                                 </select>
                             </div>
                         </div>

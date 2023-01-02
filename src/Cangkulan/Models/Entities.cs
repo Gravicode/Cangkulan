@@ -1,14 +1,23 @@
 ﻿using GemBox.Document;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Options;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.Design;
 using System.Reflection;
+using static OneOf.Types.TrueFalseOrNull;
 
 namespace Cangkulan.Models
 {
     #region helpers model
-
+    public class JobTypes
+    {
+        public const string FullTime = "FullTime";
+        public const string Freelance = "Freelance";
+        public const string PartTime = "PartTime";
+        public const string Internship = "Internship";
+        public const string Temporary = "Temporary";
+    }
     public class JobCategoryCls
     {
         public string Category { get; set; }
@@ -18,15 +27,15 @@ namespace Cangkulan.Models
     public class ProjectStatus
     {
         public const string Active = "Active";
-		public const string Expire = "Expire";
-		public const string NonActive = "NonActive";
-	}
+        public const string Expire = "Expire";
+        public const string NonActive = "NonActive";
+    }
     public class JobStatus
     {
         public const string Active = "Active";
-		public const string Expire = "Expire";
-		public const string NonActive = "NonActive";
-	}
+        public const string Expire = "Expire";
+        public const string NonActive = "NonActive";
+    }
     public class StorageObject
     {
         public string Name { get; set; }
@@ -96,7 +105,7 @@ namespace Cangkulan.Models
         public string SubCategory { get; set; }
     }
 
-        [Table("message_header")]
+    [Table("message_header")]
     public class MessageHeader
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -234,7 +243,7 @@ namespace Cangkulan.Models
 
         [InverseProperty(nameof(BookmarkedJob.User))]
         public ICollection<BookmarkedJob> BookmarkedJobs { get; set; }
-        
+
         [InverseProperty(nameof(BookmarkedProject.User))]
         public ICollection<BookmarkedProject> BookmarkedProjects { get; set; }
 
@@ -249,11 +258,11 @@ namespace Cangkulan.Models
         public ICollection<Testimonial> Testimonials { get; set; }
         public ICollection<Company> Companies { get; set; }
         [InverseProperty(nameof(Job.Employer))]
-        public ICollection<Job> VacancyList { get; set; } 
-        
+        public ICollection<Job> VacancyList { get; set; }
+
         [InverseProperty(nameof(Project.Employer))]
         public ICollection<Project> ProjectList { get; set; }
-        
+
         [InverseProperty(nameof(ProjectBidder.UserBidder))]
         public ICollection<ProjectBidder> ProjectBids { get; set; }
 
@@ -288,8 +297,8 @@ namespace Cangkulan.Models
         public long UserId { set; get; }
         public UserProfile User { set; get; }
         public DateTime CreatedDate { set; get; }
-    } 
-    
+    }
+
     [Table("bookmarked_project")]
     public class BookmarkedProject
     {
@@ -400,7 +409,7 @@ namespace Cangkulan.Models
         [Required]
         public string? Category { set; get; }
         public int Rating { set; get; }
-       
+
         [Required]
         public string? About { set; get; }
         public string? Longitude { set; get; }
@@ -505,13 +514,13 @@ namespace Cangkulan.Models
         public DateTime CreatedDate { set; get; }
         public DateTime ExpiryDate { set; get; }
 
-		[ForeignKey(nameof(Company)), Column(Order = 3)]
-		public long CompanyId { set; get; }
-		public Company Company { set; get; }
+        [ForeignKey(nameof(Company)), Column(Order = 3)]
+        public long CompanyId { set; get; }
+        public Company Company { set; get; }
 
-		public ICollection<Review> Reviews { get; set; }
-		public ICollection<ProjectBidder> ProjectBidders { get; set; }
-	}
+        public ICollection<Review> Reviews { get; set; }
+        public ICollection<ProjectBidder> ProjectBidders { get; set; }
+    }
 
     [Table("review_company")]
     public class ReviewCompany
@@ -539,7 +548,7 @@ namespace Cangkulan.Models
         public string Email { get; set; }
     }
 
-        [Table("testimonial")]
+    [Table("testimonial")]
     public class Testimonial
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -578,8 +587,8 @@ namespace Cangkulan.Models
         public string AttachmentUrls { set; get; }
         public bool Active { set; get; } = true;
         public DateTime CreatedDate { set; get; }
-		public DateTime? ExpiryDate { set; get; }
-		public ICollection<JobCandidate> JobCandidates { get; set; }
+        public DateTime? ExpiryDate { set; get; }
+        public ICollection<JobCandidate> JobCandidates { get; set; }
     }
 
     [Table("job_candidate")]
@@ -598,7 +607,7 @@ namespace Cangkulan.Models
         public string CVUrl { set; get; }
         public DateTime ApplyDate { set; get; }
 
-        
+
     }
 
     [Table("project_bidder")]

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cangkulan.Helpers;
 
 namespace Cangkulan.Data
 {
@@ -24,8 +25,93 @@ namespace Cangkulan.Data
             db.SaveChanges();
             return true;
         }
+        public List<Job> FindByKeyword(string Keyword, string Category, string Location, double RateMin, double RateMax, string[] JobTypes, string[] Tags, string SortBy)
+        {
+            var data = db.Jobs.Include(c=>c.Company).AsQueryable();
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(x => x.JobTitle.Contains(Keyword) || x.JobDesc.Contains(Keyword));
+            }
+            if (!string.IsNullOrEmpty(Category) && Category != "All")
+            {
+                data = data.Where(x => x.JobCategory == Category);
+            }
+            if (!string.IsNullOrEmpty(Location))
+            {
+                data = data.Where(x => x.Location.Contains(Location));
+            }
+            if (RateMin > 0 && RateMax > 0 && RateMax > RateMin)
+            {
+                data = data.Where(x => (x.SalaryMin > RateMin && x.SalaryMin < RateMax) || ((x.SalaryMax > RateMin && x.SalaryMax < RateMax)));
+            }
+            switch (SortBy)
+            {
+                case "Newest":
+                    data = data.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "Oldest":
+                    data = data.OrderBy(x => x.CreatedDate);
+                    break;
+                default:
+                case "Relevance":
+                    break;
+            }
+            if(JobTypes !=null && JobTypes.Length > 0)
+            {
+                data.Where(x => JobTypes.Contains(x.JobType));
+            }
+            if (Tags.Length > 0)
+            {
+                data = data.ToList().Where(x => x.Tags.ContainsAny(Tags)).AsQueryable();
+            }
 
-		public List<Job> GetSimilar(Job item,int Limit = 2)
+            return data.ToList();
+        }
+        public List<Job> FindByKeyword(string Keyword, string Category, string Location, double Salary, string[] JobTypes, string[] Tags, string SortBy)
+        {
+            var data = db.Jobs.Include(c=>c.Company).AsQueryable();
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(x => x.JobTitle.Contains(Keyword) || x.JobDesc.Contains(Keyword));
+            }
+            if (!string.IsNullOrEmpty(Category) && Category != "All")
+            {
+                data = data.Where(x => x.JobCategory == Category);
+            }
+            if (!string.IsNullOrEmpty(Location))
+            {
+                data = data.Where(x => x.Location.Contains(Location));
+            }
+            if (Salary > 0)
+            {
+                data = data.Where(x => Salary > x.SalaryMin && Salary < x.SalaryMax);
+            }
+            switch (SortBy)
+            {
+                case "Newest":
+                    data = data.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "Oldest":
+                    data = data.OrderBy(x => x.CreatedDate);
+                    break;
+                default:
+                case "Relevance":
+                    break;
+            }
+            if (JobTypes != null && JobTypes.Length > 0)
+            {
+                data.Where(x => JobTypes.Contains(x.JobType));
+            }
+            if (Tags.Length > 0)
+            {
+                data = data.ToList().Where(x => x.Tags.ContainsAny(Tags)).AsQueryable();
+            }
+
+            return data.ToList();
+            
+           
+        }
+        public List<Job> GetSimilar(Job item,int Limit = 2)
 		{
             if (item == null) return new List<Job>();
 			var data = from x in db.Jobs
