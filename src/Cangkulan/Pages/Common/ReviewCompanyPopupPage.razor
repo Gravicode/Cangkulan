@@ -1,0 +1,143 @@
+﻿@inject UserProfileService UserSvc
+@inject ReviewCompanyService ReviewSvc
+@inject ToastInfoService Toast
+@inject IJSRuntime IJS
+@inject AppState AppState
+
+<div id="reviewcompany-small-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="background-color:white;">
+        <!--Tabs -->
+        <div class="sign-in-form">
+
+            <ul class="popup-tabs-nav">
+                <li><a href="#tab">Kasih Review</a></li>
+            </ul>
+
+            <div class="popup-tabs-container">
+
+                <!-- Tab -->
+                <div class="popup-tab-content" id="tab">
+
+                    <!-- Welcome Text -->
+                    <div class="welcome-text">
+                        <h3>Bagaimana kerja di @DataCompany.FullName?</h3>
+
+                        <!-- Form -->
+                        <form id="leave-company-review-form">
+
+                            <!-- Leave Rating -->
+                            <div class="clearfix"></div>
+                            <div class="leave-rating-container">
+                                <div class="leave-rating margin-bottom-5">
+                                    <input type="radio" name="rating" @onclick="()=>SetRating(5)" id="rating-1" value="1" checked="@(LastRating==5)" />
+                                    <label for="rating-1" class="icon-material-outline-star"></label>
+                                    <input type="radio" name="rating" @onclick="()=>SetRating(4)" id="rating-2" value="2" checked="@(LastRating==4)" />
+                                    <label for="rating-2" class="icon-material-outline-star"></label>
+                                    <input type="radio" name="rating" @onclick="()=>SetRating(3)" id="rating-3" value="3" checked="@(LastRating==3)" />
+                                    <label for="rating-3" class="icon-material-outline-star"></label>
+                                    <input type="radio" name="rating" @onclick="()=>SetRating(2)" id="rating-4" value="4" checked="@(LastRating==2)" />
+                                    <label for="rating-4" class="icon-material-outline-star"></label>
+                                    <input type="radio" name="rating" @onclick="()=>SetRating(1)" id="rating-5" value="5" checked="@(LastRating==1)" />
+                                    <label for="rating-5" class="icon-material-outline-star"></label>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <!-- Leave Rating / End-->
+
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="input-with-icon-left" title="Isi Nama Anda" data-tippy-placement="bottom">
+                                        <i class="icon-material-outline-account-circle"></i>
+                                        <input type="text" class="input-text with-border" @bind="ReviewItem.Fullname" name="name" id="name" placeholder="Nama Lengkap" />
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="input-with-icon-left">
+                                        <i class="icon-material-outline-rate-review"></i>
+                                        <input type="text" class="input-text with-border" @bind="ReviewItem.Title" name="reviewtitle" id="reviewtitle" placeholder="Judul" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <textarea class="with-border" @bind="ReviewItem.Message" placeholder="Review" name="message" id="message" cols="7" required></textarea>
+
+                        </form>
+
+                        <!-- Button -->
+                        <button @onclick="Submit" class="button margin-top-35 full-width button-sliding-icon ripple-effect" type="button" form="leave-company-review-form">Kirim Review <i class="icon-material-outline-arrow-right-alt"></i></button>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    int LastRating = 1;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    UserProfile Freelancer = new();
+    UserProfile Employer = new();
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+
+
+        }
+
+
+    }
+   
+    async Task SetRating(int Rating)
+    {
+
+        LastRating = Rating;
+    }
+
+    [Parameter]
+    public ReviewCompany ReviewItem { get; set; } = new();
+
+    public Company DataCompany { get; set; } = new();
+
+    public void SetReview(Company company, ReviewCompany NewItem)
+    {
+        ReviewItem = NewItem;
+        DataCompany = company;
+        StateHasChanged();
+    }
+
+    async Task Submit()
+    {
+        ReviewItem.Rating = LastRating;
+        ReviewItem.CreatedDate = DateHelper.GetLocalTimeNow();
+        bool res = false;
+        if (ReviewItem.Id <= 0)
+        {
+            res = ReviewSvc.InsertData(ReviewItem);
+        }
+        else
+        {
+            res = ReviewSvc.UpdateData(ReviewItem);
+        }
+        if (res)
+        {
+            await Toast.ShowInfo("Review berhasil diupdate.");
+            await IJS.InvokeVoidAsync("CloseModal", "reviewcompany-small-dialog");
+            AppState.RefreshReviewCompany(UserName);
+        }
+        else
+        {
+            await Toast.ShowInfo("Review gagal diupdate.");
+
+        }
+    }
+}

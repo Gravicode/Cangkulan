@@ -17,6 +17,15 @@ namespace Cangkulan.Data
             if (db == null) db = new CangkulanDB();
 
         }
+        public List<Company> GetSimilar(Company item, int Limit = 2)
+        {
+            if (item == null) return new List<Company>();
+            var data = from x in db.Companys
+                       where x.Category == item.Category && x.Id != item.Id
+                       orderby x.CreatedDate descending
+                       select x;
+            return data.Take(Limit).ToList();
+        }
         public bool DeleteData(object Id)
         {
             var selData = (db.Companys.Where(x => x.Id == (long)Id).FirstOrDefault());
@@ -43,7 +52,7 @@ namespace Cangkulan.Data
         }
         public Company GetDataById(object Id)
         {
-            return db.Companys.Where(x => x.Id == (long)Id).FirstOrDefault();
+            return db.Companys.Include(c=>c.User).Include(c=>c.Reviews).Include(c=>c.Jobs).Where(x => x.Id == (long)Id).FirstOrDefault();
         }
 
 

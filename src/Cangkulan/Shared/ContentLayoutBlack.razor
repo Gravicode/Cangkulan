@@ -64,6 +64,7 @@
 </div>
 <!-- Wrapper / End -->
 <ApplyJobPopup @ref="JobPopup"></ApplyJobPopup>
+<ReviewCompanyPopupPage @ref="ReviewCompanyPopup"></ReviewCompanyPopupPage>
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"
                 SuccessClass="success-toast-override"
@@ -74,6 +75,7 @@
     [Parameter]
     public bool IsTransparent { get; set; } = true;
     ApplyJobPopup JobPopup;
+    ReviewCompanyPopupPage ReviewCompanyPopup;
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     async Task Keluar()
@@ -102,7 +104,13 @@
     public void SetJobItem(long userid, long jobid)
     {
         JobPopup?.Refresh(new JobCandidate() { CandidateId = userid, JobId = jobid });
-       
+
+    }
+
+    public void SetReviewCompany(Company Item, ReviewCompany NewReview)
+    {
+        ReviewCompanyPopup?.SetReview(Item,NewReview);
+
     }
 
     protected override void OnAfterRender(bool firstRender)

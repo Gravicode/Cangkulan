@@ -17,6 +17,34 @@ namespace Cangkulan.Data
             if (db == null) db = new CangkulanDB();
 
         }
+        public bool UnBookmark(long UserId, long CompanyId)
+        {
+            var item = db.BookmarkedCompanys.Where(x => x.UserId == UserId && x.CompanyId == CompanyId).FirstOrDefault();
+            if (item != null)
+            {
+                db.BookmarkedCompanys.Remove(item);
+            }
+            else
+            {
+                return false;
+            }
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        }
+        public bool Bookmark(long UserId, long CompanyId)
+        {
+            var item = db.BookmarkedCompanys.Where(x => x.UserId == UserId && x.CompanyId == CompanyId).FirstOrDefault();
+            if (item != null)
+            {
+                return false;
+            }
+            item = new BookmarkedCompany() { CompanyId = CompanyId, UserId = UserId };
+            db.BookmarkedCompanys.Add(item);
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        }
         public bool DeleteData(object Id)
         {
             var selData = (db.BookmarkedCompanys.Where(x => x.Id == (long)Id).FirstOrDefault());

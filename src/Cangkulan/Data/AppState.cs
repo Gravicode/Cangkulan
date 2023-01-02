@@ -15,8 +15,9 @@ namespace Cangkulan.Data
 		public event Action<string> OnBookmarkedJobChange;
 		public event Action<string> OnBookmarkedFreelancerChange;
 		public event Action<string> OnReviewChange;
+        public event Action<string> OnReviewCompanyChange;
 
-		public void RefreshProfile(string username)
+        public void RefreshProfile(string username)
 		{
 			ProfileStateChanged(username);
 		}
@@ -60,8 +61,12 @@ namespace Cangkulan.Data
 		{
 			ReviewStateChanged(username);
 		}
+        public void RefreshReviewCompany(string username)
+        {
+            ReviewCompanyStateChanged(username);
+        }
 
-		private void ProfileStateChanged(string username) => OnProfileChange?.Invoke(username);
+        private void ProfileStateChanged(string username) => OnProfileChange?.Invoke(username);
 		private void CompanyStateChanged(string username) => OnCompanyChange?.Invoke(username);
 		private void LocationStateChanged(string username, GeoLocation loc) => OnLocationChange?.Invoke(username, loc);
 		private void JobStateChanged(string username) => OnJobChange?.Invoke(username);
@@ -71,5 +76,6 @@ namespace Cangkulan.Data
 		private void BookmarkedJobStateChanged(string username) => OnBookmarkedJobChange?.Invoke(username);
 		private void BookmarkedFreelancerStateChanged(string username) => OnBookmarkedFreelancerChange?.Invoke(username);
 		private void ReviewStateChanged(string username) => OnReviewChange?.Invoke(username);
-	}
+        private void ReviewCompanyStateChanged(string username) => OnReviewCompanyChange?.Invoke(username);
+    }
 }

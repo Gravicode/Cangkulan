@@ -182,6 +182,7 @@
         bool hasil=false;
         if (TaskObject.Id == 0)
         {
+            TaskObject.CreatedDate = DateHelper.GetLocalTimeNow();
             TaskObject.UserId = SelUser.Id;
             hasil = service.InsertData(TaskObject);
             if (!hasil)

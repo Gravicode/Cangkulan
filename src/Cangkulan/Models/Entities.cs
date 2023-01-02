@@ -259,6 +259,9 @@ namespace Cangkulan.Models
         [InverseProperty(nameof(BookmarkedProject.User))]
         public ICollection<BookmarkedProject> BookmarkedProjects { get; set; }
 
+        [InverseProperty(nameof(BookmarkedCompany.User))]
+        public ICollection<BookmarkedCompany> BookmarkedCompanys { get; set; }
+
         [InverseProperty(nameof(Review.FreelancerUser))]
         public ICollection<Review> ReviewByEmployers { get; set; }
 
@@ -434,10 +437,14 @@ namespace Cangkulan.Models
         [Required]
         public string? LogoUrl { set; get; }
         public bool IsVerified { set; get; }
+        public DateTime? CreatedDate { get; set; }
 
         public ICollection<BookmarkedCompany> BookmarkedCompanies { get; set; }
+        [InverseProperty(nameof(Job.Company))]
         public ICollection<Job> Jobs { get; set; }
         public ICollection<Project> Projects { get; set; }
+        [InverseProperty(nameof(ReviewCompany.Company))]
+        public ICollection<ReviewCompany> Reviews { get; set; }
     }
 
     [Table("bookmarked_company")]
