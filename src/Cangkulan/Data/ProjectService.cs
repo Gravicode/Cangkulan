@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Cangkulan.Helpers;
 namespace Cangkulan.Data
 {
     public class ProjectService : ICrud<Project>
@@ -40,7 +40,83 @@ namespace Cangkulan.Data
                        select x;
             return data.ToList();
         }
-		public List<Project> GetAllData(UserProfile user)
+        public List<Project> FindByKeyword(string Keyword,string Category, string Location, double RateMin, double RateMax, string[] Skills, string SortBy)
+        {
+            var data = db.Projects.AsQueryable();
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(x => x.ProjectName.Contains(Keyword) || x.ProjectDesc.Contains(Keyword));
+            }
+            if(!string.IsNullOrEmpty(Category) && Category != "All")
+            {
+                data =data.Where(x => x.Category == Category);
+            }
+            if (!string.IsNullOrEmpty(Location))
+            {
+                data =data.Where(x => x.Location.Contains(Location));
+            }
+            if (RateMin > 0 && RateMax > 0 && RateMax > RateMin)
+            {
+                data = data.Where(x => (x.BudgetMin > RateMin && x.BudgetMin < RateMax) || ((x.BudgetMax > RateMin && x.BudgetMax < RateMax)));
+            }
+            switch (SortBy)
+            {
+                case "Newest":
+                    data = data.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "Oldest":
+                    data = data.OrderBy(x => x.CreatedDate);
+                    break;
+                default:
+                case "Relevance":
+                    break;
+            }
+            if (Skills.Length > 0)
+            {
+                data = data.ToList().Where(x => x.Skills.ContainsAny(Skills)).AsQueryable();
+            }
+
+            return data.ToList();
+        }
+        public List<Project> FindByKeyword(string Keyword, string Category, string Location, double ProjectPrice, string[] Skills, string SortBy)
+        {
+            var data = db.Projects.AsQueryable();
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(x => x.ProjectName.Contains(Keyword) || x.ProjectDesc.Contains(Keyword));
+            }
+            if (!string.IsNullOrEmpty(Category) && Category != "All")
+            {
+                data = data.Where(x => x.Category == Category);
+            }
+            if (!string.IsNullOrEmpty(Location))
+            {
+                data = data.Where(x => x.Location.Contains(Location));
+            }
+            if (ProjectPrice > 0)
+            {
+                data = data.Where(x => ProjectPrice >  x.BudgetMin && ProjectPrice < x.BudgetMax);
+            }
+            switch (SortBy)
+            {
+                case "Newest":
+                    data = data.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "Oldest":
+                    data = data.OrderBy(x => x.CreatedDate);
+                    break;
+                default:
+                case "Relevance":
+                    break;
+            }
+            if (Skills.Length > 0)
+            {
+                data = data.ToList().Where(x => x.Skills.ContainsAny(Skills)).AsQueryable();
+            }
+
+            return data.ToList();
+        }
+        public List<Project> GetAllData(UserProfile user)
 		{
 			return db.Projects.Include(c=>c.ProjectBidders).Include(c => c.Employer).Where(x => x.EmployerId == user.Id).OrderBy(x => x.Id).ToList();
 		}
