@@ -17,6 +17,34 @@ namespace Cangkulan.Data
             if (db == null) db = new CangkulanDB();
 
         }
+        public bool UnBookmark(long UserId, long FreelancerId)
+        {
+            var item = db.BookmarkedFreelancers.Where(x => x.UserId == UserId && x.FreelancerId == FreelancerId).FirstOrDefault();
+            if (item != null)
+            {
+                db.BookmarkedFreelancers.Remove(item);
+            }
+            else
+            {
+                return false;
+            }
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        }
+        public bool Bookmark(long UserId, long FreelancerId)
+        {
+            var item = db.BookmarkedFreelancers.Where(x => x.UserId == UserId && x.FreelancerId == FreelancerId).FirstOrDefault();
+            if (item != null)
+            {
+                return false;
+            }
+            item = new BookmarkedFreelancer() { FreelancerId = FreelancerId, UserId = UserId, CreatedDate = DateHelper.GetLocalTimeNow() };
+            db.BookmarkedFreelancers.Add(item);
+            var res = db.SaveChanges();
+            if (res > 0) return true;
+            return false;
+        }
         public bool DeleteData(object Id)
         {
             var selData = (db.BookmarkedFreelancers.Where(x => x.Id == (long)Id).FirstOrDefault());

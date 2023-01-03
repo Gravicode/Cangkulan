@@ -1,0 +1,164 @@
+﻿@inject UserProfileService UserSvc
+@inject ToastInfoService Toast
+@inject AppState AppState
+@inject AzureBlobHelper AzureBlobHelper
+
+@inject IJSRuntime IJS
+
+<div id="offer-small-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="background-color:white;">
+
+        <!--Tabs -->
+        <div class="sign-in-form">
+
+            <ul class="popup-tabs-nav">
+                <li><a href="#tab">Kirim Penawaran</a></li>
+            </ul>
+
+            <div class="popup-tabs-container">
+
+                <!-- Tab -->
+                <div class="popup-tab-content" id="tab">
+
+                    <!-- Welcome Text -->
+                    <div class="welcome-text">
+                        <h3>Diskusikan Proyek Anda dengan @NewItem.ToName</h3>
+                    </div>
+
+                    <!-- Form -->
+                    <form >
+
+                        <div class="input-with-icon-left">
+                            <i class="icon-material-outline-account-circle"></i>
+                            <input type="text" class="input-text with-border" @bind="NewItem.Name" name="name" id="name" placeholder="Nama Anda" />
+                        </div>
+
+                        <div class="input-with-icon-left">
+                            <i class="icon-material-baseline-mail-outline"></i>
+                            <input type="text" class="input-text with-border" @bind="NewItem.FromEmail" name="emailaddress" id="emailaddress" placeholder="Email" />
+                        </div>
+
+                        <textarea name="textarea" cols="10" placeholder="Message" @bind="NewItem.Message" class="with-border"></textarea>
+
+                        <div class="uploadButton margin-top-25">
+                            <InputFile class="uploadButton-input" type="file" accept="image/*, application/pdf" id="upload-offer" OnChange="UploadFiles" />
+
+                            <label class="uploadButton-button ripple-effect" for="upload-offer">Tambah Lampiran</label>
+                            <span class="uploadButton-file-name">@(string.IsNullOrEmpty(NewItem.AttachmentUrl) ? "Tipe file: pdf, png, jpg" : "Lampiran sudah di upload.") <br> Ukuran maks.: 50 MB.</span>
+                        </div>
+
+                    </form>
+
+                    <!-- Button -->
+                    <button @onclick="Apply" class="button margin-top-35 full-width button-sliding-icon ripple-effect" type="button">Kirim Penawaran <i class="icon-material-outline-arrow-right-alt"></i></button>
+
+                </div>
+               
+
+            </div>
+        </div>
+    </div>
+    </div>
+    @code {
+        public OfferCls NewItem { get; set; } = new();
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationStateTask { get; set; }
+        string UserName;
+        UserProfile SelUser = new();
+        Job job = new();
+        bool HasLogin = false;
+        protected override async Task OnInitializedAsync()
+        {
+
+            var user = (await authenticationStateTask).User;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                HasLogin = true;
+                UserName = user.Identity.Name;
+                SelUser = UserSvc.GetItemByUsername(UserName);
+            }
+
+        }
+        async Task Login()
+        {
+            await IJS.InvokeVoidAsync("OpenUrl", "sign-in");
+            //NavMgr.NavigateTo("/sign-in");
+        }
+
+        public void Refresh(OfferCls item)
+        {
+            NewItem = item;
+            if (!string.IsNullOrEmpty(UserName))
+            {
+                NewItem.Name = SelUser.FullName;
+                NewItem.FromEmail = SelUser.Email;
+            }
+            StateHasChanged();
+        }
+
+        private async Task UploadFiles(InputFileChangeEventArgs e)
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                var ms = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                //string newName = string.Empty;
+
+                //newName = $"lampiran_{(string.IsNullOrEmpty(SelUser.Username) ? "rojul" : SelUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+                var FileUrl = Path.GetTempFileName() + Path.GetExtension(file.Name);
+                //var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+                //await AzureBlobHelper.UploadFile(newName, bytes);
+                File.WriteAllBytes(FileUrl, bytes);
+                NewItem.AttachmentUrl = FileUrl;
+
+            }
+        }
+        bool HasSent = false;
+        string ErrorMsg;
+        async Task Apply()
+        {
+            ErrorMsg = "";
+            if (HasSent)
+            {
+                await Toast.ShowInfo("Dilarang mengirim penawaran berkali-kali.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(NewItem.Name))
+            {
+                ErrorMsg += "Tolong isi nama dulu. ";
+
+            }
+
+            if (string.IsNullOrEmpty(NewItem.FromEmail))
+            {
+                ErrorMsg += "Tolong isi email dulu. ";
+
+            }
+
+            if (string.IsNullOrEmpty(NewItem.Message))
+            {
+                ErrorMsg += "Tolong isi pesan dulu. ";
+
+            }
+            if (!string.IsNullOrEmpty(ErrorMsg))
+            {
+                await Toast.ShowInfo(ErrorMsg);
+                return;
+            }
+            var res = await MailService.PostmarkSendEmail($"Penawaran dari {NewItem.Name}", NewItem.Message+$"<br/>Silakan chat dengan pemberi penawaran melalui <a href='https://cangkulan.my.id/chat/"+Uri.EscapeDataString(NewItem.FromEmail)+"'>Chat Sekarang</a>", NewItem.ToEmail,  NewItem.AttachmentUrl, true);
+            if (res)
+            {
+                HasSent = true;
+                await Toast.ShowInfo("Penawaran Anda sudah dikirimkan.");
+            }
+            else
+            {
+                await Toast.ShowInfo("Penawaran Anda gagal dikirimkan.");
+            }
+        }
+    }
+

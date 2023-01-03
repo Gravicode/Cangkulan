@@ -7,6 +7,7 @@ using Cangkulan.Models;
 using GemBox.Spreadsheet;
 using System.Drawing;
 using Cangkulan.Tools;
+using Cangkulan.Helpers;
 
 namespace Cangkulan.Data
 {
@@ -95,7 +96,7 @@ namespace Cangkulan.Data
         {
             if (Id is long FID)
             {
-                var data = from x in db.UserProfiles
+                var data = from x in db.UserProfiles.Include(c=>c.ReviewByEmployers).Include(c => c.BookmarkedCompanys).Include(c => c.ProjectBids).ThenInclude(c=>c.Project).Include(c => c.BookmarkedFreelancers).Include(c => c.BookmarkedProjects).Include(c => c.BookmarkedJobs).Include(c => c.Attachments)
                            where x.Id == FID
                            select x;
                 return data.FirstOrDefault();
@@ -269,7 +270,47 @@ namespace Cangkulan.Data
             }
             return output;
         }
+        public List<UserProfile> FindByKeyword(string Keyword, string Category, string Location, double RateHour, string[] Skills, string SortBy)
+        {
+            var data = db.UserProfiles.Include(x=>x.JobCategory).Where(x=>x.AccountType== AccountTypes.Freelancer).AsQueryable();
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(x => x.FullName.Contains(Keyword) || x.TagLine.Contains(Keyword) || x.AboutMe.Contains(Keyword));
+            }
+            if (!string.IsNullOrEmpty(Category) && Category != "All")
+            {
+                data = data.Where(x => x.JobCategory.Category == Category);
+            }
+            if (!string.IsNullOrEmpty(Location))
+            {
+                data = data.Where(x => x.Alamat.Contains(Location));
+            }
+            if (RateHour > 0)
+            {
+                data = data.Where(x =>  x.RatePerHour <= RateHour);
+            }
+            switch (SortBy)
+            {
+                case "Newest":
+                    data = data.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "Oldest":
+                    data = data.OrderBy(x => x.CreatedDate);
+                    break;
+                default:
+                case "Relevance":
+                    break;
+            }
+           
+            if (Skills.Length > 0)
+            {
+                data = data.ToList().Where(x => x.Skill.ContainsAny(Skills)).AsQueryable();
+            }
 
+            return data.ToList();
+
+
+        }
         public byte[] ExportToExcel()
         {
             // If using Professional version, put your serial key below.

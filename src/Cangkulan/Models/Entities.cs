@@ -10,6 +10,15 @@ using static OneOf.Types.TrueFalseOrNull;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class OfferCls
+    {
+        public string Name { get; set; }
+        public string FromEmail { get; set; }
+        public string ToEmail { get; set; }
+        public string ToName { get; set; }
+        public string Message { get; set; }
+        public string AttachmentUrl { get; set; }
+    }
     public class MapItem
     {
         public string Pageurl { get; set; }
@@ -247,6 +256,10 @@ namespace Cangkulan.Models
 
         public bool Verified { get; set; } = false;
 
+        [ForeignKey(nameof(JobCategory)), Column(Order = 1)]
+        public long? JobCategoryId { set; get; }
+        public JobCategory JobCategory { set; get; }
+
         [InverseProperty(nameof(MessageHeader.User))]
         public ICollection<MessageHeader> UserMessage { get; set; }
 
@@ -343,6 +356,7 @@ namespace Cangkulan.Models
         public DateTime? EndDate { set; get; }
         public string Description { set; get; }
         public string? CompanyPicUrl { set; get; }
+        public string? JobTitle { get; set; }
     }
 
     [Table("page_view")]

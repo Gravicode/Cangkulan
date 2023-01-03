@@ -64,6 +64,7 @@
 </div>
 <!-- Wrapper / End -->
 <ApplyJobPopup @ref="JobPopup"></ApplyJobPopup>
+<MakeOfferPopup @ref="MakeOfferPopup1"></MakeOfferPopup>
 <ReviewCompanyPopupPage @ref="ReviewCompanyPopup"></ReviewCompanyPopupPage>
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"
@@ -72,6 +73,7 @@
                 ErrorIconClass="fa fa-bug" />
 
 @code {
+    MakeOfferPopup MakeOfferPopup1;
     [Parameter]
     public bool IsTransparent { get; set; } = true;
     ApplyJobPopup JobPopup;
@@ -106,7 +108,11 @@
         JobPopup?.Refresh(new JobCandidate() { CandidateId = userid, JobId = jobid });
 
     }
+    public void SetOfferItem(OfferCls NewItem)
+    {
+        MakeOfferPopup1?.Refresh(NewItem);
 
+    }
     public void SetReviewCompany(Company Item, ReviewCompany NewReview)
     {
         ReviewCompanyPopup?.SetReview(Item,NewReview);

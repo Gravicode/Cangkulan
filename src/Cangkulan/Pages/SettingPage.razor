@@ -9,6 +9,7 @@
 @inject AzureBlobHelper AzureBlobHelper
 @inject UserProfileAttachmentService AttachmentSvc
 @inject UserProfileService service
+@inject JobCategoryService JobCategorySvc
 @inject IToastService toastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
@@ -109,7 +110,7 @@
 
                 <!-- Headline -->
                 <div class="headline">
-                    <h3><i class="icon-material-outline-face"></i> My Profile</h3>
+                    <h3><i class="icon-material-outline-face"></i> Profil saya</h3>
                 </div>
 
                 <div class="content">
@@ -120,18 +121,18 @@
                                     <div class="submit-field">
                                         <div class="bidding-widget">
                                             <!-- Headline -->
-                                            <span class="bidding-detail">Set your <strong>minimal hourly rate (Rp)</strong></span>
+                                            <span class="bidding-detail">Atur <strong>fee Anda per jam (Rp)</strong></span>
 
                                             <!-- Slider -->
-                                            <div class="bidding-value margin-bottom-10">$<span id="biddingVal"></span></div>
-                                            <input class="bidding-slider" type="text" @bind="DataUser.RatePerHour" data-slider-handle="custom" data-slider-currency="$" data-slider-min="5000" data-slider-max="10000000" data-slider-value="25000" data-slider-step="1000" data-slider-tooltip="hide" />
+                                            <div class="bidding-value margin-bottom-10">Rp<span>@DataUser.RatePerHour?.ToString("n0")</span></div>
+                                            <input type="range" class="form-range" @bind="DataUser.RatePerHour" min="1000" max="10000000" id="customRange1">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-xl-4">
                                     <div class="submit-field">
-                                        <h5>Skills <i class="help-icon" data-tippy-placement="right" title="Add up to 10 skills"></i></h5>
+                                        <h5>Skill Anda <i class="help-icon" data-tippy-placement="right" title="Tambah sampe 10 skill"></i></h5>
 
                                         <!-- Skills List -->
                                         <div class="keywords-container">
@@ -153,30 +154,30 @@
 
                                 <div class="col-xl-4">
                                     <div class="submit-field">
-                                        <h5>Attachments</h5>
+                                        <h5>Lampiran</h5>
 
                                         <!-- Attachments -->
                                         <div class="attachments-container margin-top-0 margin-bottom-0">
-                                            @if(Attachments!=null)
-                                                foreach(var attachment in Attachments)
+                                            @if (Attachments != null)
+                                                foreach (var attachment in Attachments)
                                                 {
                                                     <div class="attachment-box ripple-effect">
                                                         <span><input type="text" placeholder="file desc" @bind="attachment.Title" /></span>
                                                         <i>@attachment.Extension.ToUpper()</i>
-                                                        <button @onclick="()=>HapusAttachment(attachment)" class="remove-attachment" data-tippy-placement="top" title="Remove"></button>
+                                                        <button @onclick="()=>HapusAttachment(attachment)" class="remove-attachment" data-tippy-placement="top" title="Hapus"></button>
                                                     </div>
                                                 }
-                                           
-                                           
+
+
                                         </div>
                                         <div class="clearfix"></div>
 
                                         <!-- Upload Button -->
                                         <div class="uploadButton margin-top-0">
                                             <InputFile class="uploadButton-input" id="fileInput2" accept="image/*, application/pdf" multiple OnChange="UploadAttachment" hidden />
-                                           
-                                            <label @onclick="PrepareUpload2" class="uploadButton-button ripple-effect" for="upload">Upload Files</label>
-                                            <span class="uploadButton-file-name">Maximum file size: 10 MB</span>
+
+                                            <label @onclick="PrepareUpload2" class="uploadButton-button ripple-effect" for="upload">Upload Lampiran</label>
+                                            <span class="uploadButton-file-name">Ukuran file maks.: 10 MB</span>
                                         </div>
 
                                     </div>
@@ -185,17 +186,28 @@
                         </li>
                         <li>
                             <div class="row">
-                                <div class="col-xl-6">
+                                <div class="col-xl-4">
                                     <div class="submit-field">
                                         <h5>Tagline</h5>
                                         <input @bind="DataUser.TagLine" type="text" class="with-border" placeholder="iOS Expert + Node Dev">
                                     </div>
                                 </div>
+                                <div class="col-xl-4">
+                                    <div class="submit-field">
+                                        <h5>Kategori</h5>
 
-                                <div class="col-xl-6">
+                                        <select @bind="DataUser.JobCategoryId" title="Pilih Kategori Bidang" data-live-search="true">
+                                            @foreach (var cat in ListCategory)
+                                            {
+                                                <option value="@cat.Id">@cat.Category</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4">
                                     <div class="submit-field">
                                         <h5>Nationality</h5>
-                                        <select @bind="DataUser.Nationality" data-size="7" title="Select Job Type" data-live-search="true">
+                                        <select @bind="DataUser.Nationality" data-size="7" title="Pilih Negara" data-live-search="true">
                                             <option value="AR">Argentina</option>
                                             <option value="AM">Armenia</option>
                                             <option value="AW">Aruba</option>
@@ -290,7 +302,7 @@
 
                                 <div class="col-xl-12">
                                     <div class="submit-field">
-                                        <h5>Introduce Yourself</h5>
+                                        <h5>Tentang Anda</h5>
                                         <textarea @bind="DataUser.AboutMe" cols="30" rows="5" class="with-border"></textarea>
                                     </div>
                                 </div>
@@ -359,6 +371,7 @@
 
 </div>
 @code {
+    List<JobCategory> ListCategory = new();
     List<UserProfileAttachment> Attachments = new();
     List<string> MySkills = new();
     string NewSkill;
@@ -406,7 +419,7 @@
                 Attachments = DataUser.Attachments.ToList();
             }
         }
-
+        ListCategory = JobCategorySvc.GetAllData();
 
     }
 
@@ -506,7 +519,7 @@
             }
             if (ListRemoval.Count > 0)
             {
-                foreach(var removeItem in ListRemoval)
+                foreach (var removeItem in ListRemoval)
                 {
                     var del = AttachmentSvc.DeleteData(removeItem);
                 }
@@ -537,7 +550,7 @@
                 newName = $"attachment_{(string.IsNullOrEmpty(DataUser.Username) ? "rojul" : DataUser.Username)}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
                 var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
                 await AzureBlobHelper.UploadFile(newName, bytes);
-                var newItem = new UserProfileAttachment() { UserId = DataUser.Id, AttachmentType = "File", Extension = Path.GetExtension(file.Name), LinkUrl = FileUrl, Title = $"File {Attachments.Count+1}"  };
+                var newItem = new UserProfileAttachment() { UserId = DataUser.Id, AttachmentType = "File", Extension = Path.GetExtension(file.Name), LinkUrl = FileUrl, Title = $"File {Attachments.Count + 1}" };
                 Attachments.Add(newItem);
             }
         }
