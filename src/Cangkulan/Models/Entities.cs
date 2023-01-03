@@ -459,7 +459,7 @@ namespace Cangkulan.Models
         [ForeignKey(nameof(User))]
         public long UserId { set; get; }
         public UserProfile User { set; get; }
-        public string CreatedDate { set; get; }
+        public DateTime CreatedDate { set; get; }
     }
 
     [Table("bookmarked_freelancer")]

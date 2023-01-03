@@ -47,7 +47,7 @@ namespace Cangkulan.Data
             {
                 return false;
             }
-            item = new BookmarkedJob() { JobId = JobId, UserId = UserId };
+            item = new BookmarkedJob() { JobId = JobId, UserId = UserId, CreatedDate = DateHelper.GetLocalTimeNow() };
             db.BookmarkedJobs.Add(item);
             var res = db.SaveChanges();
             if (res > 0) return true;

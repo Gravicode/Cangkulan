@@ -10,7 +10,7 @@
 @inject BookmarkedCompanyService BookmarkedCompanySvc
 @inject NavigationManager NavMgr
 @inject ToastInfoService Toast
-@inject AppState AppState 
+@inject AppState AppState
 <!-- Titlebar
 ================================================== -->
 <div class="single-page-header" data-background-image="images/single-company.jpg">
@@ -74,17 +74,17 @@
                     @foreach (var item in DataCompany.Jobs)
                     {
                         <!-- Company Listing -->
-                        <a href="@($"/detail-job/{item.Id}")" class="Company-listing">
+                        <a href="@($"/detail-job/{item.Id}")" class="job-listing">
 
                             <!-- Company Listing Details -->
-                            <div class="Company-listing-details">
+                            <div class="job-listing-details">
 
                                 <!-- Details -->
-                                <div class="Company-listing-description">
-                                    <h3 class="Company-listing-title">@item.JobTitle</h3>
+                                <div class="job-listing-description">
+                                    <h3 class="job-listing-title">@item.JobTitle</h3>
 
                                     <!-- Company Listing Footer -->
-                                    <div class="Company-listing-footer">
+                                    <div class="job-listing-footer">
                                         <ul>
                                             <li><i class="icon-material-outline-location-on"></i> @item.Location</li>
                                             <li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
@@ -96,7 +96,7 @@
                             </div>
 
                             <!-- Bookmark -->
-                            <span @onclick="()=>ToggleBookmarkJob(item.Id)" @onclick:preventDefault @onclick:stopPropagation class="bookmark-icon @(BookMarked ? "bookmarked" : "")"></span>
+                            <span @onclick="()=>ToggleBookmarkJob(item.Id)" @onclick:preventDefault class="bookmark-icon @((JobBookmark.ContainsKey(item.Id) && JobBookmark[item.Id])  ? "bookmarked" : "")"></span>
                         </a>
                     }
                 </div>
@@ -110,27 +110,27 @@
                 </div>
                 <ul class="boxed-list-ul">
                     @foreach (var item in DataCompany.Reviews)
-                        {
-                    <li>
-                        <div class="boxed-list-item">
-                            <!-- Content -->
-                            <div class="item-content">
-                                <h4>@item.Title <span>@item.Fullname</span></h4>
-                                <div class="item-details margin-top-10">
-                                    <div class="star-rating" data-rating="@item.Rating"></div>
-                                    <div class="detail-item"><i class="icon-material-outline-date-range"></i> @item.CreatedDate.ToString("MMMM yyyy")</div>
-                                </div>
-                                <div class="item-description">
-                                    <p>@item.Message</p>
+                    {
+                        <li>
+                            <div class="boxed-list-item">
+                                <!-- Content -->
+                                <div class="item-content">
+                                    <h4>@item.Title <span>@item.Fullname</span></h4>
+                                    <div class="item-details margin-top-10">
+                                        <div class="star-rating" data-rating="@item.Rating"></div>
+                                        <div class="detail-item"><i class="icon-material-outline-date-range"></i> @item.CreatedDate.ToString("MMMM yyyy")</div>
+                                    </div>
+                                    <div class="item-description">
+                                        <p>@item.Message</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
-                        }
+                        </li>
+                    }
                 </ul>
 
                 <div class="centered-button margin-top-35">
-                    <a href="#" @onclick:preventDefault @onclick="AddReview" class="popup-with-zoom-anim button button-sliding-icon">Leave a Review <i class="icon-material-outline-arrow-right-alt"></i></a>
+                    <a href="#" @onclick:preventDefault @onclick="AddReview" class="popup-with-zoom-anim button button-sliding-icon">Kasih Review <i class="icon-material-outline-arrow-right-alt"></i></a>
                 </div>
 
             </div>
@@ -146,7 +146,7 @@
                 <!-- Location -->
                 <div class="sidebar-widget">
                     <h3>Location</h3>
-                    <div id="single-Company-map-container">
+                    <div id="single-job-map-container">
                         <div id="singleListingMap" data-latitude="@DataCompany.Latitude" data-longitude="@DataCompany.Longitude" data-map-icon="im im-icon-Hamburger"></div>
                         <a href="#" id="streetView">Street View</a>
                     </div>
@@ -286,7 +286,7 @@
     }
     async Task AddReview()
     {
-        var NewReview = new ReviewCompany() { CreatedDate = DateHelper.GetLocalTimeNow(), CompanyId = DataCompany.Id };
+        var NewReview = new ReviewCompany() { CreatedDate = DateHelper.GetLocalTimeNow(), CompanyId = DataCompany.Id, Fullname = !string.IsNullOrEmpty(UserName) ? SelUser.FullName : "" };
         Layout.SetReviewCompany(DataCompany, NewReview);
         await IJS.InvokeVoidAsync("ShowModal", "reviewcompany-small-dialog");
 
@@ -318,6 +318,7 @@
             SimilarCompanys = CompanySvc.GetSimilar(DataCompany);
             if (!string.IsNullOrEmpty(UserName))
             {
+                JobBookmark.Clear();
                 BookMarked = SelUser.BookmarkedCompanys.Any(x => x.CompanyId == CompanyId && x.UserId == SelUser.Id);
                 foreach (var job in DataCompany.Jobs)
                 {

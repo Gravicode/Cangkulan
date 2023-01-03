@@ -39,7 +39,7 @@ namespace Cangkulan.Data
             {
                 return false;
             }
-            item = new BookmarkedCompany() { CompanyId = CompanyId, UserId = UserId };
+            item = new BookmarkedCompany() { CompanyId = CompanyId, UserId = UserId, CreatedDate=DateHelper.GetLocalTimeNow() };
             db.BookmarkedCompanys.Add(item);
             var res = db.SaveChanges();
             if (res > 0) return true;
