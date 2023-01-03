@@ -50,7 +50,7 @@
                         <div class="company-inner-alignment">
                             <span class="company-logo"><img src="@(string.IsNullOrEmpty(item.LogoUrl)?"images/company-logo-placeholder.png":item.LogoUrl)" alt=""></span>
                             <h4>@item.FullName</h4>
-                            <div class="star-rating" data-rating="@($"{item.Rating}.0")"></div>
+                            <RatingPicker Rating="item.Rating" IsEditable="false"></RatingPicker>
                         </div>
                     </a>
                 </Virtualize>

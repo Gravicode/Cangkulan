@@ -107,7 +107,7 @@
                             <div class="note-footer">
                                 <span class="note-priority high">@item.Priority</span>
                                 <div class="note-buttons">
-                                    <a href="#" @onclick:preventDefault @onclick="()=>SelectNote(item)" title="Edit" data-tippy-placement="top"><i class="icon-feather-edit"></i></a>
+                                    <a href="#" @onclick:preventDefault @onclick="()=>SelectNote(item)" title="Edit" ><i class="icon-feather-edit"></i></a>
                                     <a href="#" @onclick:preventDefault @onclick="()=>RemoveNote(item)" title="Remove" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
                                 </div>
                             </div>
@@ -116,7 +116,7 @@
                     </Virtualize>
                 </div>
                 <div class="add-note-button">
-                    <a href="#" @onclick:preventDefault @onclick="NewNote" class=" popup-with-zoom-anim button full-width button-sliding-icon">Add Note <i class="icon-material-outline-arrow-right-alt"></i></a>
+                    <a href="#" @onclick:preventDefault @onclick="NewNote" class="button full-width button-sliding-icon">Add Note <i class="icon-material-outline-arrow-right-alt"></i></a>
                 </div>
             </div>
             <!-- Dashboard Box / End -->

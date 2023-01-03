@@ -23,7 +23,7 @@
                         <div class="header-details">
                             <h3>@DataCompany.FullName <span>@DataCompany.Category</span></h3>
                             <ul>
-                                <li><div class="star-rating" data-rating="@DataCompany.Rating"></div></li>
+                                <li><RatingPicker Rating="DataCompany.Rating" IsEditable="false"></RatingPicker></li>
                                 <li><img class="flag" src="@(string.IsNullOrEmpty(DataCompany.User.Nationality)?"images/flags/id.svg":$"images/flags/{DataCompany.User.Nationality}.svg")" alt=""> @DataCompany.User.Nationality</li>
                                 <li>
                                     @if (DataCompany.IsVerified)
@@ -117,7 +117,7 @@
                                 <div class="item-content">
                                     <h4>@item.Title <span>@item.Fullname</span></h4>
                                     <div class="item-details margin-top-10">
-                                        <div class="star-rating" data-rating="@item.Rating"></div>
+                                        <RatingPicker Rating="item.Rating" IsEditable="false"></RatingPicker>
                                         <div class="detail-item"><i class="icon-material-outline-date-range"></i> @item.CreatedDate.ToString("MMMM yyyy")</div>
                                     </div>
                                     <div class="item-description">
@@ -157,7 +157,8 @@
                     <h3>Social Profiles</h3>
                     <div class="freelancer-socials margin-top-25">
                         <ul>
-                            <li><a href="@($"facebook.com/{DataCompany.FBLink}")" title="Dribbble" data-tippy-placement="top"><i class="icon-brand-dribbble"></i></a></li>
+                            <li><a href="@($"facebook.com/{DataCompany.FBLink}")" title="Dribbble" data-
+                                ="top"><i class="icon-brand-dribbble"></i></a></li>
                             <li><a href="@($"twitter.com/{DataCompany.TwitterLink}")" title="Twitter" data-tippy-placement="top"><i class="icon-brand-twitter"></i></a></li>
                             <li><a href="@($"github.com/{DataCompany.GithubLink}")" title="GitHub" data-tippy-placement="top"><i class="icon-brand-github"></i></a></li>
 
