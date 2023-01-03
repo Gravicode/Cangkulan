@@ -1,7 +1,9 @@
 ﻿@page "/find-job-map"
+
 @layout ContentLayout
 @inject IJSRuntime IJS
 @using System.Globalization
+@using Microsoft.AspNetCore.WebUtilities;
 @inject NavigationManager NavMgr
 @inject ToastInfoService Toast
 @inject JobService JobSvc
@@ -291,6 +293,29 @@
         if (MapItems == null) MapItems = new();
         ListCategory = CategorySvc.GetAllData();
         ListCompany = CompanySvc.GetAllData();
+        //check query string
+        var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var resultKeyword))
+        {
+            if (!string.IsNullOrEmpty(resultKeyword))
+            {
+                Keyword = resultKeyword;
+            }
+        }
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("l", out var resultLocation))
+        {
+            if (!string.IsNullOrEmpty(resultLocation))
+            {
+                SelLocation = resultLocation;
+            }
+        }
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("c", out var resultCategory))
+        {
+            if (!string.IsNullOrEmpty(resultCategory))
+            {
+                SelCategory = resultCategory;
+            }
+        }
         Search();
     }
     CultureInfo ci = new CultureInfo("EN-us");

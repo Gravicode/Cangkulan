@@ -21,7 +21,9 @@
 							<h5>About the Employer</h5>
 							<ul>
 								<li><a href="@($"/company-detail/{DataJob.CompanyId}")"><i class="icon-material-outline-business"></i> @DataJob.Employer.FullName</a></li>
-								<li><div class="star-rating" data-rating="@DataJob.Employer.Rating"></div></li>
+								<li>
+									<RatingPicker Rating="@DataJob.Employer.Rating"></RatingPicker>
+								</li>
 								<li><img class="flag" src="@(string.IsNullOrEmpty(DataJob.Employer.Nationality)?"images/flags/id.svg":$"images/flags/{DataJob.Employer.Nationality}.svg")" alt=""> @DataJob.Location</li>
 								<li>@if (DataJob.Company.IsVerified)
 									{

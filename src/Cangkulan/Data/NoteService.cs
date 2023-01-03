@@ -37,6 +37,10 @@ namespace Cangkulan.Data
         {
             return db.Notes.OrderBy(x => x.Id).ToList();
         }
+        public List<Note> GetAllData(long UserId)
+        {
+            return db.Notes.Where(x=>x.UserId == UserId).OrderBy(x => x.Id).ToList();
+        }
 
         public Note GetDataById(object Id)
         {

@@ -6,6 +6,7 @@
 @inject ProjectBidderService ProjectBidderSvc
 @inject UserProfileService	UserSvc
 @inject BookmarkedProjectService BookmarkedProjectSvc
+@inject NotificationService NotificationSvc
 @inject NavigationManager NavMgr
 @inject ToastInfoService Toast
 <!-- Titlebar
@@ -22,7 +23,9 @@
 							<h5>About the Employer</h5>
 							<ul>
 								<li><a href="@($"/company-detail/{DataProject.CompanyId}")"><i class="icon-material-outline-business"></i> @DataProject.Employer.FullName</a></li>
-								<li><div class="star-rating" data-rating="@DataProject.Employer.Rating"></div></li>
+								<li>
+									<RatingPicker Rating="@DataProject.Employer.Rating"></RatingPicker>
+								</li>
 								<li><img class="flag" src="@(string.IsNullOrEmpty(DataProject.Employer.Nationality)?"images/flags/id.svg":$"images/flags/{DataProject.Employer.Nationality}.svg")" alt=""> @DataProject.Location</li>
 								<li>
 									@if (DataProject.Company.IsVerified)
@@ -113,7 +116,7 @@
 										<!-- Name -->
 										<div class="freelancer-name">
 											<h4><a href="@($"/freelance-detail/{item.UserBidderId}")">@item.UserBidder.FullName <img class="flag" src="@(string.IsNullOrEmpty(item.UserBidder.Nationality)?"images/flags/id.svg":$"images/flags/{item.UserBidder.Nationality}.svg")" alt="" title="@item.UserBidder.Nationality" data-tippy-placement="top"></a></h4>
-											<div class="star-rating" data-rating="@item.UserBidder.Rating"></div>
+											<RatingPicker Rating="@item.UserBidder.Rating" IsEditable="false"></RatingPicker>
 										</div>
 									</div>
 
@@ -323,6 +326,8 @@
 			var res = ProjectBidderSvc.InsertData(NewBid);
 			if (res)
 			{
+				var notif = new Notification() { Action = "Apply Proyek", Message = $"{SelUser.FullName} kirim penawaran untuk {DataProject.ProjectName}", CreatedDate = DateHelper.GetLocalTimeNow(), IsRead = false, LinkDesc = "", LinkUrl = "#", UserId = DataProject.EmployerId };
+				res = NotificationSvc.InsertData(notif);
 				HasBid = true;
 				await Toast.ShowInfo("Penawaran sudah terkirim.");
 			}

@@ -40,6 +40,7 @@
     <None Include="wwwroot\vendor\icons\.github\ISSUE_TEMPLATE.md" />
   </ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="PSC.Blazor.Components.BrowserDetect" Version="1.0.6" />
 		<PackageReference Include="SkiaSharp" Version="2.88.3" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.4.0" />

@@ -10,6 +10,12 @@ using static OneOf.Types.TrueFalseOrNull;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class PageViewMonth
+    {
+        public string Month { get; set; }
+        public int Hit { get; set; }
+
+    }
     public class Inbox
     {
         public UserProfile User { get; set; }
@@ -306,7 +312,10 @@ namespace Cangkulan.Models
         public ICollection<Project> ProjectList { get; set; }
 
         [InverseProperty(nameof(ProjectBidder.UserBidder))]
-        public ICollection<ProjectBidder> ProjectBids { get; set; }
+        public ICollection<ProjectBidder> ProjectBids { get; set; }  
+        
+        //[InverseProperty(nameof(JobCandidate.CandidateId))]
+        public ICollection<JobCandidate> AppliedJobs { get; set; }
 
       
     }
@@ -383,7 +392,7 @@ namespace Cangkulan.Models
         public string PageName { set; get; }
         public string PageUrl { set; get; }
         [ForeignKey("UserProfile")]
-        public long UserId { set; get; }
+        public long? UserId { set; get; }
         public UserProfile User { set; get; }
         public string Agent { set; get; }
         public DateTime HitDate { set; get; }

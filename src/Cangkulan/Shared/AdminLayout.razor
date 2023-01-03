@@ -82,7 +82,7 @@
     <CompanyDetail @ref="detail" TaskObject=@CompanyItem DataChanged="@CompanyDataChanged">
         <CustomHeader>@CompanyDetailHeader</CustomHeader>
     </CompanyDetail>
-    <JobPopupPage></JobPopupPage>
+    <NotePopupPage @ref="NotePopup"></NotePopupPage>
 
     <ReviewPopupPage @ref="ReviewPopup"></ReviewPopupPage>
    
@@ -100,7 +100,9 @@
                 SuccessIconClass="fa fa-thumbs-up"
                 ErrorIconClass="fa fa-bug" />
 <AuthControl></AuthControl>
+<PageCounter></PageCounter>
 @code {
+    NotePopupPage NotePopup;
     ReviewPopupPage ReviewPopup;
     EditBidPopupPage EditBidPopup;
     BidAccPopupPage BidAcc;
@@ -171,6 +173,11 @@
     public void SetReview(Review item)
     {
         ReviewPopup?.SetReview(item);
+   
+    } 
+    public void SetNote(Note item)
+    {
+        NotePopup?.SetNote(item);
    
     }
     public void EditCompany(Company item)

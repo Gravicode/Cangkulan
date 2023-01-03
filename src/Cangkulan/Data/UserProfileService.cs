@@ -53,10 +53,16 @@ namespace Cangkulan.Data
             var selItem = db.UserProfiles.Include(c=>c.UserMessage).Include(c => c.ProjectList).Include(c => c.ProjectBids).Include(c => c.VacancyList).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
             return selItem;
         }
+        public UserProfile GetItemByUsernameLight(string UName)
+        {
+            if (string.IsNullOrEmpty(UName)) return null;
+            var selItem = db.UserProfiles.FirstOrDefault();
+            return selItem;
+        }
         public UserProfile GetItemByUsername(string UName)
         {
             if (string.IsNullOrEmpty(UName)) return null;
-            var selItem = db.UserProfiles.Include(c=>c.BookmarkedCompanys).Include(c=>c.ProjectBids).Include(c => c.BookmarkedFreelancers).Include(c => c.BookmarkedProjects).Include(c => c.BookmarkedJobs).Include(c=>c.Attachments).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
+            var selItem = db.UserProfiles.Include(c=>c.AppliedJobs).Include(c=>c.BookmarkedCompanys).Include(c=>c.ProjectBids).ThenInclude(c=>c.Project).Include(c => c.BookmarkedFreelancers).Include(c => c.BookmarkedProjects).Include(c => c.BookmarkedJobs).Include(c=>c.Attachments).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
             return selItem;
         }
         public UserProfile GetItemByEmail(string Email)

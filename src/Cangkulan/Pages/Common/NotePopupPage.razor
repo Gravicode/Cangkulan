@@ -1,0 +1,104 @@
+﻿@inject UserProfileService UserSvc
+@inject NoteService NoteSvc
+@inject ToastInfoService Toast
+@inject IJSRuntime IJS
+@inject AppState AppState
+<!-- Apply for a job popup
+================================================== -->
+<div id="note-small-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="background-color:white;">
+        <!--Tabs -->
+        <div class="sign-in-form">
+
+            <ul class="popup-tabs-nav">
+                <li><a href="#tab">Tambah Catatan</a></li>
+            </ul>
+
+            <div class="popup-tabs-container">
+
+                <!-- Tab -->
+                <div class="popup-tab-content" id="tab">
+
+                    <!-- Welcome Text -->
+                    <div class="welcome-text">
+                        <h3>Jangan Lupa 😎</h3>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="add-note">
+
+                        <select @bind="NoteItem.Priority" class="with-border default margin-bottom-20" data-size="7" title="Priority">
+                            <option value="@NotePriority.Low">Low Priority</option>
+                            <option value="@NotePriority.Med">Medium Priority</option>
+                            <option value="@NotePriority.High">High Priority</option>
+                        </select>
+
+                        <textarea @bind="NoteItem.Message" name="textarea" cols="10" placeholder="Note" class="with-border"></textarea>
+
+                    </form>
+
+                    <!-- Button -->
+                    <button class="button full-width button-sliding-icon ripple-effect" type="button" @onclick="Submit" form="add-note">Simpan Note <i class="icon-material-outline-arrow-right-alt"></i></button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Apply for a job popup / End -->
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    public UserProfile SelUser { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = UserSvc.GetItemByUsernameLight(UserName);
+
+        }
+
+
+    }
+    [Parameter]
+    public Note NoteItem { get; set; } = new();
+
+    public void SetNote(Note NewItem)
+    {
+        NoteItem = NewItem;
+       
+    
+        StateHasChanged();
+    }
+
+    async Task Submit()
+    {
+
+        bool res = false;
+        if (NoteItem.Id <= 0)
+        {
+            res = NoteSvc.InsertData(NoteItem);
+        }
+        else
+        {
+            res = NoteSvc.UpdateData(NoteItem);
+        }
+        if (res)
+        {
+            await Toast.ShowInfo("Note berhasil diupdate.");
+            await IJS.InvokeVoidAsync("CloseModal", "note-small-dialog");
+            AppState.RefreshNote(UserName);
+        }
+        else
+        {
+            await Toast.ShowInfo("Note gagal diupdate.");
+
+        }
+    }
+}

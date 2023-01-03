@@ -1,4 +1,5 @@
 ﻿@page "/find-project"
+@using Microsoft.AspNetCore.WebUtilities;
 @layout MainLayout
 @inject IJSRuntime IJS
 
@@ -260,6 +261,22 @@
         }
         ListCategory = CategorySvc.GetAllData();
         ListCompany = CompanySvc.GetAllData();
+        //check query string
+        var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var resultKeyword))
+        {
+            if (!string.IsNullOrEmpty(resultKeyword))
+            {
+                Keyword = resultKeyword;
+            }
+        }
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("l", out var resultLocation))
+        {
+            if (!string.IsNullOrEmpty(resultLocation))
+            {
+                SelLocation = resultLocation;
+            }
+        }
         Search();
     }
 

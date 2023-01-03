@@ -1,4 +1,6 @@
 ﻿@page "/find-job"
+
+@using Microsoft.AspNetCore.WebUtilities;
 @layout MainLayout
 @inject IJSRuntime IJS
 
@@ -9,303 +11,327 @@
 @inject CompanyService CompanySvc
 @inject JobCategoryService CategorySvc
 @inject BookmarkedJobService BookmarkedJobSvc
-    <!-- Spacer -->
-    <div class="margin-top-90"></div>
-    <!-- Spacer / End-->
-    <!-- Page Content
-    ================================================== -->
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-3 col-lg-4">
-                <div class="sidebar-container">
+<!-- Spacer -->
+<div class="margin-top-90"></div>
+<!-- Spacer / End-->
+<!-- Page Content
+================================================== -->
+<div class="container">
+    <div class="row">
+        <div class="col-xl-3 col-lg-4">
+            <div class="sidebar-container">
 
-                    <!-- Location -->
-                    <div class="sidebar-widget">
-                        <h3>Location</h3>
-                        <div class="input-with-icon">
-                            <div id="autocomplete-container">
-                                <input id="autocomplete-input" @bind="SelLocation" type="text" placeholder="Location">
-                            </div>
-                            <i class="icon-material-outline-location-on"></i>
+                <!-- Location -->
+                <div class="sidebar-widget">
+                    <h3>Location</h3>
+                    <div class="input-with-icon">
+                        <div id="autocomplete-container">
+                            <input id="autocomplete-input" @bind="SelLocation" type="text" placeholder="Location">
                         </div>
+                        <i class="icon-material-outline-location-on"></i>
                     </div>
+                </div>
 
 
-                    <!-- Keywords -->
-                    <div class="sidebar-widget">
-                        <h3>Keywords</h3>
-                        <div class="keywords-container">
-                            <div class="keyword-input-container">
-                                <input type="text" class="keyword-input" @bind="Keyword" placeholder="cth. developer" />
-                                <button @onclick:preventDefault @onclick="Search" class="keyword-input-button ripple-effect"><i class="icon-material-outline-search"></i></button>
-                            </div>
-                            <div style="display:none;" class="keywords-list"><!-- keywords go here --></div>
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>
-
-                    <!-- Category -->
-                    <div class="sidebar-widget">
-                        <h3>Category</h3>
-                        <select @bind="SelCategory" title="All Categories">
-                            <option value="All">All</option>
-                            @foreach (var cat in ListCategory)
-                            {
-                                <option value="@cat.Category">@cat.Category</option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Job Types -->
-                    <div class="sidebar-widget">
-                        <h3>Job Type</h3>
-
-                        <div class="switches-list">
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" @bind="JobFreelance"><span class="switch-button"></span> Freelance</label>
-                            </div>
-
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" @bind="JobFullTime"><span class="switch-button"></span> Full Time</label>
-                            </div>
-
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" @bind="JobPartTime"><span class="switch-button"></span> Part Time</label>
-                            </div>
-
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" @bind="JobInternship"><span class="switch-button"></span> Internship</label>
-                            </div>
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" @bind="JobTemporary"><span class="switch-button"></span> Temporary</label>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Salary -->
-                    <div class="sidebar-widget">
-                        <h3>Gaji (0 untuk semua)</h3>
-                        <div class="margin-top-55"></div>
-                        <div class="input-with-icon">
-                            <div id="autocomplete-container">
-                                <input @bind="Gaji" type="number" placeholder="0.0">
-                            </div>
-                            <i class="icon-material-outline-money"></i>
-                        </div>
-                        <!-- Range Slider -->
-                        <input type="range" class="form-range" @bind="Gaji" min="0" max="99000000000" id="customRange1">
-                    </div>
-
-                    <!-- More Tags -->
-                    <div class="keywords-container margin-top-20">
-                        <h3>Tags</h3>
-                        <div class="margin-top-55"></div>
+                <!-- Keywords -->
+                <div class="sidebar-widget">
+                    <h3>Keywords</h3>
+                    <div class="keywords-container">
                         <div class="keyword-input-container">
-                            <input type="text" @bind="NewTag" class="keyword-input" placeholder="Daftar Tag" />
-                            <button @onclick="AddTag" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                            <input type="text" class="keyword-input" @bind="Keyword" placeholder="cth. developer" />
+                            <button @onclick:preventDefault @onclick="Search" class="keyword-input-button ripple-effect"><i class="icon-material-outline-search"></i></button>
                         </div>
-                        <div class="keywords-list">
-                            @if (SelTags.Count > 0)
-                            {
-                                foreach (var Tag in SelTags)
-                                {
-                                    <span class="keyword">
-                                        <span @onclick="()=>RemoveTag(Tag)" class="keyword-remove"></span>
-                                        <span class="keyword-text">@Tag</span>
-                                    </span>
-                                }
-                            }
-                        </div>
+                        <div style="display:none;" class="keywords-list"><!-- keywords go here --></div>
                         <div class="clearfix"></div>
                     </div>
-
-                </div>
-            </div>
-            <div class="col-xl-9 col-lg-8 content-left-offset">
-
-                <h3 class="page-title">Search Results</h3>
-
-                <div class="notify-box margin-top-15">
-                    <div class="switch-container">
-                        <label class="switch"><input type="checkbox" @bind="SearchEmailAlert"><span class="switch-button"></span><span class="switch-text">Email Alert untuk Pencarian</span></label>
-                    </div>
-
-                    <div class="sort-by">
-                        <span>Sort by:</span>
-                        <select @bind="SortBy" style="width:fit-content">
-                            <option>Relevance</option>
-                            <option>Newest</option>
-                            <option>Oldest</option>
-                        </select>
-                    </div>
                 </div>
 
-                <div class="listings-container margin-top-35">
-                    <Virtualize Items="@ListJob" Context="item">
-                        <!-- Job Listing -->
-                        <a @key="item.Id" href="@($"/job-detail/{item.Id}")" class="job-listing">
+                <!-- Category -->
+                <div class="sidebar-widget">
+                    <h3>Category</h3>
+                    <select @bind="SelCategory" title="All Categories">
+                        <option value="All">All</option>
+                        @foreach (var cat in ListCategory)
+                        {
+                            <option value="@cat.Category">@cat.Category</option>
+                        }
+                    </select>
+                </div>
 
-                            <!-- Job Listing Details -->
-                            <div class="job-listing-details">
-                                <!-- Logo -->
-                                <div class="job-listing-company-logo">
-                                    <img src="@(string.IsNullOrEmpty(item.Company.LogoUrl)? "images/company-logo-01.png":item.Company.LogoUrl)" alt="">
-                                </div>
+                <!-- Job Types -->
+                <div class="sidebar-widget">
+                    <h3>Job Type</h3>
 
-                                <!-- Details -->
-                                <div class="job-listing-description">
-                                    <h4 class="job-listing-company">@item.Company.FullName
-                                    @if (item.Company.IsVerified)
-                                        {
-                                            <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span>
-                                        }
-                                    </h4>
-                                    <h3 class="job-listing-title">@item.JobTitle</h3>
-                                    <p class="job-listing-text">@item.JobDesc</p>
-                                </div>
+                    <div class="switches-list">
+                        <div class="switch-container">
+                            <label class="switch"><input type="checkbox" @bind="JobFreelance"><span class="switch-button"></span> Freelance</label>
+                        </div>
 
-                                <!-- Bookmark -->
-                                <span @onclick:preventDefault @onclick:stopPropagation @onclick="()=>ToggleBookmark(item)" class="bookmark-icon @((Bookmarked.ContainsKey(item.Id) && Bookmarked[item.Id])?"bookmarked":"")"></span>
-                            </div>
+                        <div class="switch-container">
+                            <label class="switch"><input type="checkbox" @bind="JobFullTime"><span class="switch-button"></span> Full Time</label>
+                        </div>
 
-                            <!-- Job Listing Footer -->
-                            <div class="job-listing-footer">
-                                <ul>
-                                    <li><i class="icon-material-outline-location-on"></i> @item.Location</li>
-                                    <li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
-                                    <li><i class="icon-material-outline-account-balance-wallet"></i> @($"Rp{NumberHelper.FormatNumber(item.SalaryMin)}-Rp{NumberHelper.FormatNumber(item.SalaryMax)}")</li>
-                                    <li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>
-                                </ul>
-                            </div>
-                        </a>
-                    </Virtualize>
+                        <div class="switch-container">
+                            <label class="switch"><input type="checkbox" @bind="JobPartTime"><span class="switch-button"></span> Part Time</label>
+                        </div>
 
-                    <!-- Pagination -->
-                    <div class="clearfix"></div>
-                    <div style="display:none;" class="row">
-                        <div class="col-md-12">
-                            <!-- Pagination -->
-                            <div class="pagination-container margin-top-30 margin-bottom-60">
-                                <nav class="pagination">
-                                    <ul>
-                                        <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-left"></i></a></li>
-                                        <li><a href="#">1</a></li>
-                                        <li><a href="#" class="current-page">2</a></li>
-                                        <li><a href="#">3</a></li>
-                                        <li><a href="#">4</a></li>
-                                        <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-right"></i></a></li>
-                                    </ul>
-                                </nav>
-                            </div>
+                        <div class="switch-container">
+                            <label class="switch"><input type="checkbox" @bind="JobInternship"><span class="switch-button"></span> Internship</label>
+                        </div>
+                        <div class="switch-container">
+                            <label class="switch"><input type="checkbox" @bind="JobTemporary"><span class="switch-button"></span> Temporary</label>
                         </div>
                     </div>
-                    <!-- Pagination / End -->
 
+                </div>
+
+                <!-- Salary -->
+                <div class="sidebar-widget">
+                    <h3>Gaji (0 untuk semua)</h3>
+                    <div class="margin-top-55"></div>
+                    <div class="input-with-icon">
+                        <div id="autocomplete-container">
+                            <input @bind="Gaji" type="number" placeholder="0.0">
+                        </div>
+                        <i class="icon-material-outline-money"></i>
+                    </div>
+                    <!-- Range Slider -->
+                    <input type="range" class="form-range" @bind="Gaji" min="0" max="99000000000" id="customRange1">
+                </div>
+
+                <!-- More Tags -->
+                <div class="keywords-container margin-top-20">
+                    <h3>Tags</h3>
+                    <div class="margin-top-55"></div>
+                    <div class="keyword-input-container">
+                        <input type="text" @bind="NewTag" class="keyword-input" placeholder="Daftar Tag" />
+                        <button @onclick="AddTag" class="keyword-input-button ripple-effect"><i class="icon-material-outline-add"></i></button>
+                    </div>
+                    <div class="keywords-list">
+                        @if (SelTags.Count > 0)
+                        {
+                            foreach (var Tag in SelTags)
+                            {
+                                <span class="keyword">
+                                    <span @onclick="()=>RemoveTag(Tag)" class="keyword-remove"></span>
+                                    <span class="keyword-text">@Tag</span>
+                                </span>
+                            }
+                        }
+                    </div>
+                    <div class="clearfix"></div>
                 </div>
 
             </div>
         </div>
+        <div class="col-xl-9 col-lg-8 content-left-offset">
+
+            <h3 class="page-title">Search Results</h3>
+
+            <div class="notify-box margin-top-15">
+                <div class="switch-container">
+                    <label class="switch"><input type="checkbox" @bind="SearchEmailAlert"><span class="switch-button"></span><span class="switch-text">Email Alert untuk Pencarian</span></label>
+                </div>
+
+                <div class="sort-by">
+                    <span>Sort by:</span>
+                    <select @bind="SortBy" style="width:fit-content">
+                        <option>Relevance</option>
+                        <option>Newest</option>
+                        <option>Oldest</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="listings-container margin-top-35">
+                <Virtualize Items="@ListJob" Context="item">
+                    <!-- Job Listing -->
+                    <a @key="item.Id" href="@($"/job-detail/{item.Id}")" class="job-listing">
+
+                        <!-- Job Listing Details -->
+                        <div class="job-listing-details">
+                            <!-- Logo -->
+                            <div class="job-listing-company-logo">
+                                <img src="@(string.IsNullOrEmpty(item.Company.LogoUrl)? "images/company-logo-01.png":item.Company.LogoUrl)" alt="">
+                            </div>
+
+                            <!-- Details -->
+                            <div class="job-listing-description">
+                                <h4 class="job-listing-company">
+                                    @item.Company.FullName
+                                    @if (item.Company.IsVerified)
+                                    {
+                                        <span class="verified-badge" title="Verified Employer" data-tippy-placement="top"></span>
+                                    }
+                                </h4>
+                                <h3 class="job-listing-title">@item.JobTitle</h3>
+                                <p class="job-listing-text">@item.JobDesc</p>
+                            </div>
+
+                            <!-- Bookmark -->
+                            <span @onclick:preventDefault @onclick:stopPropagation @onclick="()=>ToggleBookmark(item)" class="bookmark-icon @((Bookmarked.ContainsKey(item.Id) && Bookmarked[item.Id])?"bookmarked":"")"></span>
+                        </div>
+
+                        <!-- Job Listing Footer -->
+                        <div class="job-listing-footer">
+                            <ul>
+                                <li><i class="icon-material-outline-location-on"></i> @item.Location</li>
+                                <li><i class="icon-material-outline-business-center"></i> @item.JobType</li>
+                                <li><i class="icon-material-outline-account-balance-wallet"></i> @($"Rp{NumberHelper.FormatNumber(item.SalaryMin)}-Rp{NumberHelper.FormatNumber(item.SalaryMax)}")</li>
+                                <li><i class="icon-material-outline-access-time"></i> @DateHelper.GetElapsedTime(item.CreatedDate)</li>
+                            </ul>
+                        </div>
+                    </a>
+                </Virtualize>
+
+                <!-- Pagination -->
+                <div class="clearfix"></div>
+                <div style="display:none;" class="row">
+                    <div class="col-md-12">
+                        <!-- Pagination -->
+                        <div class="pagination-container margin-top-30 margin-bottom-60">
+                            <nav class="pagination">
+                                <ul>
+                                    <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-left"></i></a></li>
+                                    <li><a href="#">1</a></li>
+                                    <li><a href="#" class="current-page">2</a></li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li class="pagination-arrow"><a href="#"><i class="icon-material-outline-keyboard-arrow-right"></i></a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <!-- Pagination / End -->
+
+            </div>
+
+        </div>
     </div>
+</div>
 
-    @code {
-        bool SearchEmailAlert;
-        string Keyword, SelLocation, SelCategory, NewTag, SortBy;
-        double Gaji = 0;
+@code {
+    bool SearchEmailAlert;
+    string Keyword, SelLocation, SelCategory, NewTag, SortBy;
+    double Gaji = 0;
 
-        List<string> SelTags = new();
-        List<Company> ListCompany = new();
+    List<string> SelTags = new();
+    List<Company> ListCompany = new();
 
-        UserProfile SelUser = new UserProfile();
-        string ErrorMsg = string.Empty;
+    UserProfile SelUser = new UserProfile();
+    string ErrorMsg = string.Empty;
 
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationStateTask { get; set; }
-        string UserName;
-        Dictionary<long, bool> Bookmarked = new();
-        List<JobCategory> ListCategory = new List<JobCategory>();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    Dictionary<long, bool> Bookmarked = new();
+    List<JobCategory> ListCategory = new List<JobCategory>();
 
-        public List<Job> ListJob { get; set; }
-        public List<string> JobSelected { get; set; } = new();
-        bool JobFreelance;
-        bool JobFullTime;
-        bool JobPartTime;
-        bool JobInternship;
-        bool JobTemporary;
+    public List<Job> ListJob { get; set; }
+    public List<string> JobSelected { get; set; } = new();
+    bool JobFreelance;
+    bool JobFullTime;
+    bool JobPartTime;
+    bool JobInternship;
+    bool JobTemporary;
 
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
         {
+            UserName = user.Identity.Name;
+            SelUser = service.GetItemByUsername(UserName);
 
-            var user = (await authenticationStateTask).User;
-
-            if (user.Identity.IsAuthenticated)
+        }
+        ListCategory = CategorySvc.GetAllData();
+        ListCompany = CompanySvc.GetAllData();
+        //check query string
+        var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("q", out var resultKeyword))
+        {
+            if (!string.IsNullOrEmpty(resultKeyword))
             {
-                UserName = user.Identity.Name;
-                SelUser = service.GetItemByUsername(UserName);
-
+                Keyword = resultKeyword;
             }
-            ListCategory = CategorySvc.GetAllData();
-            ListCompany = CompanySvc.GetAllData();
-            Search();
         }
-
-        void Search()
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("l", out var resultLocation))
         {
-
-
-            JobSelected.Clear();
-            if (JobFreelance) JobSelected.Add(JobTypes.Freelance);
-            if (JobFullTime) JobSelected.Add(JobTypes.FullTime);
-            if (JobPartTime) JobSelected.Add(JobTypes.PartTime);
-            if (JobInternship) JobSelected.Add(JobTypes.Internship);
-            if (JobTemporary) JobSelected.Add(JobTypes.Temporary);
-
-            ListJob = JobSvc.FindByKeyword(Keyword, SelCategory, SelLocation, Gaji,JobSelected.ToArray(), SelTags.ToArray(), SortBy);
-            Bookmarked.Clear();
-            if(!string.IsNullOrEmpty(UserName))
-                foreach(var item in ListJob)
-                {
-                    Bookmarked.Add(item.Id, SelUser.BookmarkedJobs.Any(x => x.JobId == item.Id));
-                }
-        }
-        async Task ToggleBookmark(Job item)
-        {
-            if (string.IsNullOrEmpty(UserName))
+            if (!string.IsNullOrEmpty(resultLocation))
             {
-                await Toast.ShowInfo("Silakan login terlebih dahulu untuk bookmark.");
-                return;
+                SelLocation = resultLocation;
             }
-            var State = Bookmarked[item.Id];
-            State = !State;
-            var res = false;
-            if (State)
+        } 
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("c", out var resultCategory))
+        {
+            if (!string.IsNullOrEmpty(resultCategory))
             {
-                res = BookmarkedJobSvc.Bookmark( SelUser.Id, item.Id);
+                SelCategory = resultCategory;
             }
-            else
-            {
-                res = BookmarkedJobSvc.UnBookmark(SelUser.Id, item.Id);
-            }
-            if (res) await Toast.ShowInfo(State ? "bookmarked":"unbookmarked");
-            Bookmarked[item.Id] = State;
         }
-        async Task AddTag()
-        {
-            if (string.IsNullOrEmpty(NewTag)) return;
-            SelTags.Add(NewTag);
-            NewTag = string.Empty;
-        }
-
-        async Task RemoveTag(string Name)
-        {
-            SelTags.Remove(Name);
-        }
-
-
-        async Task Open(string url)
-        {
-            if (!string.IsNullOrEmpty(url))
-                await IJS.InvokeVoidAsync("OpenUrl", url);
-        }
+        Search();
     }
+
+    void Search()
+    {
+
+
+        JobSelected.Clear();
+        if (JobFreelance) JobSelected.Add(JobTypes.Freelance);
+        if (JobFullTime) JobSelected.Add(JobTypes.FullTime);
+        if (JobPartTime) JobSelected.Add(JobTypes.PartTime);
+        if (JobInternship) JobSelected.Add(JobTypes.Internship);
+        if (JobTemporary) JobSelected.Add(JobTypes.Temporary);
+
+        ListJob = JobSvc.FindByKeyword(Keyword, SelCategory, SelLocation, Gaji, JobSelected.ToArray(), SelTags.ToArray(), SortBy);
+        Bookmarked.Clear();
+        if (!string.IsNullOrEmpty(UserName))
+            foreach (var item in ListJob)
+            {
+                Bookmarked.Add(item.Id, SelUser.BookmarkedJobs.Any(x => x.JobId == item.Id));
+            }
+    }
+    async Task ToggleBookmark(Job item)
+    {
+        if (string.IsNullOrEmpty(UserName))
+        {
+            await Toast.ShowInfo("Silakan login terlebih dahulu untuk bookmark.");
+            return;
+        }
+        var State = Bookmarked[item.Id];
+        State = !State;
+        var res = false;
+        if (State)
+        {
+            res = BookmarkedJobSvc.Bookmark(SelUser.Id, item.Id);
+        }
+        else
+        {
+            res = BookmarkedJobSvc.UnBookmark(SelUser.Id, item.Id);
+        }
+        if (res) await Toast.ShowInfo(State ? "bookmarked" : "unbookmarked");
+        Bookmarked[item.Id] = State;
+    }
+    async Task AddTag()
+    {
+        if (string.IsNullOrEmpty(NewTag)) return;
+        SelTags.Add(NewTag);
+        NewTag = string.Empty;
+    }
+
+    async Task RemoveTag(string Name)
+    {
+        SelTags.Remove(Name);
+    }
+
+
+    async Task Open(string url)
+    {
+        if (!string.IsNullOrEmpty(url))
+            await IJS.InvokeVoidAsync("OpenUrl", url);
+    }
+}

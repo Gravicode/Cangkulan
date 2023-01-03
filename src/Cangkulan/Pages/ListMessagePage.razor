@@ -9,6 +9,7 @@
 @inject IToastService toastService
 @inject AppState AppState
 @inject MessageDetailService ChatSvc
+@inject NotificationService NotificationSvc
 @implements IDisposable
 
 <div class="dashboard-content-inner">
@@ -329,6 +330,8 @@
             if (AddNew)
             {
                 res = MessageSvc.InsertData(FriendMessage);
+                var notif = new Notification() { Action = "Ada Kiriman Pesan", Message = $"{SelUser.FullName} mengirimkan pesan ke Anda", CreatedDate = DateHelper.GetLocalTimeNow(), IsRead = false, LinkDesc = "", LinkUrl = "#", UserId = CurrentMessage.User.Id };
+                res = NotificationSvc.InsertData(notif);
             }
             else
             {

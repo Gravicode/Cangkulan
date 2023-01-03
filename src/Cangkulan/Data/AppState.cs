@@ -17,6 +17,7 @@ namespace Cangkulan.Data
         public event Action<string> OnReviewChange;
         public event Action<string> OnReviewCompanyChange;
         public event Action<string> OnInboxChange;
+        public event Action<string> OnNoteChange;
 
         public void RefreshProfile(string username)
         {
@@ -70,6 +71,10 @@ namespace Cangkulan.Data
         {
             InboxStateChanged(username);
         }
+        public void RefreshNote(string username)
+        {
+            NoteStateChanged(username);
+        }
 
         private void ProfileStateChanged(string username) => OnProfileChange?.Invoke(username);
         private void CompanyStateChanged(string username) => OnCompanyChange?.Invoke(username);
@@ -83,5 +88,6 @@ namespace Cangkulan.Data
         private void ReviewStateChanged(string username) => OnReviewChange?.Invoke(username);
         private void ReviewCompanyStateChanged(string username) => OnReviewCompanyChange?.Invoke(username);
         private void InboxStateChanged(string username) => OnInboxChange?.Invoke(username);
+        private void NoteStateChanged(string username) => OnNoteChange?.Invoke(username);
     }
 }

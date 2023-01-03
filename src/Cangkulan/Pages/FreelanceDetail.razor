@@ -21,7 +21,7 @@
                         <div class="header-details">
                             <h3>@DataFreelancer.FullName <span>@DataFreelancer.TagLine</span></h3>
                             <ul>
-                                <li><div class="star-rating" data-rating="@DataFreelancer.Rating"></div></li>
+                                <li><RatingPicker Rating="DataFreelancer.Rating" IsEditable="false"></RatingPicker></li>
                                 <li><img class="flag" src="@(string.IsNullOrEmpty(DataFreelancer.Nationality)?"images/flags/id.svg":$"images/flags/{DataFreelancer.Nationality}.svg")" alt=""> @DataFreelancer.Nationality</li>
                                 <li>
                                     @if (DataFreelancer.Verified)

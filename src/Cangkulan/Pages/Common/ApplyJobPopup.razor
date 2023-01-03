@@ -3,6 +3,7 @@
 @inject JobService JobSvc
 @inject AzureBlobHelper AzureBlobHelper
 @inject ToastInfoService Toast
+@inject NotificationService NotificationSvc
 @inject NavigationManager NavMgr
 @inject IJSRuntime IJS
 
@@ -138,6 +139,8 @@
 		}
 		if (JobCandidateSvc.InsertData(NewItem))
 		{
+			var notif = new Notification() { Action = "Apply Kerjaan", Message=$"{user.FullName} apply kerjaan {job.JobTitle}", CreatedDate = DateHelper.GetLocalTimeNow(), IsRead = false, LinkDesc = "", LinkUrl = "#", UserId = job.EmployerId };
+			var res = NotificationSvc.InsertData(notif);
 			HasSent = true;
 			await Toast.ShowInfo("CV Anda sudah dikirimkan.");
 		}

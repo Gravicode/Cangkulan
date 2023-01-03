@@ -1,5 +1,6 @@
 ﻿@inject ProjectService ProjectSvc
 @inject ToastInfoService Toast
+@inject NotificationService NotificationSvc
 @inject AppState AppState
 @inject IJSRuntime IJS
 <!-- Bid Acceptance Popup
@@ -80,6 +81,11 @@
             var res = ProjectSvc.UpdateData(DataProject);
             if (res)
             {
+                foreach(var peserta in DataProject.ProjectBidders)
+                {
+                    var notif = new Notification() { Action = "Pemenang Proyek Terpilih", Message = $"{NewBid.UserBidder.FullName} adalah pemenang dari proyek {DataProject.ProjectName}", CreatedDate = DateHelper.GetLocalTimeNow(), IsRead = false, LinkDesc = "", LinkUrl = "#", UserId = peserta.UserBidderId };
+                    res = NotificationSvc.InsertData(notif);
+                }
                 await Toast.ShowInfo($"Pemenang sudah dipilih: {NewBid.UserBidder.FullName}");
                 AppState.RefreshProjectBidder(UserName);
                 await IJS.InvokeVoidAsync("CloseModal", "bidacc-small-dialog");
