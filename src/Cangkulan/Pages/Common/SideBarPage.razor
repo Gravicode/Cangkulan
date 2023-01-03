@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime IJS
+@inject UserProfileService UserSvc
 <div class="dashboard-sidebar">
     <div class="dashboard-sidebar-inner" data-simplebar>
         <div class="dashboard-nav-container">
@@ -19,7 +20,7 @@
 
                     <ul data-submenu-title="Start">
                         <li><a href="dashboard"><i class="icon-material-outline-dashboard"></i> Dashboard</a></li>
-                        <li><a href="list-message"><i class="icon-material-outline-question-answer"></i> Kotak Pesan <span class="nav-tag">2</span></a></li>
+                        <li><a href="list-message"><i class="icon-material-outline-question-answer"></i> Kotak Pesan <span class="nav-tag">@(SelUser.UserMessage == null ? 0 : SelUser.UserMessage.Count())</span></a></li>
                         <li><a href="list-bookmark"><i class="icon-material-outline-star-border"></i> Bookmark</a></li>
                         <li><a href="list-review"><i class="icon-material-outline-rate-review"></i> Review</a></li>
                     </ul>
@@ -28,15 +29,15 @@
                         <li>
                             <a href="#"><i class="icon-material-outline-business-center"></i> Kerjaan</a>
                             <ul>
-                                <li><a href="manage-job">Daftar Kerjaan <span class="nav-tag">3</span></a></li>                             
+                                <li><a href="manage-job">Daftar Kerjaan <span class="nav-tag">@(SelUser.VacancyList == null ? 0 : SelUser.VacancyList.Count())</span></a></li>
                                 <li><a href="post-job">Bikin Kerjaan</a></li>
                             </ul>
                         </li>
                         <li>
                             <a href="#"><i class="icon-material-outline-assignment"></i> Proyek</a>
                             <ul>
-                                <li><a href="manage-project">Daftar Proyek <span class="nav-tag">2</span></a></li>
-                                <li><a href="my-active-bid">Daftar Penawaran Saya <span class="nav-tag">4</span></a></li>
+                                <li><a href="manage-project">Daftar Proyek <span class="nav-tag">@(SelUser.ProjectList == null ? 0 : SelUser.ProjectList.Count())</span></a></li>
+                                <li><a href="my-active-bid">Daftar Penawaran Saya <span class="nav-tag">@(SelUser.ProjectBids == null ? 0 : SelUser.ProjectBids.Count())</span></a></li>
                                 <li><a href="post-project">Bikin Proyek</a></li>
                             </ul>
                         </li>
@@ -55,9 +56,26 @@
     </div>
 </div>
 @code {
+    UserProfile SelUser = new UserProfile();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
     async Task Open(string url)
     {
         if (!string.IsNullOrEmpty(url))
             await IJS.InvokeVoidAsync("OpenUrl", url);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = UserSvc.GetItemByUsername2(UserName);
+          
+        }
+      
     }
 }

@@ -104,7 +104,7 @@
                                                 {
                                                     <div class="buttons-to-right always-visible margin-top-25 margin-bottom-0">
                                                         <a href="#small-dialog-1" @onclick:preventDefault @onclick="()=>SelectWinner(item)" class="popup-with-zoom-anim button ripple-effect"><i class="icon-material-outline-check"></i> Accept Offer</a>
-                                                        <a href="#small-dialog-2" @onclick="()=>SendMessage(item)" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
+                                                        <a href="#small-dialog-2" @onclick:preventDefault @onclick="()=>SendMessage(item)" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
                                                         <a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button gray ripple-effect ico" title="Remove Bid" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
                                                     </div>
                                                 }
@@ -201,7 +201,12 @@
 
     async Task SendMessage(ProjectBidder item)
     {
-        NavMgr.NavigateTo($"/list-message/{Uri.EscapeDataString(item.UserBidder.Username)}");
+        if (SelUser.Id == item.UserBidderId)
+        {
+            await Toast.ShowInfo("Tidak bisa kirim pesan ke diri sendiri");
+            return;
+        }
+        NavMgr.NavigateTo($"/chat/{Uri.EscapeDataString(item.UserBidder.Username)}");
     }
 
     async Task SelectWinner(ProjectBidder item)

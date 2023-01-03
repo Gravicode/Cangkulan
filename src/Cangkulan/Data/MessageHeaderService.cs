@@ -17,7 +17,61 @@ namespace Cangkulan.Data
             if (db == null) db = new CangkulanDB();
 
         }
-        public bool DeleteData(object Id)
+
+		public int GetUnreadMessageByUser(string username)
+		{
+
+			var data = db.MessageHeaders.Include(c => c.ToUser).Include(c=>c.FromUser).Include(c=>c.Chats).Where(x => x.Username == username && !x.IsRead).Count();
+			return data;
+		}
+
+		public MessageHeader GetInboxByUid(string uid, string username)
+		{
+			var data = db.MessageHeaders.Include(c => c.ToUser).Include(c => c.FromUser).Include(c => c.Chats).Where(x => x.Username == username && x.Uid == uid).FirstOrDefault();
+			return data;
+		}
+
+		public MessageHeader GetInboxByFromAndTo(string FromUsername, string ToUsername)
+		{
+			var data = db.MessageHeaders.Include(c => c.ToUser).Include(c => c.FromUser).Include(c => c.Chats).Where(x => x.Username == FromUsername && x.ToUsername == ToUsername).FirstOrDefault();
+			return data;
+		}
+
+		public List<MessageHeader> FindByKeyword(string Keyword)
+		{
+			var data = db.MessageHeaders.Include(c => c.ToUser).Include(c => c.FromUser).Include(c => c.Chats).Where(x => x.Title.Contains(Keyword));
+			return data.ToList();
+		}
+		public List<MessageHeader> GetLatestMessage(string username)
+		{
+			var data = db.MessageHeaders.Include(c => c.ToUser).Include(c => c.FromUser).Include(c => c.Chats).Where(x => x.Username == username).ToList();
+			return data.OrderByDescending(x => x.CreatedDate).ToList();
+		}
+		public List<Inbox> LoadInbox(string username)
+		{
+			try
+			{
+				var messages = GetLatestMessage(username);
+                var list_inbox = new List<Inbox>();
+                
+                foreach (var item in messages)
+                {
+                    var chats = item.Chats; 
+                    list_inbox.Add(new Inbox() { Message = item, User = item.ToUser, Chats = chats == null ? new List<MessageDetail>() : chats.ToList() });
+                }
+                
+                return list_inbox;
+              
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+			return default;
+
+		}
+
+		public bool DeleteData(object Id)
         {
             var selData = (db.MessageHeaders.Where(x => x.Id == (long)Id).FirstOrDefault());
             db.MessageHeaders.Remove(selData);
@@ -29,13 +83,7 @@ namespace Cangkulan.Data
             var data = db.MessageHeaders.Where(x => x.UserId == userid && !x.IsRead).OrderByDescending(x => x.CreatedDate).ToList();
             return data;
         }
-        public List<MessageHeader> FindByKeyword(string Keyword)
-        {
-            var data = from x in db.MessageHeaders
-                       where x.Title.Contains(Keyword)
-                       select x;
-            return data.ToList();
-        }
+      
 
         public List<MessageHeader> GetAllData()
         {
@@ -56,9 +104,9 @@ namespace Cangkulan.Data
                 db.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
             return false;
 

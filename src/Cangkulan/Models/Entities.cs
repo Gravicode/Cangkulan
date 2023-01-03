@@ -10,6 +10,13 @@ using static OneOf.Types.TrueFalseOrNull;
 namespace Cangkulan.Models
 {
     #region helpers model
+    public class Inbox
+    {
+        public UserProfile User { get; set; }
+        public MessageHeader Message { get; set; }
+        public List<MessageDetail> Chats { get; set; }
+
+    }
     public class OfferCls
     {
         public string Name { get; set; }
@@ -114,7 +121,7 @@ namespace Cangkulan.Models
         public long Id { get; set; }
 
         public string Category { get; set; }
-    }
+    } 
     [Table("company_category")]
     public class CompanyCategory
     {
@@ -137,14 +144,21 @@ namespace Cangkulan.Models
         [ForeignKey(nameof(FromUser)), Column(Order = 0)]
         public long FromUserId { set; get; }
         public UserProfile FromUser { set; get; }
-        [ForeignKey(nameof(User)), Column(Order = 1)]
+
+		[ForeignKey(nameof(ToUser)), Column(Order = 1)]
+		public long ToUserId { set; get; }
+		public UserProfile ToUser { set; get; }
+
+		[ForeignKey(nameof(User)), Column(Order = 2)]
         public long UserId { set; get; }
         public UserProfile User { set; get; }
+        public string Username { get; set; }
+        public string ToUsername { get; set; }
         public string Title { set; get; }
         public DateTime CreatedDate { set; get; }
         public MessageTypes MessageType { set; get; }
-        public string MemberIds { set; get; }
-        public int MemberCount { set; get; }
+        //public string MemberIds { set; get; }
+        //public int MemberCount { set; get; }
         public string LastMessage { set; get; }
         public DateTime LastUpdate { set; get; }
         public bool IsRead { get; set; } = false;
@@ -294,7 +308,7 @@ namespace Cangkulan.Models
         [InverseProperty(nameof(ProjectBidder.UserBidder))]
         public ICollection<ProjectBidder> ProjectBids { get; set; }
 
-
+      
     }
 
     [Table("userprofile_attachment")]

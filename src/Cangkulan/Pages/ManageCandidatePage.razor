@@ -1,6 +1,7 @@
 ﻿@page "/manage-candidate"
 @page "/manage-candidate/{JobId:long}"
 @layout AdminLayout
+@inject NavigationManager NavMgr
 @inject IJSRuntime IJS
 @inject JobService JobSvc
 @inject UserProfileService UserSvc
@@ -78,7 +79,7 @@
                                                 <!-- Buttons -->
                                                 <div class="buttons-to-right always-visible margin-top-25 margin-bottom-5">
                                                     <a href="@item.CVUrl" target="_blank" class="button ripple-effect"><i class="icon-feather-file-text"></i> Download CV</a>
-                                                    <a href="#small-dialog" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
+                                                    <a href="#" @onclick:preventDefault @onclick="()=>SendMessage(item)" class="popup-with-zoom-anim button dark ripple-effect"><i class="icon-feather-mail"></i> Send Message</a>
                                                     <a href="#" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" class="button gray ripple-effect ico" title="Remove Candidate" data-tippy-placement="top"><i class="icon-feather-trash-2"></i></a>
                                                 </div>
                                             </div>
@@ -114,7 +115,7 @@
 
     private void PrepareForDelete(JobCandidate item)
     {
-        
+
         Layout.PrepareDeleteJobCandidate(item);
     }
     public void Dispose()
@@ -148,7 +149,7 @@
             DataJob = JobSvc.GetDataById(JobId);
     }
 
-    
+
     protected override void OnAfterRender(bool firstRender)
     {
 
@@ -156,5 +157,14 @@
         {
             //IJS.InvokeVoidAsync("InitJs");
         }
+    }
+    async Task SendMessage(JobCandidate item)
+    {
+        if(SelUser.Id == item.CandidateId)
+        {
+            await Toast.ShowInfo("Tidak bisa kirim pesan ke diri sendiri");
+            return;
+        }
+        NavMgr.NavigateTo($"/chat/{Uri.EscapeDataString(item.Candidate.Username)}");
     }
 }

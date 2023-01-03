@@ -47,6 +47,12 @@ namespace Cangkulan.Data
             }
             return isAuthenticate;
         }
+        public UserProfile GetItemByUsername2(string UName)
+        {
+            if (string.IsNullOrEmpty(UName)) return null;
+            var selItem = db.UserProfiles.Include(c=>c.UserMessage).Include(c => c.ProjectList).Include(c => c.ProjectBids).Include(c => c.VacancyList).Where(x => x.Username.ToLower() == UName.ToLower()).FirstOrDefault();
+            return selItem;
+        }
         public UserProfile GetItemByUsername(string UName)
         {
             if (string.IsNullOrEmpty(UName)) return null;

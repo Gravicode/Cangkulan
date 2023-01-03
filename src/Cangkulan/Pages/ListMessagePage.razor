@@ -3,199 +3,368 @@
 @page "/chat/{ToUserName}"
 @layout AdminLayout
 @inject IJSRuntime IJS
+@inject MessageHeaderService MessageSvc
+@inject UserProfileService UserSvc
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@inject AppState AppState
+@inject MessageDetailService ChatSvc
+@implements IDisposable
+
 <div class="dashboard-content-inner">
 
-	<!-- Dashboard Headline -->
-	<div class="dashboard-headline">
-		<h3>Messages</h3>
+    <!-- Dashboard Headline -->
+    <div class="dashboard-headline">
+        <h3>Messages</h3>
 
-		<!-- Breadcrumbs -->
-		<nav id="breadcrumbs" class="dark">
-			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Dashboard</a></li>
-				<li>Messages</li>
-			</ul>
-		</nav>
-	</div>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs" class="dark">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li>Messages</li>
+            </ul>
+        </nav>
+    </div>
 
-	<div class="messages-container margin-top-0">
+    <div class="messages-container margin-top-0">
 
-		<div class="messages-container-inner">
+        <div class="messages-container-inner">
 
-			<!-- Messages -->
-			<div class="messages-inbox">
-				<div class="messages-headline">
-					<div class="input-with-icon">
-						<input id="autocomplete-input" type="text" placeholder="Search">
-						<i class="icon-material-outline-search"></i>
-					</div>
-				</div>
+            <!-- Messages -->
+            <div class="messages-inbox">
+                <div class="messages-headline">
+                    <div class="input-with-icon">
+                        <input id="autocomplete-input" type="text" @onkeyup="KeyUp" @bind="Keyword" placeholder="Search">
+                        <i class="icon-material-outline-search"></i>
+                    </div>
+                </div>
 
-				<ul>
-					<li>
-						<a href="#">
-							<div class="message-avatar"><i class="status-icon status-online"></i><img src="images/user-avatar-small-03.jpg" alt="" /></div>
+                <ul>
+                    @if (FilteredMessages.Count > 0)
+                    {
+                        <Virtualize Items="@FilteredMessages" Context="item">
+                            <li>
+                                <a href="#" @onclick:preventDefault @onclick="()=>SelectMessage(item)">
+                                    <div class="message-avatar"><i class="status-icon @(item.User.IsOnline? "status-online":"status-offline")"></i><img src="@(string.IsNullOrEmpty(item.User.PicUrl)?"images/user-avatar-placeholder.png":item.User.PicUrl)" alt="" /></div>
 
-							<div class="message-by">
-								<div class="message-by-headline">
-									<h5>David Peterson</h5>
-									<span>4 hours ago</span>
-								</div>
-								<p>Thanks for reaching out. I'm quite busy right now on many</p>
-							</div>
-						</a>
-					</li>
+                                    <div class="message-by">
+                                        <div class="message-by-headline">
+                                            <h5>@item.User.FullName</h5>
+                                            <span>@DateHelper.GetElapsedTime(item.Message.LastUpdate)</span>
+                                        </div>
+                                        <p>@(item.Message.LastMessage?.Length > 40 ? item.Message.LastMessage.Substring(0, 40) : item.Message.LastMessage)</p>
+                                    </div>
+                                </a>
+                            </li>
+                        </Virtualize>
+                    }
+                    else
+                    {
+                        <div style="text-align:center" class="alert alert-info ml-2 mt-2 mr-2 mb-2">Inisiasi dengan Direct Message.</div>
+                    }
 
-					<li class="active-message">
-						<a href="#">
-							<div class="message-avatar"><i class="status-icon status-offline"></i><img src="images/user-avatar-small-02.jpg" alt="" /></div>
 
-							<div class="message-by">
-								<div class="message-by-headline">
-									<h5>Sindy Forest</h5>
-									<span>Yesterday</span>
-								</div>
-								<p>Hi Tom! Hate to break it to you but I'm actually on vacation</p>
-							</div>
-						</a>
-					</li>
+                </ul>
+            </div>
+            <!-- Messages / End -->
+            <!-- Message Content -->
+            <div class="message-content">
 
-					<li>
-						<a href="#">
-							<div class="message-avatar"><i class="status-icon status-offline"></i><img src="images/user-avatar-placeholder.png" alt="" /></div>
+                <div class="messages-headline">
+                    @if (CurrentMessage != null)
+                    {
+                        <h4 @onclick:preventDefault @onclick="()=>OpenProfile(CurrentMessage.User)">@CurrentMessage.User.FullName</h4>
+                        <a href="#" @onclick:preventDefault @onclick="(() => PrepareForDelete(CurrentMessage))" data-toggle="modal" data-target="#confirmDeleteModal" class="message-action"><i class="icon-feather-trash-2"></i> Delete Conversation</a>
+                    }
+                </div>
 
-							<div class="message-by">
-								<div class="message-by-headline">
-									<h5>Sebastiano Piccio</h5>
-									<span>2 days ago</span>
-								</div>
-								<p>Hello, I want to talk about my project if you don't mind!</p>
-							</div>
-						</a>
-					</li>
+                <!-- Message Content Inner -->
+                <div class="message-content-inner">
+                    @if (CurrentMessage != null && CurrentMessage.Message.Chats != null)
+                    {
 
-					<li>
-						<a href="#">
-							<div class="message-avatar"><i class="status-icon status-online"></i><img src="images/user-avatar-placeholder.png" alt="" /></div>
+                        var LastDate = DateTime.MinValue;
+                        @foreach (var item in CurrentMessage.Message.Chats)
+                        {
+                            @if (LastDate.Year != item.CreatedDate.Year || LastDate.Month != item.CreatedDate.Month || LastDate.Day != item.CreatedDate.Day)
+                            {
+                                <!-- Time Sign -->
+                                <div class="message-time-sign">
+                                    <span>@(item.CreatedDate.ToString("dd MMMM, yyyy"))</span>
+                                </div>
+                                LastDate = item.CreatedDate;
 
-							<div class="message-by">
-								<div class="message-by-headline">
-									<h5>Marcin Kowalski</h5>
-									<span>2 days ago</span>
-								</div>
-								<p>Yes, I received payment. Thanks for cooperation!</p>
-							</div>
-						</a>
-					</li>
+                            }
 
-				</ul>
-			</div>
-			<!-- Messages / End -->
-			<!-- Message Content -->
-			<div class="message-content">
+                            if (item.FromUser.Username == SelUser.Username)
+                            {
+                                <div class="message-bubble me">
+                                    <div class="message-bubble-inner">
+                                        <div class="message-avatar"><img src="@(string.IsNullOrEmpty(item.FromUser.PicUrl)?"images/user-avatar-small-01.jpg":item.FromUser.PicUrl)" alt="" /></div>
+                                        <div class="message-text"><p>@item.Message</p></div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="message-bubble">
+                                    <div class="message-bubble-inner">
+                                        <div class="message-avatar"><img src="@(string.IsNullOrEmpty(item.FromUser.PicUrl)?"images/user-avatar-small-02.jpg":item.FromUser.PicUrl)" alt="" /></div>
+                                        <div class="message-text"><p>@item.Message</p></div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            }
+                        }
 
-				<div class="messages-headline">
-					<h4>Sindy Forest</h4>
-					<a href="#" class="message-action"><i class="icon-feather-trash-2"></i> Delete Conversation</a>
-				</div>
+                    }
+                </div>
+                @if (CurrentMessage != null)
+                {
+                    <!-- Message Content Inner / End -->
+                    <!-- Reply Area -->
+                    <div class="message-reply">
+                        <textarea cols="1" rows="1" @onkeyup="KeyUpMessage" @bind="NewMessage" placeholder="Your Message" data-autoresize></textarea>
+                        <button @onclick="SendMessage" class="button ripple-effect">Send</button>
+                    </div>
+                }
+            </div>
+            <!-- Message Content -->
 
-				<!-- Message Content Inner -->
-				<div class="message-content-inner">
-
-					<!-- Time Sign -->
-					<div class="message-time-sign">
-						<span>28 June, 2019</span>
-					</div>
-
-					<div class="message-bubble me">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-01.jpg" alt="" /></div>
-							<div class="message-text"><p>Thanks for choosing my offer. I will start working on your project tomorrow.</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<div class="message-bubble">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-02.jpg" alt="" /></div>
-							<div class="message-text"><p>Great. If you need any further clarification let me know. 👍</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<div class="message-bubble me">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-01.jpg" alt="" /></div>
-							<div class="message-text"><p>Ok, I will. 😉</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<!-- Time Sign -->
-					<div class="message-time-sign">
-						<span>Yesterday</span>
-					</div>
-
-					<div class="message-bubble me">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-01.jpg" alt="" /></div>
-							<div class="message-text"><p>Hi Sindy, I just wanted to let you know that project is finished and I'm waiting for your approval.</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<div class="message-bubble">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-02.jpg" alt="" /></div>
-							<div class="message-text"><p>Hi Tom! Hate to break it to you, but I'm actually on vacation 🌴 until Sunday so I can't check it now. 😎</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<div class="message-bubble me">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-01.jpg" alt="" /></div>
-							<div class="message-text"><p>Ok, no problem. But don't forget about last payment. 🙂</p></div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-
-					<div class="message-bubble">
-						<div class="message-bubble-inner">
-							<div class="message-avatar"><img src="images/user-avatar-small-02.jpg" alt="" /></div>
-							<div class="message-text">
-								<!-- Typing Indicator -->
-								<div class="typing-indicator">
-									<span></span>
-									<span></span>
-									<span></span>
-								</div>
-							</div>
-						</div>
-						<div class="clearfix"></div>
-					</div>
-				</div>
-				<!-- Message Content Inner / End -->
-				<!-- Reply Area -->
-				<div class="message-reply">
-					<textarea cols="1" rows="1" placeholder="Your Message" data-autoresize></textarea>
-					<button class="button ripple-effect">Send</button>
-				</div>
-
-			</div>
-			<!-- Message Content -->
-
-		</div>
-	</div>
-	<!-- Messages Container / End -->
-	<!-- Footer -->
-	<div class="dashboard-footer-spacer"></div>
-	<SmallFooterPage></SmallFooterPage>
-	<!-- Footer / End -->
+        </div>
+    </div>
+    <!-- Messages Container / End -->
+    <!-- Footer -->
+    <div class="dashboard-footer-spacer"></div>
+    <SmallFooterPage></SmallFooterPage>
+    <!-- Footer / End -->
 
 </div>
 @code {
-	[Parameter]
-	public string ToUserName { get; set; }
+
+    [Parameter]
+    public string ToUserName { get; set; }
+    BlazorTimer timer;
+    string NewMessage = string.Empty;
+    [CascadingParameter]
+    public AdminLayout Layout { get; set; }
+    Inbox itemObject = new();
+    Inbox CurrentMessage;
+    string Keyword;
+    List<Inbox> Messages = new();
+    List<Inbox> FilteredMessages = new();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    UserProfile SelUser = new();
+    bool IsLogin = false;
+    string UserName;
+    public void Dispose()
+    {
+        AppState.OnInboxChange -= Refresh;
+
+    }
+    async void Refresh(string tousername)
+    {
+        Search();
+        CurrentMessage = null;
+        itemObject = new();
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new BlazorTimer();
+        timer.SetTimer(2500);
+        timer.OnElapsed += async () =>
+        {
+            if (CurrentMessage != null)
+            {
+
+                await InvokeAsync(StateHasChanged);
+            }
+
+        };
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            SelUser = UserSvc.GetUserByEmail(UserName);
+            if (SelUser == null) SelUser = new();
+            IsLogin = true;
+            Search();
+        }
+        AppState.OnInboxChange += Refresh;
+    }
+
+    async Task OpenProfile(UserProfile user)
+    {
+        NavMgr.NavigateTo($"/freelance-detail/{user.Id}");
+    }
+
+    async Task SelectMessage(Inbox selItem)
+    {
+
+        CurrentMessage = selItem;
+        CurrentMessage.Message.IsRead = true;
+        var res = MessageSvc.UpdateData(CurrentMessage.Message);
+        /*
+        if (!string.IsNullOrEmpty(CurrentMessage.Message.Id))
+            {
+            MessageSvc.UpdateData(CurrentMessage.Message);
+
+        }*/
+
+    }
+    private async Task PrepareForDelete(Inbox item)
+    {
+        itemObject = item;
+        Layout.PrepareDeleteInbox(item);
+
+    }
+
+
+    async Task KeyUp(KeyboardEventArgs e)
+    {
+
+        if (e.Key == "Enter")
+        {
+            Search();
+        }
+    }
+    async Task KeyUpMessage(KeyboardEventArgs e)
+    {
+
+        if (e.Key == "Enter")
+        {
+            await SendMessage();
+        }
+    }
+    async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(NewMessage))
+        {
+            bool res;
+            var now = DateHelper.GetLocalTimeNow();
+            var detail = new MessageDetail() { CreatedDate = now, MessageHeaderId = CurrentMessage.Message.Id, FromUserId = SelUser.Id, Message = NewMessage, Uid = CurrentMessage.Message.Uid, AttachmentUrls = string.Empty, LinkUrls = string.Empty, ImageUrls = string.Empty };
+
+            //add inbox for myself
+
+            //CurrentMessage.Message.Chats.Add(detail);
+            CurrentMessage.Message.LastMessage = detail.Message;
+            CurrentMessage.Message.LastUpdate = now;
+            CurrentMessage.Message.Title = $"new message {now}";
+            CurrentMessage.Message.IsRead = false;
+            string UID = string.Empty;
+            if (CurrentMessage.Message.Id<=0)
+            {
+                //only for new message
+
+                CurrentMessage.Message.UserId = SelUser.Id;
+                CurrentMessage.Message.ToUserId = CurrentMessage.User.Id;
+                CurrentMessage.Message.ToUsername = CurrentMessage.User.Username;
+                CurrentMessage.Message.Username = SelUser.Username;
+                CurrentMessage.Message.FromUserId = SelUser.Id;
+                CurrentMessage.Message.CreatedDate = now;
+
+                var FriendMsg = MessageSvc.GetInboxByFromAndTo(CurrentMessage.User.Username, SelUser.Username);
+                CurrentMessage.Message.Uid = FriendMsg == null ? Guid.NewGuid().ToString() : FriendMsg.Uid;
+                //if (CurrentMessage.Message.Chats == null) CurrentMessage.Message.Chats = new();
+                //end new message
+
+                res = MessageSvc.InsertData(CurrentMessage.Message);
+            }
+            else
+            {
+                UID = CurrentMessage.Message.Uid;
+
+                res = MessageSvc.UpdateData(CurrentMessage.Message);
+            }
+            //insert detail
+            if (res) {
+                detail.MessageHeaderId = CurrentMessage.Message.Id;
+                res = ChatSvc.InsertData(detail);
+            }
+            //add inbox for friend
+            MessageHeader FriendMessage = null;
+            bool AddNew = false;
+            if (!string.IsNullOrEmpty(UID))
+            {
+                FriendMessage = MessageSvc.GetInboxByUid(UID, CurrentMessage.User.Username);
+            }
+
+            if (FriendMessage == null)
+            {
+                FriendMessage = MessageSvc.GetInboxByFromAndTo(CurrentMessage.User.Username, SelUser.Username);
+            }
+
+            if (FriendMessage == null)
+            {
+                AddNew = true;
+                FriendMessage = new MessageHeader();
+                //only for new message
+                FriendMessage.UserId = CurrentMessage.User.Id;
+                FriendMessage.ToUserId = SelUser.Id;
+                FriendMessage.ToUsername = SelUser.Username;
+                FriendMessage.Username = CurrentMessage.User.Username;
+                FriendMessage.FromUserId = CurrentMessage.User.Id;
+                FriendMessage.CreatedDate = now;
+
+                FriendMessage.Uid = string.IsNullOrEmpty(UID) ? CurrentMessage.Message.Uid : UID;
+                //if (FriendMessage.Chats == null) FriendMessage.Chats = new();
+                //end new message
+            }
+            else
+            {
+                //MessageSvc.RefreshEntity(FriendMessage);
+            }
+            detail = new MessageDetail() { CreatedDate = now, FromUserId = SelUser.Id, Message = NewMessage, Uid = CurrentMessage.Message.Uid,AttachmentUrls=string.Empty,LinkUrls=string.Empty,ImageUrls=string.Empty };
+
+            //FriendMessage.Chats.Add(detail);
+            FriendMessage.LastMessage = detail.Message;
+            FriendMessage.LastUpdate = now;
+            FriendMessage.Title = $"new message {now}";
+            FriendMessage.IsRead = false;
+            if (AddNew)
+            {
+                res = MessageSvc.InsertData(FriendMessage);
+            }
+            else
+            {
+
+                res = MessageSvc.UpdateData(FriendMessage);
+            }
+            //end inbox for friend
+            if (res)
+            {
+                detail.MessageHeaderId = FriendMessage.Id;
+                res = ChatSvc.InsertData(detail);
+                NewMessage = string.Empty;
+                Search();
+            }
+        }
+    }
+    void Search()
+    {
+        Messages = MessageSvc.LoadInbox(UserName);
+
+        if (!string.IsNullOrEmpty(ToUserName) && !Messages.Any(x => x.User.Username == ToUserName))
+        {
+            var people = UserSvc.GetItemByUsername(ToUserName);
+            if (people != null)
+            {
+                Messages.Add(new Inbox() { Message = new() { LastUpdate = DateHelper.GetLocalTimeNow() }, User = people });
+            }
+        }
+        if (string.IsNullOrEmpty(Keyword))
+        {
+
+            FilteredMessages = Messages;
+        }
+        else
+        {
+            FilteredMessages = Messages.Where(x => x.User.FullName.Contains(Keyword)).ToList();
+        }
+    }
 }
