@@ -699,6 +699,7 @@ namespace Cangkulan.Models
         public string Title { set; get; }
         public string? Tags { set; get; }
         public string? ImageUrl { set; get; }
+        public bool Featured { get; set; } = false;
 
         public ICollection<BlogComment> BlogComments { get; set; }
 
